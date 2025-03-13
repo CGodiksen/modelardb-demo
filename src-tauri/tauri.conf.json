@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "modelardb-demo",
-        "width": 800,
-        "height": 600
+        "title": "ModelarDB",
+        "width": 1728,
+        "height": 972
       }
     ],
     "security": {
