@@ -4094,6 +4094,9 @@ dependencies = [
 name = "modelardb-demo"
 version = "0.1.0"
 dependencies = [
+ "arrow",
+ "arrow-json",
+ "datafusion",
  "modelardb_embedded",
  "serde",
  "serde_json",
