@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { AdvancedMarker, Pin } from "@vis.gl/react-google-maps";
 import { Container, Grid, Modal, Title } from "@mantine/core";
@@ -6,9 +7,14 @@ import { ModelardbNode } from "../../interfaces/node.ts";
 import { SchemaBrowser } from "../SchemaBrowser/SchemaBrowser.tsx";
 import { QueryEditor } from "../QueryEditor/QueryEditor.tsx";
 import { QueryResult } from "../QueryResult/QueryResult.tsx";
+import { QueryData } from "../../interfaces/query.ts";
 
 export function NodeMarker({ node }: { node: ModelardbNode }) {
   const [opened, { open, close }] = useDisclosure(false);
+  const [queryData, setQueryData] = useState<QueryData>({
+    column_names: [],
+    data: [],
+  });
 
   return (
     <>
@@ -25,10 +31,13 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
               <SchemaBrowser node={node}></SchemaBrowser>
             </Grid.Col>
             <Grid.Col span={8}>
-              <QueryEditor></QueryEditor>
+              <QueryEditor
+                node={node}
+                setQueryData={setQueryData}
+              ></QueryEditor>
             </Grid.Col>
             <Grid.Col span={12} h={"30vh"}>
-              <QueryResult></QueryResult>
+              <QueryResult queryData={queryData}></QueryResult>
             </Grid.Col>
           </Grid>
         </Container>
