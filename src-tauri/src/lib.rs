@@ -1,8 +1,20 @@
 use modelardb_embedded::modelardb::client::{Client, Node};
 use modelardb_embedded::modelardb::ModelarDB;
 
+#[derive(serde::Serialize)]
+struct ClientTableResponse {
+    name: String,
+    columns: Vec<ColumnResponse>,
+}
+
+#[derive(serde::Serialize)]
+struct ColumnResponse {
+    name: String,
+    data_type: String,
+}
+
 #[tauri::command]
-async fn client_tables(url: String) -> Vec<(String, Vec<(String, String)>)> {
+async fn client_tables(url: String) -> Vec<ClientTableResponse> {
     let node = Node::Server(url);
     let mut client = Client::connect(node).await.unwrap();
 
@@ -14,10 +26,16 @@ async fn client_tables(url: String) -> Vec<(String, Vec<(String, String)>)> {
 
         let mut columns = vec![];
         for field in schema.fields() {
-            columns.push((field.name().to_owned(), field.data_type().to_string()));
+            columns.push(ColumnResponse {
+                name: field.name().to_owned(),
+                data_type: field.data_type().to_string(),
+            });
         }
 
-        tables.push((table_name, columns));
+        tables.push(ClientTableResponse {
+            name: table_name.to_owned(),
+            columns,
+        });
     }
 
     tables
