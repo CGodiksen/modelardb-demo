@@ -13,8 +13,7 @@
     "windows": [
       {
         "title": "ModelarDB",
-        "width": 1728,
-        "height": 972
+        "maximized": true
       }
     ],
     "security": {
