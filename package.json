@@ -13,6 +13,7 @@
     "@mantine/charts": "^7.17.1",
     "@mantine/core": "^7.17.1",
     "@mantine/hooks": "^7.17.1",
+    "@tabler/icons-react": "^3.31.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "@vis.gl/react-google-maps": "^1.5.2",

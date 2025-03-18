@@ -22,7 +22,7 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
         <Container fluid p={0} mt={10}>
           <Grid grow>
             <Grid.Col span={4} h={"40vh"}>
-              <SchemaBrowser></SchemaBrowser>
+              <SchemaBrowser node={node}></SchemaBrowser>
             </Grid.Col>
             <Grid.Col span={8}>
               <QueryEditor></QueryEditor>
