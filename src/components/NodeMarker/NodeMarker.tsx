@@ -3,6 +3,9 @@ import { AdvancedMarker, Pin } from "@vis.gl/react-google-maps";
 import { Container, Grid, Modal, Title } from "@mantine/core";
 
 import { ModelardbNode } from "../../interfaces/node.ts";
+import { SchemaBrowser } from "../SchemaBrowser/SchemaBrowser.tsx";
+import { QueryEditor } from "../QueryEditor/QueryEditor.tsx";
+import { QueryResult } from "../QueryResult/QueryResult.tsx";
 
 export function NodeMarker({ node }: { node: ModelardbNode }) {
   const [opened, { open, close }] = useDisclosure(false);
@@ -19,13 +22,13 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
         <Container fluid p={0} mt={10}>
           <Grid grow>
             <Grid.Col span={4} h={"40vh"}>
-              <Title order={4}>Schema browser</Title>
+              <SchemaBrowser></SchemaBrowser>
             </Grid.Col>
             <Grid.Col span={8}>
-              <Title order={4}>Query window</Title>
+              <QueryEditor></QueryEditor>
             </Grid.Col>
             <Grid.Col span={12} h={"30vh"}>
-              <Title order={4}>Query result</Title>
+              <QueryResult></QueryResult>
             </Grid.Col>
           </Grid>
         </Container>
