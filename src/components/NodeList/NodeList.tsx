@@ -1,9 +1,9 @@
 import { Container, Title } from "@mantine/core";
 
-export function SimulationControls({}) {
+export function NodeList({}) {
   return (
     <Container>
-      <Title order={2}>Simulation Controls</Title>
+      <Title order={2}>Node List</Title>
     </Container>
   );
 }

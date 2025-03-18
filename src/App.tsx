@@ -1,14 +1,16 @@
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
 
-import { theme } from "./theme";
-import { SimulationControls } from "./components/SimulationControls/SimulationControls.tsx";
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
-import { NodeDonutChart } from "./components/NodeDonutChart/NodeDonutChart.tsx";
 import { SimulationStatistics } from "./components/SimulationStatistics/SimulationStatistics.tsx";
 import { DataTransferChart } from "./components/DataTransferChart/DataTransferChart.tsx";
+import { NodeList } from "./components/NodeList/NodeList.tsx";
+import { theme } from "./theme";
 
 import "@mantine/core/styles.css";
 import "./App.css";
+
+// TODO: Maybe add a separate node at the top of the node list for the current user in London (similar to user profile in nav bar).
+// TODO: Use statistics boxes from Mantine to show simulation statistics.
 
 export default function App() {
   return (
@@ -18,7 +20,7 @@ export default function App() {
           <Container m={5} p={5} fluid>
             <Grid grow>
               <Grid.Col span={3} h={"72vh"}>
-                <SimulationControls></SimulationControls>
+                <NodeList></NodeList>
               </Grid.Col>
               <Grid.Col span={9}>
                 <NodeMap></NodeMap>
@@ -26,10 +28,7 @@ export default function App() {
               <Grid.Col span={3} h={"25vh"}>
                 <SimulationStatistics></SimulationStatistics>
               </Grid.Col>
-              <Grid.Col span={2}>
-                <NodeDonutChart></NodeDonutChart>
-              </Grid.Col>
-              <Grid.Col span={7}>
+              <Grid.Col span={9}>
                 <DataTransferChart></DataTransferChart>
               </Grid.Col>
             </Grid>
