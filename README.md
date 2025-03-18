@@ -36,6 +36,7 @@ used in a real-world scenario. The code in this repository is not intended to be
 ## Design
 ### Main interface
 ![Main Interface](design/main_interface.png)
+* A toolbar can be added to the top of the map to make it possible to add and remove nodes.
 ### Query Interface (Modal)
 ![Query Interface](design/query_interface.png)
 
