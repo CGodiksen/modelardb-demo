@@ -44,14 +44,8 @@ async fn client_tables(url: String) -> Vec<ClientTableResponse> {
     tables
 }
 
-#[derive(serde::Serialize)]
-struct ClientQueryResponse {
-    column_names: Vec<String>,
-    data: Vec<u8>,
-}
-
 #[tauri::command]
-async fn client_query(url: String, query: String) -> ClientQueryResponse {
+async fn client_query(url: String, query: String) -> Vec<u8> {
     let node = Node::Server(url);
     let mut client = Client::connect(node).await.unwrap();
 
@@ -66,17 +60,7 @@ async fn client_query(url: String, query: String) -> ClientQueryResponse {
     writer.write_batches(&record_batch_slice).unwrap();
     writer.finish().unwrap();
 
-    let data = writer.into_inner();
-
-    ClientQueryResponse {
-        column_names: record_batches[0]
-            .schema()
-            .fields()
-            .iter()
-            .map(|field| field.name().to_owned())
-            .collect(),
-        data,
-    }
+    writer.into_inner()
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

@@ -7,14 +7,10 @@ import { ModelardbNode } from "../../interfaces/node.ts";
 import { SchemaBrowser } from "../SchemaBrowser/SchemaBrowser.tsx";
 import { QueryEditor } from "../QueryEditor/QueryEditor.tsx";
 import { QueryResult } from "../QueryResult/QueryResult.tsx";
-import { QueryData } from "../../interfaces/query.ts";
 
 export function NodeMarker({ node }: { node: ModelardbNode }) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [queryData, setQueryData] = useState<QueryData>({
-    column_names: [],
-    data: [],
-  });
+  const [queryData, setQueryData] = useState<any[]>([]);
 
   return (
     <>

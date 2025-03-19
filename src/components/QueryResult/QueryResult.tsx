@@ -3,17 +3,17 @@ import cx from "clsx";
 import { useState } from "react";
 
 import classes from "./QueryResult.module.css";
-import { QueryData } from "../../interfaces/query.ts";
 
-export function QueryResult({ queryData }: { queryData: QueryData }) {
+export function QueryResult({ queryData }: { queryData: any[] }) {
   const [scrolled, setScrolled] = useState(false);
 
-  if (queryData.data.length === 0) {
+  if (queryData.length === 0) {
     return <div>No rows returned.</div>;
   } else {
-    const rows = queryData.data.map((row, index) => (
+    const rows = queryData.map((row, index) => (
       <Table.Tr key={index}>
         {Object.values(row).map((value) => (
+          // @ts-ignore
           <Table.Td>{value}</Table.Td>
         ))}
       </Table.Tr>
@@ -29,7 +29,7 @@ export function QueryResult({ queryData }: { queryData: QueryData }) {
             className={cx(classes.header, { [classes.scrolled]: scrolled })}
           >
             <Table.Tr>
-              {queryData.column_names.map((column) => (
+              {Object.keys(queryData[0]).map((column) => (
                 <Table.Th>{column}</Table.Th>
               ))}
             </Table.Tr>

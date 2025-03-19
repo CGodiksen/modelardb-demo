@@ -7,11 +7,10 @@ import { useHotkeys } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/core";
 
 import { ModelardbNode } from "../../interfaces/node.ts";
-import { QueryData } from "../../interfaces/query.ts";
 
 type QueryEditorProps = {
   node: ModelardbNode;
-  setQueryData: (data: QueryData) => void;
+  setQueryData: (data: any[]) => void;
 };
 
 export function QueryEditor({ node, setQueryData }: QueryEditorProps) {
@@ -22,17 +21,12 @@ export function QueryEditor({ node, setQueryData }: QueryEditorProps) {
       "ctrl+enter",
       () => {
         invoke("client_query", { url: node.url, query: editorText }).then(
-          (message) => {
-            let json_string = new TextDecoder().decode(
-              // @ts-ignore
-              new Uint8Array(message.data),
-            );
-
+          // @ts-ignore
+          (message: any[]) => {
+            let json_string = new TextDecoder().decode(new Uint8Array(message));
             let json_data = JSON.parse(json_string);
-            setQueryData({
-              column_names: message.column_names,
-              data: json_data,
-            });
+
+            setQueryData(json_data);
           },
         );
       },
