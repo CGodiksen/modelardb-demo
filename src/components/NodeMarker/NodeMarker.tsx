@@ -10,6 +10,7 @@ import { QueryResult } from "../QueryResult/QueryResult.tsx";
 
 export function NodeMarker({ node }: { node: ModelardbNode }) {
   const [opened, { open, close }] = useDisclosure(false);
+  const [editorText, setEditorText] = useState("");
   const [queryData, setQueryData] = useState<any[]>([]);
 
   return (
@@ -21,7 +22,7 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
         size={"80%"}
         centered={true}
       >
-        <Container fluid p={0} mt={10}>
+        <Container fluid p={0} mt={0}>
           <Grid grow>
             <Grid.Col span={4} h={"35vh"}>
               <SchemaBrowser node={node}></SchemaBrowser>
@@ -29,6 +30,8 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
             <Grid.Col span={8}>
               <QueryEditor
                 node={node}
+                editorText={editorText}
+                setEditorText={setEditorText}
                 setQueryData={setQueryData}
               ></QueryEditor>
             </Grid.Col>

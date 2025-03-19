@@ -1,6 +1,5 @@
 import { Container } from "@mantine/core";
 import CodeMirror from "@uiw/react-codemirror";
-import { useState } from "react";
 import { sql } from "@codemirror/lang-sql";
 import { darcula } from "@uiw/codemirror-theme-darcula";
 import { useHotkeys } from "@mantine/hooks";
@@ -10,12 +9,17 @@ import { ModelardbNode } from "../../interfaces/node.ts";
 
 type QueryEditorProps = {
   node: ModelardbNode;
+  editorText: string;
+  setEditorText: (text: string) => void;
   setQueryData: (data: any[]) => void;
 };
 
-export function QueryEditor({ node, setQueryData }: QueryEditorProps) {
-  const [editorText, setEditorText] = useState("");
-
+export function QueryEditor({
+  node,
+  editorText,
+  setEditorText,
+  setQueryData,
+}: QueryEditorProps) {
   useHotkeys([
     [
       "ctrl+enter",
