@@ -23,7 +23,7 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
       >
         <Container fluid p={0} mt={10}>
           <Grid grow>
-            <Grid.Col span={4} h={"40vh"}>
+            <Grid.Col span={4} h={"35vh"}>
               <SchemaBrowser node={node}></SchemaBrowser>
             </Grid.Col>
             <Grid.Col span={8}>
@@ -32,7 +32,7 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
                 setQueryData={setQueryData}
               ></QueryEditor>
             </Grid.Col>
-            <Grid.Col span={12} h={"30vh"}>
+            <Grid.Col span={12} h={"35vh"}>
               <QueryResult queryData={queryData}></QueryResult>
             </Grid.Col>
           </Grid>

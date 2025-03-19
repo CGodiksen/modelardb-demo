@@ -37,7 +37,7 @@ export function QueryEditor({ node, setQueryData }: QueryEditorProps) {
     <Container fluid p={0}>
       <CodeMirror
         value={editorText}
-        height="390px"
+        height="340px"
         extensions={[sql()]}
         onChange={setEditorText}
         theme={darcula}
