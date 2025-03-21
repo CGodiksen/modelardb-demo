@@ -41,12 +41,12 @@ export const nodes: ModelardbNode[] = [
     url: "grpc://127.0.0.1:9996",
     server_mode: "cloud",
     latitude: 51.51518,
-    longitude: 0.001856,
+    longitude: 0.123856,
   },
   {
     url: "grpc://127.0.0.1:9997",
     server_mode: "cloud",
-    latitude: 51.5153803,
+    latitude: 51.3853803,
     longitude: 0.0015878,
   },
 ];

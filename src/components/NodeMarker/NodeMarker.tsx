@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
-import { AdvancedMarker, Pin } from "@vis.gl/react-google-maps";
+import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { Container, Grid, Modal, Title } from "@mantine/core";
 
 import { ModelardbNode } from "../../interfaces/node.ts";
 import { SchemaBrowser } from "../SchemaBrowser/SchemaBrowser.tsx";
 import { QueryEditor } from "../QueryEditor/QueryEditor.tsx";
 import { QueryResult } from "../QueryResult/QueryResult.tsx";
+import { NodePin } from "../NodePin/NodePin.tsx";
 
 export function NodeMarker({ node }: { node: ModelardbNode }) {
   const [opened, { open, close }] = useDisclosure(false);
@@ -46,7 +47,7 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
         position={{ lat: node.latitude, lng: node.longitude }}
         onClick={open}
       >
-        <Pin background={"#FBBC04"} glyphColor={"#000"} borderColor={"#000"} />
+        <NodePin node={node}></NodePin>
       </AdvancedMarker>
     </>
   );
