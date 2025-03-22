@@ -6,45 +6,69 @@
     "longitude": -0.1316474
   },
   {
-    "url": "grpc://127.0.0.1:9991",
-    "server_mode": "edge",
-    "latitude": 52.234444,
-    "longitude": 2.488333
-  },
-  {
-    "url": "grpc://127.0.0.1:9992",
-    "server_mode": "edge",
-    "latitude": 52.224444,
-    "longitude": 2.328333
-  },
-  {
-    "url": "grpc://127.0.0.1:9993",
-    "server_mode": "edge",
-    "latitude": 52.334444,
-    "longitude": 2.235333
-  },
-  {
-    "url": "grpc://127.0.0.1:9994",
-    "server_mode": "edge",
-    "latitude": 52.44444,
-    "longitude": 2.448333
-  },
-  {
-    "url": "grpc://127.0.0.1:9995",
+    "url": "grpc://127.0.0.1:9981",
     "server_mode": "edge",
     "latitude": 52.360444,
     "longitude": 2.488333
   },
   {
-    "url": "grpc://127.0.0.1:9996",
+    "url": "grpc://127.0.0.1:9982",
+    "server_mode": "edge",
+    "latitude": 52.234444,
+    "longitude": 2.488333
+  },
+  {
+    "url": "grpc://127.0.0.1:9983",
+    "server_mode": "edge",
+    "latitude": 52.224444,
+    "longitude": 2.328333
+  },
+  {
+    "url": "grpc://127.0.0.1:9984",
+    "server_mode": "edge",
+    "latitude": 52.334444,
+    "longitude": 2.235333
+  },
+  {
+    "url": "grpc://127.0.0.1:9985",
+    "server_mode": "edge",
+    "latitude": 52.44444,
+    "longitude": 2.448333
+  },
+  {
+    "url": "grpc://127.0.0.1:9986",
+    "server_mode": "edge",
+    "latitude": 51.560444,
+    "longitude": 2.488333
+  },
+  {
+    "url": "grpc://127.0.0.1:9987",
+    "server_mode": "edge",
+    "latitude": 51.534444,
+    "longitude": 2.688333
+  },
+  {
+    "url": "grpc://127.0.0.1:9988",
+    "server_mode": "edge",
+    "latitude": 51.424444,
+    "longitude": 2.328333
+  },
+  {
+    "url": "grpc://127.0.0.1:9989",
+    "server_mode": "edge",
+    "latitude": 51.534444,
+    "longitude": 2.235333
+  },
+  {
+    "url": "grpc://127.0.0.1:9990",
+    "server_mode": "edge",
+    "latitude": 51.64444,
+    "longitude": 2.448333
+  },
+  {
+    "url": "grpc://127.0.0.1:9999",
     "server_mode": "cloud",
     "latitude": 51.51518,
     "longitude": 0.123856
-  },
-  {
-    "url": "grpc://127.0.0.1:9997",
-    "server_mode": "cloud",
-    "latitude": 51.3853803,
-    "longitude": 0.0015878
   }
 ]
