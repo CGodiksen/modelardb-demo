@@ -1,10 +1,20 @@
+import { useEffect, useState } from "react";
 import { Container } from "@mantine/core";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 
 import { NodeMarker } from "../NodeMarker/NodeMarker.tsx";
-import { nodes } from "../../data/nodes.ts";
+import { ModelardbNode } from "../../interfaces/node.ts";
 
 export function NodeMap({}) {
+  const [nodes, setNodes] = useState<ModelardbNode[]>([]);
+
+  useEffect(() => {
+    fetch("/data/nodes.json")
+      .then((res) => res.json())
+      .then((data) => setNodes(data))
+      .catch((error) => console.error("Error fetching nodes:", error));
+  }, []);
+
   return (
     <Container fluid>
       <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
