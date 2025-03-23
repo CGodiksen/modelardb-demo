@@ -43,7 +43,7 @@ services:
       - create-bucket
     healthcheck:
       test: [ "CMD", "echo", "ready" ]
-      interval: 5s
+      interval: 2s
 
   modelardb-edge-1:
     image: modelardb
@@ -63,6 +63,9 @@ services:
     depends_on:
       modelardb-manager:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-edge-2:
     image: modelardb
@@ -80,8 +83,11 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-1:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-edge-3:
     image: modelardb
@@ -99,8 +105,11 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-2:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-edge-4:
     image: modelardb
@@ -118,8 +127,11 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-3:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-edge-5:
     image: modelardb
@@ -137,8 +149,11 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-4:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-edge-6:
     image: modelardb
@@ -156,8 +171,11 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-5:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-edge-7:
     image: modelardb
@@ -175,8 +193,11 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-6:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-edge-8:
     image: modelardb
@@ -194,8 +215,11 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-7:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-edge-9:
     image: modelardb
@@ -213,8 +237,11 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-8:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-edge-10:
     image: modelardb
@@ -232,8 +259,11 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-9:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
 
   modelardb-cloud:
     image: modelardb
@@ -248,5 +278,5 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      modelardb-manager:
+      modelardb-edge-10:
         condition: service_healthy
