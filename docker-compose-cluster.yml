@@ -41,6 +41,9 @@ services:
     depends_on:
       - minio-server
       - create-bucket
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 5s
 
   modelardb-edge-1:
     image: modelardb
@@ -58,7 +61,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-edge-2:
     image: modelardb
@@ -76,7 +80,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-edge-3:
     image: modelardb
@@ -94,7 +99,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-edge-4:
     image: modelardb
@@ -112,7 +118,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-edge-5:
     image: modelardb
@@ -130,7 +137,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-edge-6:
     image: modelardb
@@ -148,7 +156,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-edge-7:
     image: modelardb
@@ -166,7 +175,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-edge-8:
     image: modelardb
@@ -184,7 +194,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-edge-9:
     image: modelardb
@@ -202,7 +213,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-edge-10:
     image: modelardb
@@ -220,7 +232,8 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
 
   modelardb-cloud:
     image: modelardb
@@ -235,4 +248,5 @@ services:
       AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
-      - modelardb-manager
+      modelardb-manager:
+        condition: service_healthy
