@@ -8,6 +8,13 @@ use modelardb_embedded::modelardb::client::{Client, Node};
 use modelardb_embedded::modelardb::ModelarDB;
 use modelardb_embedded::TableType;
 use modelardb_types::types::{ArrowTimestamp, ArrowValue, ErrorBound};
+use tauri::async_runtime::{JoinHandle, Mutex};
+use tauri::{Manager, State};
+
+#[derive(Default)]
+struct AppState {
+    ingestion_task: Option<JoinHandle<()>>,
+}
 
 #[tauri::command]
 async fn create_tables() {
@@ -77,6 +84,24 @@ async fn create_tables() {
         .unwrap();
 }
 
+#[tauri::command]
+async fn ingest_into_tables(
+    state: State<'_, Mutex<AppState>>,
+    lossless_count: usize,
+    five_error_bound_count: usize,
+    fifteen_error_bound_count: usize,
+) -> Result<(), String> {
+    let mut state = state.lock().await;
+
+    println!("{}", state.ingestion_task.is_some());
+
+    println!(
+        "Ingesting {lossless_count}, {five_error_bound_count}, {fifteen_error_bound_count} into tables."
+    );
+
+    Ok(())
+}
+
 #[derive(serde::Serialize)]
 struct ClientTableResponse {
     name: String,
@@ -140,8 +165,13 @@ async fn client_query(url: String, query: String) -> Vec<u8> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            app.manage(Mutex::new(AppState::default()));
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             create_tables,
+            ingest_into_tables,
             client_tables,
             client_query
         ])

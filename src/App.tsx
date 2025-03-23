@@ -16,6 +16,14 @@ export default function App() {
     invoke("create_tables", {}).then(() => {
       console.log("Tables created successfully.");
     });
+
+    invoke("ingest_into_tables", {
+      losslessCount: 100,
+      fiveErrorBoundCount: 200,
+      fifteenErrorBoundCount: 300,
+    }).then(() => {
+      console.log("Started ingesting data into tables.");
+    });
   }, []);
 
   return (
