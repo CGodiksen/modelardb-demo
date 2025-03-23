@@ -4098,6 +4098,7 @@ dependencies = [
  "arrow-json",
  "datafusion",
  "modelardb_embedded",
+ "modelardb_types",
  "serde",
  "serde_json",
  "tauri",

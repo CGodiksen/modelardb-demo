@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
 
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
@@ -9,10 +11,13 @@ import { theme } from "./theme";
 import "@mantine/core/styles.css";
 import "./App.css";
 
-// TODO: Maybe add a separate node at the top of the node list for the current user in London (similar to user profile in nav bar).
-// TODO: Use statistics boxes from Mantine to show simulation statistics.
-
 export default function App() {
+  useEffect(() => {
+    invoke("create_tables", {}).then(() => {
+      console.log("Tables created successfully.");
+    });
+  }, []);
+
   return (
     <MantineProvider defaultColorScheme="dark" theme={theme}>
       <AppShell padding="sm">
