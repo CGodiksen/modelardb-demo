@@ -17,12 +17,25 @@ export default function App() {
       console.log("Tables created successfully.");
     });
 
-    invoke("ingest_into_tables", {
-      losslessCount: 100,
-      fiveErrorBoundCount: 200,
-      fifteenErrorBoundCount: 300,
+    invoke("ingest_into_table", {
+      tableName: "lossless_table",
+      count: 100,
     }).then(() => {
-      console.log("Started ingesting data into tables.");
+      console.log("Started ingesting data into lossless_table.");
+    });
+
+    invoke("ingest_into_table", {
+      tableName: "five_error_bound_table",
+      count: 200,
+    }).then(() => {
+      console.log("Started ingesting data into five_error_bound_table.");
+    });
+
+    invoke("ingest_into_table", {
+      tableName: "fifteen_error_bound_table",
+      count: 300,
+    }).then(() => {
+      console.log("Started ingesting data into fifteen_error_bound_table.");
     });
   }, []);
 

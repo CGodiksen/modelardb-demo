@@ -20,7 +20,7 @@ use tokio::time;
 
 #[derive(Default)]
 struct AppState {
-    ingestion_task: Option<JoinHandle<()>>,
+    ingestion_tasks: HashMap<String, JoinHandle<()>>,
 }
 
 #[tauri::command]
@@ -92,34 +92,24 @@ async fn create_tables() {
 }
 
 #[tauri::command]
-async fn ingest_into_tables(
+async fn ingest_into_table(
     state: State<'_, Mutex<AppState>>,
-    lossless_count: usize,
-    five_error_bound_count: usize,
-    fifteen_error_bound_count: usize,
+    table_name: String,
+    count: usize,
 ) -> Result<(), String> {
     let mut state = state.lock().await;
 
-    if let Some(handle) = &state.ingestion_task {
+    if let Some(handle) = &state.ingestion_tasks.get(&table_name) {
         handle.abort();
     }
 
-    let join_handle = tokio::spawn(ingest_data_points(
-        lossless_count,
-        five_error_bound_count,
-        fifteen_error_bound_count,
-    ));
-
-    state.ingestion_task = Some(join_handle);
+    let join_handle = tokio::spawn(ingest_data_points(table_name.clone(), count));
+    state.ingestion_tasks.insert(table_name, join_handle);
 
     Ok(())
 }
 
-async fn ingest_data_points(
-    lossless_count: usize,
-    five_error_bound_count: usize,
-    fifteen_error_bound_count: usize,
-) {
+async fn ingest_data_points(table_name: String, count: usize) {
     let file = tokio::fs::File::open("../data/wind.parquet").await.unwrap();
     let builder = ParquetRecordBatchStreamBuilder::new(file).await.unwrap();
 
@@ -141,61 +131,37 @@ async fn ingest_data_points(
         Node::Server("grpc://127.0.0.1:9990".to_owned()),
     ];
 
-    let mut lossless_offset = 0;
-    let mut five_error_bound_offset = 0;
-    let mut fifteen_error_bound_offset = 0;
+    let mut offset = 0;
 
     loop {
         let mut futures: FuturesUnordered<_> = edge_nodes
             .iter()
             .enumerate()
             .map(|(index, node)| {
-                let offset = 40000 * index;
                 ingest_data_points_into_node(
                     node,
-                    record_batch.slice(offset + lossless_offset, lossless_count),
-                    record_batch.slice(offset + five_error_bound_offset, five_error_bound_count),
-                    record_batch.slice(
-                        offset + fifteen_error_bound_offset,
-                        fifteen_error_bound_count,
-                    ),
+                    &table_name,
+                    record_batch.slice((40000 * index) + offset, count),
                 )
             })
             .collect();
 
         while let Some(()) = futures.next().await {}
 
-        lossless_offset = lossless_offset + lossless_count;
-        five_error_bound_offset = five_error_bound_offset + five_error_bound_count;
-        fifteen_error_bound_offset = fifteen_error_bound_offset + fifteen_error_bound_count;
+        offset = offset + count;
 
-        if lossless_offset + lossless_count > 40000 {
-            lossless_offset = 0;
-        }
-
-        if five_error_bound_offset + five_error_bound_count > 40000 {
-            five_error_bound_offset = 0;
-        }
-
-        if fifteen_error_bound_offset + fifteen_error_bound_count > 40000 {
-            fifteen_error_bound_offset = 0;
+        if offset + count > 40000 {
+            offset = 0;
         }
 
         time::sleep(Duration::from_secs(5)).await;
     }
 }
 
-async fn ingest_data_points_into_node(
-    node: &Node,
-    lossless_data_points: RecordBatch,
-    five_error_data_points: RecordBatch,
-    fifteen_error_data_points: RecordBatch,
-) {
+async fn ingest_data_points_into_node(node: &Node, table_name: &str, data_points: RecordBatch) {
     println!(
-        "Ingesting {}, {}, {} data points into node with type {}",
-        lossless_data_points.num_rows(),
-        five_error_data_points.num_rows(),
-        fifteen_error_data_points.num_rows(),
+        "Ingesting {} data points into {table_name} in node with type {}",
+        data_points.num_rows(),
         node.node_type()
     )
 }
@@ -269,7 +235,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             create_tables,
-            ingest_into_tables,
+            ingest_into_table,
             client_tables,
             client_query
         ])
