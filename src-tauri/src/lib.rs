@@ -1,7 +1,9 @@
 use std::collections::HashMap;
-use std::time::Duration;
+use std::iter;
+use std::sync::Arc;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use arrow::array::RecordBatch;
+use arrow::array::{RecordBatch, StringArray};
 use arrow::compute;
 use arrow::datatypes::{ArrowPrimitiveType, DataType, Field, Schema};
 use arrow_json::ArrayWriter;
@@ -12,7 +14,7 @@ use futures_util::{StreamExt, TryStreamExt};
 use modelardb_embedded::modelardb::client::{Client, Node};
 use modelardb_embedded::modelardb::ModelarDB;
 use modelardb_embedded::TableType;
-use modelardb_types::types::{ArrowTimestamp, ArrowValue, ErrorBound};
+use modelardb_types::types::{ArrowTimestamp, ArrowValue, ErrorBound, TimestampBuilder};
 use tauri::{Manager, State};
 use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
@@ -28,21 +30,7 @@ async fn create_tables() {
     let manager_node = Node::Manager("grpc://127.0.0.1:9998".to_owned());
     let mut client = Client::connect(manager_node).await.unwrap();
 
-    let table_schema = Schema::new(vec![
-        Field::new("datetime", ArrowTimestamp::DATA_TYPE, false),
-        Field::new("park_id", DataType::Utf8, false),
-        Field::new("windmill_id", DataType::Utf8, false),
-        Field::new("wind speed", ArrowValue::DATA_TYPE, false),
-        Field::new("pitch angle", ArrowValue::DATA_TYPE, false),
-        Field::new("rotor speed", ArrowValue::DATA_TYPE, false),
-        Field::new("active power", ArrowValue::DATA_TYPE, false),
-        Field::new("cos_nacelle_dir", ArrowValue::DATA_TYPE, false),
-        Field::new("sin_nacelle_dir", ArrowValue::DATA_TYPE, false),
-        Field::new("cos_wind_dir", ArrowValue::DATA_TYPE, false),
-        Field::new("sin_wind_dir", ArrowValue::DATA_TYPE, false),
-        Field::new("cor. nacelle direction", ArrowValue::DATA_TYPE, false),
-        Field::new("cor. wind direction", ArrowValue::DATA_TYPE, false),
-    ]);
+    let table_schema = table_schema();
 
     let lossless_table_type =
         TableType::ModelTable(table_schema.clone(), HashMap::new(), HashMap::new());
@@ -139,7 +127,8 @@ async fn ingest_data_points(table_name: String, count: usize) {
             .enumerate()
             .map(|(index, node)| {
                 ingest_data_points_into_node(
-                    node,
+                    node.clone(),
+                    index,
                     &table_name,
                     record_batch.slice((40000 * index) + offset, count),
                 )
@@ -148,22 +137,87 @@ async fn ingest_data_points(table_name: String, count: usize) {
 
         while let Some(()) = futures.next().await {}
 
-        offset = offset + count;
+        offset += count;
 
         if offset + count > 40000 {
             offset = 0;
         }
 
-        time::sleep(Duration::from_secs(5)).await;
+        time::sleep(Duration::from_secs(2)).await;
     }
 }
 
-async fn ingest_data_points_into_node(node: &Node, table_name: &str, data_points: RecordBatch) {
-    println!(
-        "Ingesting {} data points into {table_name} in node with type {}",
-        data_points.num_rows(),
-        node.node_type()
+async fn ingest_data_points_into_node(
+    node: Node,
+    node_id: usize,
+    table_name: &str,
+    data_points: RecordBatch,
+) {
+    let mut client = Client::connect(node).await.unwrap();
+
+    let mut timestamps = TimestampBuilder::with_capacity(data_points.num_rows());
+
+    let start = SystemTime::now();
+    let since_the_epoch = start.duration_since(UNIX_EPOCH).unwrap();
+
+    let mut next_timestamp: i64 = since_the_epoch.as_micros() as i64;
+    let step = (Duration::from_secs(2).as_micros() as i64) / (data_points.num_rows() as i64);
+
+    for _ in 0..data_points.num_rows() {
+        timestamps.append_value(next_timestamp);
+        next_timestamp += step;
+    }
+
+    let park_id = if node_id < 5 { "park_1" } else { "park_2" };
+    let windmill_id = format!("windmill_{}", node_id + 1);
+
+    let park_id_array: StringArray = iter::repeat(Some(park_id))
+        .take(data_points.num_rows())
+        .collect();
+
+    let windmill_id_array: StringArray = iter::repeat(Some(&windmill_id))
+        .take(data_points.num_rows())
+        .collect();
+
+    let record_batch = RecordBatch::try_new(
+        Arc::new(table_schema()),
+        vec![
+            Arc::new(timestamps.finish()),
+            Arc::new(park_id_array),
+            Arc::new(windmill_id_array),
+            data_points.column(1).clone(),
+            data_points.column(2).clone(),
+            data_points.column(3).clone(),
+            data_points.column(4).clone(),
+            data_points.column(5).clone(),
+            data_points.column(6).clone(),
+            data_points.column(7).clone(),
+            data_points.column(8).clone(),
+            data_points.column(9).clone(),
+            data_points.column(10).clone(),
+        ],
     )
+    .unwrap();
+
+    client.write(table_name, record_batch).await.unwrap();
+}
+
+fn table_schema() -> Schema {
+    Schema::new(vec![
+        Field::new("datetime", ArrowTimestamp::DATA_TYPE, false),
+        Field::new("park_id", DataType::Utf8, false),
+        Field::new("windmill_id", DataType::Utf8, false),
+        Field::new("wind speed", ArrowValue::DATA_TYPE, false),
+        Field::new("pitch angle", ArrowValue::DATA_TYPE, false),
+        Field::new("rotor speed", ArrowValue::DATA_TYPE, false),
+        Field::new("active power", ArrowValue::DATA_TYPE, false),
+        Field::new("cos_nacelle_dir", ArrowValue::DATA_TYPE, false),
+        Field::new("sin_nacelle_dir", ArrowValue::DATA_TYPE, false),
+        Field::new("cos_wind_dir", ArrowValue::DATA_TYPE, false),
+        Field::new("sin_wind_dir", ArrowValue::DATA_TYPE, false),
+        Field::new("cor. nacelle direction", ArrowValue::DATA_TYPE, false),
+        Field::new("cor. wind direction", ArrowValue::DATA_TYPE, false),
+    ])
 }
 
 #[derive(serde::Serialize)]
