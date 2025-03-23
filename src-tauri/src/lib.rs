@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::time::Duration;
 
 use arrow::array::RecordBatch;
 use arrow::datatypes::{ArrowPrimitiveType, DataType, Field, Schema};
@@ -8,8 +9,10 @@ use modelardb_embedded::modelardb::client::{Client, Node};
 use modelardb_embedded::modelardb::ModelarDB;
 use modelardb_embedded::TableType;
 use modelardb_types::types::{ArrowTimestamp, ArrowValue, ErrorBound};
-use tauri::async_runtime::{JoinHandle, Mutex};
 use tauri::{Manager, State};
+use tokio::sync::Mutex;
+use tokio::task::JoinHandle;
+use tokio::time;
 
 #[derive(Default)]
 struct AppState {
@@ -93,13 +96,33 @@ async fn ingest_into_tables(
 ) -> Result<(), String> {
     let mut state = state.lock().await;
 
-    println!("{}", state.ingestion_task.is_some());
+    if let Some(handle) = &state.ingestion_task {
+        handle.abort();
+    }
 
-    println!(
-        "Ingesting {lossless_count}, {five_error_bound_count}, {fifteen_error_bound_count} into tables."
-    );
+    let join_handle = tokio::spawn(ingest_data_points(
+        lossless_count,
+        five_error_bound_count,
+        fifteen_error_bound_count,
+    ));
+
+    state.ingestion_task = Some(join_handle);
 
     Ok(())
+}
+
+async fn ingest_data_points(
+    lossless_count: usize,
+    five_error_bound_count: usize,
+    fifteen_error_bound_count: usize,
+) {
+    loop {
+        println!(
+            "Ingesting {lossless_count}, {five_error_bound_count}, {fifteen_error_bound_count} into tables."
+        );
+
+        time::sleep(Duration::from_secs(1)).await;
+    }
 }
 
 #[derive(serde::Serialize)]
