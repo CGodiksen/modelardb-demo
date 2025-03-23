@@ -4097,6 +4097,7 @@ dependencies = [
  "arrow",
  "arrow-json",
  "datafusion",
+ "futures-util",
  "modelardb_embedded",
  "modelardb_types",
  "serde",

@@ -2,9 +2,13 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use arrow::array::RecordBatch;
+use arrow::compute;
 use arrow::datatypes::{ArrowPrimitiveType, DataType, Field, Schema};
 use arrow_json::ArrayWriter;
+use datafusion::parquet::arrow::ParquetRecordBatchStreamBuilder;
 use datafusion::physical_plan::common;
+use futures_util::stream::FuturesUnordered;
+use futures_util::{StreamExt, TryStreamExt};
 use modelardb_embedded::modelardb::client::{Client, Node};
 use modelardb_embedded::modelardb::ModelarDB;
 use modelardb_embedded::TableType;
@@ -116,13 +120,84 @@ async fn ingest_data_points(
     five_error_bound_count: usize,
     fifteen_error_bound_count: usize,
 ) {
-    loop {
-        println!(
-            "Ingesting {lossless_count}, {five_error_bound_count}, {fifteen_error_bound_count} into tables."
-        );
+    let file = tokio::fs::File::open("../data/wind.parquet").await.unwrap();
+    let builder = ParquetRecordBatchStreamBuilder::new(file).await.unwrap();
 
-        time::sleep(Duration::from_secs(1)).await;
+    let stream = builder.build().unwrap();
+    let record_batches = stream.try_collect::<Vec<_>>().await.unwrap();
+    let record_batch =
+        compute::concat_batches(&record_batches[0].schema(), &record_batches).unwrap();
+
+    let edge_nodes = vec![
+        Node::Server("grpc://127.0.0.1:9981".to_owned()),
+        Node::Server("grpc://127.0.0.1:9982".to_owned()),
+        Node::Server("grpc://127.0.0.1:9983".to_owned()),
+        Node::Server("grpc://127.0.0.1:9984".to_owned()),
+        Node::Server("grpc://127.0.0.1:9985".to_owned()),
+        Node::Server("grpc://127.0.0.1:9986".to_owned()),
+        Node::Server("grpc://127.0.0.1:9987".to_owned()),
+        Node::Server("grpc://127.0.0.1:9988".to_owned()),
+        Node::Server("grpc://127.0.0.1:9989".to_owned()),
+        Node::Server("grpc://127.0.0.1:9990".to_owned()),
+    ];
+
+    let mut lossless_offset = 0;
+    let mut five_error_bound_offset = 0;
+    let mut fifteen_error_bound_offset = 0;
+
+    loop {
+        let mut futures: FuturesUnordered<_> = edge_nodes
+            .iter()
+            .enumerate()
+            .map(|(index, node)| {
+                let offset = 40000 * index;
+                ingest_data_points_into_node(
+                    node,
+                    record_batch.slice(offset + lossless_offset, lossless_count),
+                    record_batch.slice(offset + five_error_bound_offset, five_error_bound_count),
+                    record_batch.slice(
+                        offset + fifteen_error_bound_offset,
+                        fifteen_error_bound_count,
+                    ),
+                )
+            })
+            .collect();
+
+        while let Some(()) = futures.next().await {}
+
+        lossless_offset = lossless_offset + lossless_count;
+        five_error_bound_offset = five_error_bound_offset + five_error_bound_count;
+        fifteen_error_bound_offset = fifteen_error_bound_offset + fifteen_error_bound_count;
+
+        if lossless_offset + lossless_count > 40000 {
+            lossless_offset = 0;
+        }
+
+        if five_error_bound_offset + five_error_bound_count > 40000 {
+            five_error_bound_offset = 0;
+        }
+
+        if fifteen_error_bound_offset + fifteen_error_bound_count > 40000 {
+            fifteen_error_bound_offset = 0;
+        }
+
+        time::sleep(Duration::from_secs(5)).await;
     }
+}
+
+async fn ingest_data_points_into_node(
+    node: &Node,
+    lossless_data_points: RecordBatch,
+    five_error_data_points: RecordBatch,
+    fifteen_error_data_points: RecordBatch,
+) {
+    println!(
+        "Ingesting {}, {}, {} data points into node with type {}",
+        lossless_data_points.num_rows(),
+        five_error_data_points.num_rows(),
+        fifteen_error_data_points.num_rows(),
+        node.node_type()
+    )
 }
 
 #[derive(serde::Serialize)]
