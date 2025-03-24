@@ -233,14 +233,10 @@ async fn flush_nodes_task(interval_seconds: u64) {
     let edge_nodes = edge_nodes();
 
     loop {
-        let mut futures: FuturesUnordered<_> = edge_nodes
-            .iter()
-            .map(|node| flush_node(node.clone()))
-            .collect();
-
-        while let Some(()) = futures.next().await {}
-
-        time::sleep(Duration::from_secs(interval_seconds)).await;
+        for node in &edge_nodes {
+            tokio::spawn(flush_node(node.clone()));
+            time::sleep(Duration::from_secs(interval_seconds / 10)).await;
+        }
     }
 }
 
