@@ -20,7 +20,7 @@ export function NodeMap({}) {
       <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
         <Map
           style={{ height: "72vh" }}
-          defaultCenter={{ lat: 51.5546333, lng: 1.6055561 }}
+          defaultCenter={{ lat: 51.3980119, lng: -0.1886247 }}
           defaultZoom={8}
           gestureHandling={"greedy"}
           disableDefaultUI={true}

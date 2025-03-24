@@ -56,7 +56,7 @@ export default function App() {
       "ctrl+f",
       () => {
         invoke("flush_nodes", {
-          intervalSeconds: 30,
+          intervalSeconds: 60,
         }).then(() => {
           console.log("Started flushing data from nodes.");
         });

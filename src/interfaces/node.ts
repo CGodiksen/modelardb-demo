@@ -1,5 +1,6 @@
 export interface ModelardbNode {
-  url: string;
+  type: "modelardb" | "parquet";
+  url: string | undefined;
   server_mode: "edge" | "cloud" | "local";
   latitude: number;
   longitude: number;

@@ -1,74 +1,162 @@
 [
   {
-    "url": "",
+    "type": "modelardb",
     "server_mode": "local",
     "latitude": 51.5005039,
     "longitude": -0.1316474
   },
   {
+    "type": "modelardb",
     "url": "grpc://127.0.0.1:9981",
     "server_mode": "edge",
-    "latitude": 52.360444,
-    "longitude": 2.488333
+    "latitude": 52.024444,
+    "longitude": 2.128333
   },
   {
+    "type": "modelardb",
     "url": "grpc://127.0.0.1:9982",
     "server_mode": "edge",
-    "latitude": 52.234444,
-    "longitude": 2.488333
+    "latitude": 52.124444,
+    "longitude": 2.128333
   },
   {
+    "type": "modelardb",
     "url": "grpc://127.0.0.1:9983",
     "server_mode": "edge",
-    "latitude": 52.224444,
-    "longitude": 2.328333
+    "latitude": 51.924444,
+    "longitude": 2.128333
   },
   {
+    "type": "modelardb",
     "url": "grpc://127.0.0.1:9984",
     "server_mode": "edge",
-    "latitude": 52.334444,
-    "longitude": 2.235333
-  },
-  {
-    "url": "grpc://127.0.0.1:9985",
-    "server_mode": "edge",
-    "latitude": 52.44444,
-    "longitude": 2.448333
-  },
-  {
-    "url": "grpc://127.0.0.1:9986",
-    "server_mode": "edge",
-    "latitude": 51.560444,
-    "longitude": 2.488333
-  },
-  {
-    "url": "grpc://127.0.0.1:9987",
-    "server_mode": "edge",
-    "latitude": 51.534444,
-    "longitude": 2.688333
-  },
-  {
-    "url": "grpc://127.0.0.1:9988",
-    "server_mode": "edge",
-    "latitude": 51.424444,
+    "latitude": 52.024444,
     "longitude": 2.328333
   },
   {
+    "type": "modelardb",
+    "url": "grpc://127.0.0.1:9985",
+    "server_mode": "edge",
+    "latitude": 51.924444,
+    "longitude": 2.328333
+  },
+  {
+    "type": "modelardb",
+    "url": "grpc://127.0.0.1:9986",
+    "server_mode": "edge",
+    "latitude": 51.534444,
+    "longitude": 1.835333
+  },
+  {
+    "type": "modelardb",
+    "url": "grpc://127.0.0.1:9987",
+    "server_mode": "edge",
+    "latitude": 51.634444,
+    "longitude": 1.835333
+  },
+  {
+    "type": "modelardb",
+    "url": "grpc://127.0.0.1:9988",
+    "server_mode": "edge",
+    "latitude": 51.434444,
+    "longitude": 1.835333
+  },
+  {
+    "type": "modelardb",
     "url": "grpc://127.0.0.1:9989",
     "server_mode": "edge",
     "latitude": 51.534444,
-    "longitude": 2.235333
+    "longitude": 2.035333
   },
   {
+    "type": "modelardb",
     "url": "grpc://127.0.0.1:9990",
     "server_mode": "edge",
-    "latitude": 51.64444,
-    "longitude": 2.448333
+    "latitude": 51.434444,
+    "longitude": 2.035333
   },
   {
+    "type": "modelardb",
     "url": "grpc://127.0.0.1:9999",
     "server_mode": "cloud",
     "latitude": 51.51518,
     "longitude": 0.123856
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9971",
+    "server_mode": "edge",
+    "latitude": 50.5670948,
+    "longitude": 0.4214118
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9972",
+    "server_mode": "edge",
+    "latitude": 50.5670948,
+    "longitude": 0.6214118
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9973",
+    "server_mode": "edge",
+    "latitude": 50.5670948,
+    "longitude": 0.2214118
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9974",
+    "server_mode": "edge",
+    "latitude": 50.4670948,
+    "longitude": 0.4214118
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9975",
+    "server_mode": "edge",
+    "latitude": 50.4670948,
+    "longitude": 0.2214118
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9976",
+    "server_mode": "edge",
+    "latitude": 50.4502724,
+    "longitude": -0.682706
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9977",
+    "server_mode": "edge",
+    "latitude": 50.4502724,
+    "longitude": -0.482706
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9978",
+    "server_mode": "edge",
+    "latitude": 50.4502724,
+    "longitude": -0.882706
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9979",
+    "server_mode": "edge",
+    "latitude": 50.3502724,
+    "longitude": -0.682706
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9980",
+    "server_mode": "edge",
+    "latitude": 50.3502724,
+    "longitude": -0.882706
+  },
+  {
+    "type": "parquet",
+    "url": "grpc://127.0.0.1:9969",
+    "server_mode": "cloud",
+    "latitude": 51.3784851,
+    "longitude": -0.0737242
   }
 ]

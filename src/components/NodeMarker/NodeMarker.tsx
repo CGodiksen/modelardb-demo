@@ -16,32 +16,34 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
 
   return (
     <>
-      <Modal
-        opened={opened}
-        onClose={close}
-        title={<Title order={3}>{node.url}</Title>}
-        size={"80%"}
-        centered={true}
-      >
-        <Container fluid p={0} mt={0}>
-          <Grid grow>
-            <Grid.Col span={4} h={"35vh"}>
-              <SchemaBrowser node={node}></SchemaBrowser>
-            </Grid.Col>
-            <Grid.Col span={8}>
-              <QueryEditor
-                node={node}
-                editorText={editorText}
-                setEditorText={setEditorText}
-                setQueryData={setQueryData}
-              ></QueryEditor>
-            </Grid.Col>
-            <Grid.Col span={12} h={"35vh"}>
-              <QueryResult queryData={queryData}></QueryResult>
-            </Grid.Col>
-          </Grid>
-        </Container>
-      </Modal>
+      {node.url && node.type == "modelardb" && (
+        <Modal
+          opened={opened}
+          onClose={close}
+          title={<Title order={3}>{node.url}</Title>}
+          size={"80%"}
+          centered={true}
+        >
+          <Container fluid p={0} mt={0}>
+            <Grid grow>
+              <Grid.Col span={4} h={"35vh"}>
+                <SchemaBrowser node={node}></SchemaBrowser>
+              </Grid.Col>
+              <Grid.Col span={8}>
+                <QueryEditor
+                  node={node}
+                  editorText={editorText}
+                  setEditorText={setEditorText}
+                  setQueryData={setQueryData}
+                ></QueryEditor>
+              </Grid.Col>
+              <Grid.Col span={12} h={"35vh"}>
+                <QueryResult queryData={queryData}></QueryResult>
+              </Grid.Col>
+            </Grid>
+          </Container>
+        </Modal>
+      )}
 
       <AdvancedMarker
         position={{ lat: node.latitude, lng: node.longitude }}
