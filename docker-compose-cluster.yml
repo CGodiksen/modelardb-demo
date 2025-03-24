@@ -1,5 +1,13 @@
 version: "3.8"
 
+x-modelardb-variables: &modelardb-variables
+  MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
+  MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
+  MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
+  MODELARDBD_IP_ADDRESS: host.docker.internal
+  AWS_DEFAULT_REGION: eu-central-1
+  AWS_ALLOW_HTTP: "true"
+
 services:
   # Object store services.
   minio-server:
@@ -52,13 +60,8 @@ services:
     ports:
       - "9981:9981"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9981
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-manager:
@@ -74,13 +77,8 @@ services:
     ports:
       - "9982:9982"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9982
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-1:
@@ -96,13 +94,8 @@ services:
     ports:
       - "9983:9983"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9983
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-2:
@@ -118,13 +111,8 @@ services:
     ports:
       - "9984:9984"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9984
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-3:
@@ -140,13 +128,8 @@ services:
     ports:
       - "9985:9985"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9985
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-4:
@@ -162,13 +145,8 @@ services:
     ports:
       - "9986:9986"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9986
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-5:
@@ -184,13 +162,8 @@ services:
     ports:
       - "9987:9987"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9987
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-6:
@@ -206,13 +179,8 @@ services:
     ports:
       - "9988:9988"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9988
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-7:
@@ -228,13 +196,8 @@ services:
     ports:
       - "9989:9989"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9989
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-8:
@@ -250,13 +213,8 @@ services:
     ports:
       - "9990:9990"
     environment:
-      MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-      MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-      MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9990
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-9:
@@ -272,10 +230,8 @@ services:
     ports:
       - "9999:9999"
     environment:
-      MODELARDBD_IP_ADDRESS: host.docker.internal
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9999
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ALLOW_HTTP: "true"
     restart: on-failure:10
     depends_on:
       modelardb-edge-10:
