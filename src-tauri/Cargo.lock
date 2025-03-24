@@ -4095,6 +4095,7 @@ name = "modelardb-demo"
 version = "0.1.0"
 dependencies = [
  "arrow",
+ "arrow-flight",
  "arrow-json",
  "datafusion",
  "futures-util",
@@ -4111,7 +4112,7 @@ dependencies = [
 [[package]]
 name = "modelardb_common"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=897d501#897d501b38eedfca3bc96aab248c8532f24de79c"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
 dependencies = [
  "arrow",
  "arrow-flight",
@@ -4123,7 +4124,7 @@ dependencies = [
 [[package]]
 name = "modelardb_compression"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=897d501#897d501b38eedfca3bc96aab248c8532f24de79c"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
 dependencies = [
  "arrow",
  "modelardb_types",
@@ -4132,7 +4133,7 @@ dependencies = [
 [[package]]
 name = "modelardb_embedded"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=897d501#897d501b38eedfca3bc96aab248c8532f24de79c"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
 dependencies = [
  "arrow",
  "arrow-flight",
@@ -4151,7 +4152,7 @@ dependencies = [
 [[package]]
 name = "modelardb_storage"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=897d501#897d501b38eedfca3bc96aab248c8532f24de79c"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
 dependencies = [
  "arrow",
  "arrow-flight",
@@ -4175,7 +4176,7 @@ dependencies = [
 [[package]]
 name = "modelardb_types"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=897d501#897d501b38eedfca3bc96aab248c8532f24de79c"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
 dependencies = [
  "arrow",
 ]

@@ -8,9 +8,6 @@ x-aws-variables: &aws-variables
   AWS_ALLOW_HTTP: "true"
 
 x-modelardb-variables: &modelardb-variables
-  MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
-  MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
-  MODELARDBD_TRANSFER_TIME_IN_SECONDS: 10
   MODELARDBD_IP_ADDRESS: host.docker.internal
   AWS_DEFAULT_REGION: eu-central-1
   AWS_ALLOW_HTTP: "true"

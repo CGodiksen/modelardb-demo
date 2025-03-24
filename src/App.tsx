@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useHotkeys } from "@mantine/hooks";
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
@@ -13,11 +12,16 @@ import "@mantine/core/styles.css";
 import "./App.css";
 
 export default function App() {
-  useEffect(() => {
-    invoke("create_tables", {}).then(() => {
-      console.log("Tables created successfully.");
-    });
-  }, []);
+  useHotkeys([
+    [
+      "ctrl+t",
+      () => {
+        invoke("create_tables", {}).then(() => {
+          console.log("Tables created successfully.");
+        });
+      },
+    ],
+  ]);
 
   useHotkeys([
     [
@@ -42,6 +46,19 @@ export default function App() {
           count: 300,
         }).then(() => {
           console.log("Started ingesting data into fifteen_error_bound_table.");
+        });
+      },
+    ],
+  ]);
+
+  useHotkeys([
+    [
+      "ctrl+f",
+      () => {
+        invoke("flush_nodes", {
+          intervalSeconds: 30,
+        }).then(() => {
+          console.log("Started flushing data from nodes.");
         });
       },
     ],

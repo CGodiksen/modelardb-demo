@@ -19,10 +19,11 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 arrow = "54.2.1"
+arrow-flight = "54.2.1"
 arrow-json = "54.2.1"
 datafusion = "46.0.0"
-modelardb_embedded = { git = "https://github.com/ModelarData/ModelarDB-RS.git", rev="897d501" }
-modelardb_types = { git = "https://github.com/ModelarData/ModelarDB-RS.git", rev="897d501" }
+modelardb_embedded = { git = "https://github.com/ModelarData/ModelarDB-RS.git", rev="039cf13" }
+modelardb_types = { git = "https://github.com/ModelarData/ModelarDB-RS.git", rev="039cf13" }
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 tokio = "1.44.0"

@@ -6,6 +6,8 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use arrow::array::{RecordBatch, StringArray};
 use arrow::compute;
 use arrow::datatypes::{ArrowPrimitiveType, DataType, Field, Schema};
+use arrow_flight::flight_service_client::FlightServiceClient;
+use arrow_flight::Action;
 use arrow_json::ArrayWriter;
 use datafusion::parquet::arrow::ParquetRecordBatchStreamBuilder;
 use datafusion::physical_plan::common;
@@ -23,6 +25,7 @@ use tokio::time;
 #[derive(Default)]
 struct AppState {
     ingestion_tasks: HashMap<String, JoinHandle<()>>,
+    flush_task: Option<JoinHandle<()>>,
 }
 
 #[tauri::command]
@@ -91,13 +94,13 @@ async fn ingest_into_table(
         handle.abort();
     }
 
-    let join_handle = tokio::spawn(ingest_data_points(table_name.clone(), count));
+    let join_handle = tokio::spawn(ingest_into_table_task(table_name.clone(), count));
     state.ingestion_tasks.insert(table_name, join_handle);
 
     Ok(())
 }
 
-async fn ingest_data_points(table_name: String, count: usize) {
+async fn ingest_into_table_task(table_name: String, count: usize) {
     let file = tokio::fs::File::open("../data/wind.parquet").await.unwrap();
     let builder = ParquetRecordBatchStreamBuilder::new(file).await.unwrap();
 
@@ -106,18 +109,7 @@ async fn ingest_data_points(table_name: String, count: usize) {
     let record_batch =
         compute::concat_batches(&record_batches[0].schema(), &record_batches).unwrap();
 
-    let edge_nodes = vec![
-        Node::Server("grpc://127.0.0.1:9981".to_owned()),
-        Node::Server("grpc://127.0.0.1:9982".to_owned()),
-        Node::Server("grpc://127.0.0.1:9983".to_owned()),
-        Node::Server("grpc://127.0.0.1:9984".to_owned()),
-        Node::Server("grpc://127.0.0.1:9985".to_owned()),
-        Node::Server("grpc://127.0.0.1:9986".to_owned()),
-        Node::Server("grpc://127.0.0.1:9987".to_owned()),
-        Node::Server("grpc://127.0.0.1:9988".to_owned()),
-        Node::Server("grpc://127.0.0.1:9989".to_owned()),
-        Node::Server("grpc://127.0.0.1:9990".to_owned()),
-    ];
+    let edge_nodes = edge_nodes();
 
     let mut offset = 0;
 
@@ -143,7 +135,7 @@ async fn ingest_data_points(table_name: String, count: usize) {
             offset = 0;
         }
 
-        time::sleep(Duration::from_secs(2)).await;
+        time::sleep(Duration::from_secs(1)).await;
     }
 }
 
@@ -220,6 +212,66 @@ fn table_schema() -> Schema {
     ])
 }
 
+#[tauri::command]
+async fn flush_nodes(
+    state: State<'_, Mutex<AppState>>,
+    interval_seconds: u64,
+) -> Result<(), String> {
+    let mut state = state.lock().await;
+
+    if let Some(handle) = &state.flush_task {
+        handle.abort();
+    }
+
+    let join_handle = tokio::spawn(flush_nodes_task(interval_seconds));
+    state.flush_task = Some(join_handle);
+
+    Ok(())
+}
+
+async fn flush_nodes_task(interval_seconds: u64) {
+    let edge_nodes = edge_nodes();
+
+    loop {
+        let mut futures: FuturesUnordered<_> = edge_nodes
+            .iter()
+            .map(|node| flush_node(node.clone()))
+            .collect();
+
+        while let Some(()) = futures.next().await {}
+
+        time::sleep(Duration::from_secs(interval_seconds)).await;
+    }
+}
+
+async fn flush_node(node: Node) {
+    let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
+        .await
+        .unwrap();
+
+    let action = Action {
+        r#type: "FlushNode".to_owned(),
+        body: vec![].into(),
+    };
+
+    flight_client.do_action(action).await.unwrap();
+}
+
+fn edge_nodes() -> Vec<Node> {
+    vec![
+        Node::Server("grpc://127.0.0.1:9981".to_owned()),
+        Node::Server("grpc://127.0.0.1:9982".to_owned()),
+        Node::Server("grpc://127.0.0.1:9983".to_owned()),
+        Node::Server("grpc://127.0.0.1:9984".to_owned()),
+        Node::Server("grpc://127.0.0.1:9985".to_owned()),
+        Node::Server("grpc://127.0.0.1:9986".to_owned()),
+        Node::Server("grpc://127.0.0.1:9987".to_owned()),
+        Node::Server("grpc://127.0.0.1:9988".to_owned()),
+        Node::Server("grpc://127.0.0.1:9989".to_owned()),
+        Node::Server("grpc://127.0.0.1:9990".to_owned()),
+    ]
+}
+
 #[derive(serde::Serialize)]
 struct ClientTableResponse {
     name: String,
@@ -290,6 +342,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             create_tables,
             ingest_into_table,
+            flush_nodes,
             client_tables,
             client_query
         ])
