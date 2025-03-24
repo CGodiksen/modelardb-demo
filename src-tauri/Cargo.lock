@@ -4112,7 +4112,7 @@ dependencies = [
 [[package]]
 name = "modelardb_common"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=b9cf479#b9cf479f13b41ccf3de4d959026840c6c1e7ff64"
 dependencies = [
  "arrow",
  "arrow-flight",
@@ -4124,7 +4124,7 @@ dependencies = [
 [[package]]
 name = "modelardb_compression"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=b9cf479#b9cf479f13b41ccf3de4d959026840c6c1e7ff64"
 dependencies = [
  "arrow",
  "modelardb_types",
@@ -4133,7 +4133,7 @@ dependencies = [
 [[package]]
 name = "modelardb_embedded"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=b9cf479#b9cf479f13b41ccf3de4d959026840c6c1e7ff64"
 dependencies = [
  "arrow",
  "arrow-flight",
@@ -4152,7 +4152,7 @@ dependencies = [
 [[package]]
 name = "modelardb_storage"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=b9cf479#b9cf479f13b41ccf3de4d959026840c6c1e7ff64"
 dependencies = [
  "arrow",
  "arrow-flight",
@@ -4176,7 +4176,7 @@ dependencies = [
 [[package]]
 name = "modelardb_types"
 version = "0.1.0"
-source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=039cf13#039cf1387586aa9100a03cefeb64cbcc9d0cee12"
+source = "git+https://github.com/ModelarData/ModelarDB-RS.git?rev=b9cf479#b9cf479f13b41ccf3de4d959026840c6c1e7ff64"
 dependencies = [
  "arrow",
 ]

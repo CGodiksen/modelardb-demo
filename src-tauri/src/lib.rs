@@ -30,8 +30,8 @@ struct AppState {
 
 #[tauri::command]
 async fn create_tables() {
-    let manager_node = Node::Manager("grpc://127.0.0.1:9998".to_owned());
-    let mut client = Client::connect(manager_node).await.unwrap();
+    let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9998".to_owned());
+    let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
 
     let table_schema = table_schema();
 
@@ -66,20 +66,35 @@ async fn create_tables() {
         TableType::ModelTable(table_schema.clone(), five_error_bounds, HashMap::new());
 
     let fifteen_error_bound_table_type =
-        TableType::ModelTable(table_schema, fifteen_error_bounds, HashMap::new());
+        TableType::ModelTable(table_schema.clone(), fifteen_error_bounds, HashMap::new());
 
-    client
-        .create("lossless_table", lossless_table_type)
+    modelardb_client
+        .create("wind_1", lossless_table_type)
         .await
         .unwrap();
-    client
-        .create("five_error_bound_table", five_error_bound_table_type)
+    modelardb_client
+        .create("wind_2", five_error_bound_table_type)
         .await
         .unwrap();
-    client
-        .create("fifteen_error_bound_table", fifteen_error_bound_table_type)
+    modelardb_client
+        .create("wind_3", fifteen_error_bound_table_type)
         .await
         .unwrap();
+
+    let parquet_manager_node = Node::Manager("grpc://127.0.0.1:9970".to_owned());
+    let mut parquet_client = Client::connect(parquet_manager_node).await.unwrap();
+
+    let table_type = TableType::NormalTable(table_schema.clone());
+
+    parquet_client
+        .create("wind_1", table_type.clone())
+        .await
+        .unwrap();
+    parquet_client
+        .create("wind_2", table_type.clone())
+        .await
+        .unwrap();
+    parquet_client.create("wind_3", table_type).await.unwrap();
 }
 
 #[tauri::command]

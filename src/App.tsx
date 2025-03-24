@@ -28,24 +28,24 @@ export default function App() {
       "ctrl+r",
       () => {
         invoke("ingest_into_table", {
-          tableName: "lossless_table",
+          tableName: "wind_1",
           count: 100,
         }).then(() => {
-          console.log("Started ingesting data into lossless_table.");
+          console.log("Started ingesting data into wind_1.");
         });
 
         invoke("ingest_into_table", {
-          tableName: "five_error_bound_table",
+          tableName: "wind_2",
           count: 200,
         }).then(() => {
-          console.log("Started ingesting data into five_error_bound_table.");
+          console.log("Started ingesting data into wind_2.");
         });
 
         invoke("ingest_into_table", {
-          tableName: "fifteen_error_bound_table",
+          tableName: "wind_3",
           count: 300,
         }).then(() => {
-          console.log("Started ingesting data into fifteen_error_bound_table.");
+          console.log("Started ingesting data into wind_3.");
         });
       },
     ],
