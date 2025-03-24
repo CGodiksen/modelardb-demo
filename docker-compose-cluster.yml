@@ -1,5 +1,12 @@
 version: "3.8"
 
+x-aws-variables: &aws-variables
+  AWS_ACCESS_KEY_ID: minioadmin
+  AWS_SECRET_ACCESS_KEY: minioadmin
+  AWS_DEFAULT_REGION: eu-central-1
+  AWS_ENDPOINT: http://minio-server:9000
+  AWS_ALLOW_HTTP: "true"
+
 x-modelardb-variables: &modelardb-variables
   MODELARDBD_UNCOMPRESSED_DATA_BUFFER_CAPACITY: 1280
   MODELARDBD_COMPRESSED_RESERVED_MEMORY_IN_BYTES: 10000
@@ -30,6 +37,7 @@ services:
       /bin/sh -c "
       /usr/bin/mc config host add modelardb-minio http://minio-server:9000 minioadmin minioadmin;
       /usr/bin/mc mb modelardb-minio/modelardb;
+      /usr/bin/mc mb modelardb-minio/parquet;
       exit 0;
       "
 
@@ -40,12 +48,7 @@ services:
     command: [ "target/debug/modelardbm", "s3://modelardb" ]
     ports:
       - "9998:9998"
-    environment:
-      AWS_ACCESS_KEY_ID: minioadmin
-      AWS_SECRET_ACCESS_KEY: minioadmin
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ENDPOINT: http://minio-server:9000
-      AWS_ALLOW_HTTP: "true"
+    environment: *aws-variables
     depends_on:
       - minio-server
       - create-bucket
@@ -189,4 +192,159 @@ services:
       MODELARDBD_PORT: 9999
     depends_on:
       modelardb-edge-10:
+        condition: service_healthy
+
+  # Simple Parquet services.
+  parquet-manager:
+    image: modelardb
+    container_name: parquet-manager
+    command: [ "target/debug/modelardbm", "s3://parquet" ]
+    ports:
+      - "9970:9970"
+    environment:
+      <<: *aws-variables
+      MODELARDBM_PORT: 9970
+    depends_on:
+      - minio-server
+      - create-bucket
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 2s
+
+  parquet-edge-1: &parquet-base
+    image: modelardb
+    container_name: parquet-edge-1
+    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://parquet-manager:9970" ]
+    ports:
+      - "9971:9971"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9971
+    restart: on-failure:10
+    depends_on:
+      parquet-manager:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "echo", "ready" ]
+      interval: 1s
+
+  parquet-edge-2:
+    <<: *parquet-base
+    container_name: parquet-edge-2
+    ports:
+      - "9972:9972"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9972
+    depends_on:
+      parquet-edge-1:
+        condition: service_healthy
+
+  parquet-edge-3:
+    <<: *parquet-base
+    container_name: parquet-edge-3
+    ports:
+      - "9973:9973"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9973
+    depends_on:
+      parquet-edge-2:
+        condition: service_healthy
+
+  parquet-edge-4:
+    <<: *parquet-base
+    container_name: parquet-edge-4
+    ports:
+      - "9974:9974"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9974
+    depends_on:
+      parquet-edge-3:
+        condition: service_healthy
+
+  parquet-edge-5:
+    <<: *parquet-base
+    container_name: parquet-edge-5
+    ports:
+      - "9975:9975"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9975
+    depends_on:
+      parquet-edge-4:
+        condition: service_healthy
+
+  parquet-edge-6:
+    <<: *parquet-base
+    container_name: parquet-edge-6
+    ports:
+      - "9976:9976"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9976
+    depends_on:
+      parquet-edge-5:
+        condition: service_healthy
+
+  parquet-edge-7:
+    <<: *parquet-base
+    container_name: parquet-edge-7
+    ports:
+      - "9977:9977"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9977
+    depends_on:
+      parquet-edge-6:
+        condition: service_healthy
+
+  parquet-edge-8:
+    <<: *parquet-base
+    container_name: parquet-edge-8
+    ports:
+      - "9978:9978"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9978
+    depends_on:
+      parquet-edge-7:
+        condition: service_healthy
+
+  parquet-edge-9:
+    <<: *parquet-base
+    container_name: parquet-edge-9
+    ports:
+      - "9979:9979"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9979
+    depends_on:
+      parquet-edge-8:
+        condition: service_healthy
+
+  parquet-edge-10:
+    <<: *parquet-base
+    container_name: parquet-edge-10
+    ports:
+      - "9980:9980"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9980
+    depends_on:
+      parquet-edge-9:
+        condition: service_healthy
+
+  parquet-cloud:
+    <<: *parquet-base
+    container_name: parquet-cloud
+    command: [ "target/debug/modelardbd", "cloud", "memory://", "grpc://parquet-manager:9970" ]
+    ports:
+      - "9969:9969"
+    environment:
+      <<: *modelardb-variables
+      MODELARDBD_PORT: 9969
+    depends_on:
+      parquet-edge-10:
         condition: service_healthy
