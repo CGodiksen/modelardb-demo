@@ -53,7 +53,7 @@ services:
       test: [ "CMD", "echo", "ready" ]
       interval: 2s
 
-  modelardb-edge-1:
+  modelardb-edge-1: &modelardb-base
     image: modelardb
     container_name: modelardb-edge-1
     command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
@@ -71,160 +71,115 @@ services:
       interval: 1s
 
   modelardb-edge-2:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-edge-2
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
       - "9982:9982"
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9982
-    restart: on-failure:10
     depends_on:
       modelardb-edge-1:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
 
   modelardb-edge-3:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-edge-3
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
       - "9983:9983"
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9983
-    restart: on-failure:10
     depends_on:
       modelardb-edge-2:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
 
   modelardb-edge-4:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-edge-4
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
       - "9984:9984"
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9984
-    restart: on-failure:10
     depends_on:
       modelardb-edge-3:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
 
   modelardb-edge-5:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-edge-5
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
       - "9985:9985"
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9985
-    restart: on-failure:10
     depends_on:
       modelardb-edge-4:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
 
   modelardb-edge-6:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-edge-6
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
       - "9986:9986"
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9986
-    restart: on-failure:10
     depends_on:
       modelardb-edge-5:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
 
   modelardb-edge-7:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-edge-7
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
       - "9987:9987"
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9987
-    restart: on-failure:10
     depends_on:
       modelardb-edge-6:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
 
   modelardb-edge-8:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-edge-8
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
       - "9988:9988"
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9988
-    restart: on-failure:10
     depends_on:
       modelardb-edge-7:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
 
   modelardb-edge-9:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-edge-9
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
       - "9989:9989"
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9989
-    restart: on-failure:10
     depends_on:
       modelardb-edge-8:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
 
   modelardb-edge-10:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-edge-10
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
       - "9990:9990"
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9990
-    restart: on-failure:10
     depends_on:
       modelardb-edge-9:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
 
   modelardb-cloud:
-    image: modelardb
+    <<: *modelardb-base
     container_name: modelardb-cloud
     command: [ "target/debug/modelardbd", "cloud", "memory://", "grpc://modelardb-manager:9998" ]
     ports:
@@ -232,7 +187,6 @@ services:
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9999
-    restart: on-failure:10
     depends_on:
       modelardb-edge-10:
         condition: service_healthy
