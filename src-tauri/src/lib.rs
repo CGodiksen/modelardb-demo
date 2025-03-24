@@ -132,9 +132,10 @@ async fn ingest_into_table_task(table_name: String, count: usize) {
         let mut futures: FuturesUnordered<_> = edge_nodes
             .iter()
             .enumerate()
-            .map(|(index, node)| {
-                ingest_data_points_into_node(
-                    node.clone(),
+            .map(|(index, (modelardb_node, parquet_node))| {
+                ingest_data_points_into_nodes(
+                    modelardb_node.clone(),
+                    parquet_node.clone(),
                     index,
                     &table_name,
                     record_batch.slice((40000 * index) + offset, count),
@@ -154,13 +155,15 @@ async fn ingest_into_table_task(table_name: String, count: usize) {
     }
 }
 
-async fn ingest_data_points_into_node(
-    node: Node,
+async fn ingest_data_points_into_nodes(
+    modelardb_node: Node,
+    parquet_node: Node,
     node_id: usize,
     table_name: &str,
     data_points: RecordBatch,
 ) {
-    let mut client = Client::connect(node).await.unwrap();
+    let mut modelardb_client = Client::connect(modelardb_node).await.unwrap();
+    let mut parquet_client = Client::connect(parquet_node).await.unwrap();
 
     let mut timestamps = TimestampBuilder::with_capacity(data_points.num_rows());
 
@@ -206,7 +209,14 @@ async fn ingest_data_points_into_node(
     )
     .unwrap();
 
-    client.write(table_name, record_batch).await.unwrap();
+    modelardb_client
+        .write(table_name, record_batch.clone())
+        .await
+        .unwrap();
+    parquet_client
+        .write(table_name, record_batch)
+        .await
+        .unwrap();
 }
 
 fn table_schema() -> Schema {
@@ -248,8 +258,10 @@ async fn flush_nodes_task(interval_seconds: u64) {
     let edge_nodes = edge_nodes();
 
     loop {
-        for node in &edge_nodes {
-            tokio::spawn(flush_node(node.clone()));
+        for (modelardb_node, parquet_node) in &edge_nodes {
+            tokio::spawn(flush_node(modelardb_node.clone()));
+            tokio::spawn(flush_node(parquet_node.clone()));
+
             time::sleep(Duration::from_secs(interval_seconds / 10)).await;
         }
     }
@@ -268,18 +280,48 @@ async fn flush_node(node: Node) {
     flight_client.do_action(action).await.unwrap();
 }
 
-fn edge_nodes() -> Vec<Node> {
+fn edge_nodes() -> Vec<(Node, Node)> {
     vec![
-        Node::Server("grpc://127.0.0.1:9981".to_owned()),
-        Node::Server("grpc://127.0.0.1:9982".to_owned()),
-        Node::Server("grpc://127.0.0.1:9983".to_owned()),
-        Node::Server("grpc://127.0.0.1:9984".to_owned()),
-        Node::Server("grpc://127.0.0.1:9985".to_owned()),
-        Node::Server("grpc://127.0.0.1:9986".to_owned()),
-        Node::Server("grpc://127.0.0.1:9987".to_owned()),
-        Node::Server("grpc://127.0.0.1:9988".to_owned()),
-        Node::Server("grpc://127.0.0.1:9989".to_owned()),
-        Node::Server("grpc://127.0.0.1:9990".to_owned()),
+        (
+            Node::Server("grpc://127.0.0.1:9981".to_owned()),
+            Node::Server("grpc://127.0.0.1:9971".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9982".to_owned()),
+            Node::Server("grpc://127.0.0.1:9972".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9983".to_owned()),
+            Node::Server("grpc://127.0.0.1:9973".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9984".to_owned()),
+            Node::Server("grpc://127.0.0.1:9974".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9985".to_owned()),
+            Node::Server("grpc://127.0.0.1:9975".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9986".to_owned()),
+            Node::Server("grpc://127.0.0.1:9976".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9987".to_owned()),
+            Node::Server("grpc://127.0.0.1:9977".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9988".to_owned()),
+            Node::Server("grpc://127.0.0.1:9978".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9989".to_owned()),
+            Node::Server("grpc://127.0.0.1:9979".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9990".to_owned()),
+            Node::Server("grpc://127.0.0.1:9980".to_owned()),
+        ),
     ]
 }
 
