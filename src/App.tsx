@@ -4,12 +4,12 @@ import { useEffect } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
 
+import { IngestionControls } from "./components/IngestionControls/IngestionControls.tsx";
+import { DataTransferStatistics } from "./components/DataTransferStatistics/DataTransferStatistics.tsx";
+import { TableStatistics } from "./components/TableStatistics/TableStatistics.tsx";
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
-import { SimulationStatistics } from "./components/SimulationStatistics/SimulationStatistics.tsx";
-import { DataTransferChart } from "./components/DataTransferChart/DataTransferChart.tsx";
-import { NodeList } from "./components/NodeList/NodeList.tsx";
-import { theme } from "./theme";
 
+import { theme } from "./theme";
 import "@mantine/core/styles.css";
 import "./App.css";
 
@@ -113,18 +113,32 @@ export default function App() {
       <AppShell padding="sm">
         <AppShell.Main>
           <Container m={5} p={5} fluid>
-            <Grid grow>
-              <Grid.Col span={3} h={"72vh"}>
-                <NodeList></NodeList>
+            <Grid columns={24} grow>
+              <Grid.Col span={6} h={"23vh"}>
+                <IngestionControls></IngestionControls>
               </Grid.Col>
               <Grid.Col span={9}>
+                <DataTransferStatistics
+                  deployment={"modelardb"}
+                ></DataTransferStatistics>
+              </Grid.Col>
+              <Grid.Col span={9}>
+                <DataTransferStatistics
+                  deployment={"parquet"}
+                ></DataTransferStatistics>
+              </Grid.Col>
+              <Grid.Col span={6} h={"74vh"}>
+                <Grid grow>
+                  <Grid.Col span={12} h={"37vh"}>
+                    <TableStatistics deployment={"modelardb"}></TableStatistics>
+                  </Grid.Col>
+                  <Grid.Col span={12}>
+                    <TableStatistics deployment={"parquet"}></TableStatistics>
+                  </Grid.Col>
+                </Grid>
+              </Grid.Col>
+              <Grid.Col span={18}>
                 <NodeMap></NodeMap>
-              </Grid.Col>
-              <Grid.Col span={3} h={"25vh"}>
-                <SimulationStatistics></SimulationStatistics>
-              </Grid.Col>
-              <Grid.Col span={9}>
-                <DataTransferChart></DataTransferChart>
               </Grid.Col>
             </Grid>
           </Container>
