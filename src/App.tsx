@@ -95,6 +95,17 @@ export default function App() {
         wind_3: ${event.payload.wind_3_size}`,
       );
     });
+
+    type IngestedSize = {
+      table_name: string;
+      size: number;
+    };
+
+    listen<IngestedSize>("data-ingested", (event) => {
+      console.log(
+        `Received data ingested event for ${event.payload.table_name}: ${event.payload.size}`,
+      );
+    });
   }, []);
 
   return (

@@ -27,8 +27,8 @@ export function NodeMap({}) {
           mapTypeId={"hybrid"}
           mapId={"DEMO_MAP_ID"}
         >
-          {nodes.map((node) => (
-            <NodeMarker node={node}></NodeMarker>
+          {nodes.map((node, index) => (
+            <NodeMarker key={index} node={node}></NodeMarker>
           ))}
         </Map>
       </APIProvider>

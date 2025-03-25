@@ -153,6 +153,7 @@ async fn create_tables() {
 
 #[tauri::command]
 async fn ingest_into_table(
+    app: AppHandle,
     state: State<'_, Mutex<AppState>>,
     table_name: String,
     count: usize,
@@ -163,13 +164,13 @@ async fn ingest_into_table(
         handle.abort();
     }
 
-    let join_handle = tokio::spawn(ingest_into_table_task(table_name.clone(), count));
+    let join_handle = tokio::spawn(ingest_into_table_task(app, table_name.clone(), count));
     state.ingestion_tasks.insert(table_name, join_handle);
 
     Ok(())
 }
 
-async fn ingest_into_table_task(table_name: String, count: usize) {
+async fn ingest_into_table_task(app: AppHandle, table_name: String, count: usize) {
     let file = tokio::fs::File::open("../data/wind.parquet").await.unwrap();
     let builder = ParquetRecordBatchStreamBuilder::new(file).await.unwrap();
 
@@ -188,6 +189,7 @@ async fn ingest_into_table_task(table_name: String, count: usize) {
             .enumerate()
             .map(|(index, (modelardb_node, parquet_node))| {
                 ingest_data_points_into_nodes(
+                    app.clone(),
                     modelardb_node.clone(),
                     parquet_node.clone(),
                     index,
@@ -209,7 +211,14 @@ async fn ingest_into_table_task(table_name: String, count: usize) {
     }
 }
 
+#[derive(Clone, Serialize)]
+struct IngestedSize {
+    table_name: String,
+    size: usize,
+}
+
 async fn ingest_data_points_into_nodes(
+    app: AppHandle,
     modelardb_node: Node,
     parquet_node: Node,
     node_id: usize,
@@ -260,6 +269,18 @@ async fn ingest_data_points_into_nodes(
             data_points.column(9).clone(),
             data_points.column(10).clone(),
         ],
+    )
+    .unwrap();
+
+    // One 8-byte timestamp, two 4-byte tags, and ten 4-byte fields per row.
+    let ingested_size = (8 + (12 * 4)) * data_points.num_rows();
+
+    app.emit(
+        "data-ingested",
+        IngestedSize {
+            table_name: table_name.to_owned(),
+            size: ingested_size,
+        },
     )
     .unwrap();
 
