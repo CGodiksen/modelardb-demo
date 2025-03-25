@@ -6,14 +6,44 @@ import classes from "./TableStatistics.module.css";
 type TableStatisticsProps = {
   description: string;
   colors: string[];
+  wind_1_bytes: number;
+  wind_2_bytes: number;
+  wind_3_bytes: number;
 };
 
-export function TableStatistics({ description, colors }: TableStatisticsProps) {
+export function TableStatistics({
+  description,
+  colors,
+  wind_1_bytes,
+  wind_2_bytes,
+  wind_3_bytes,
+}: TableStatisticsProps) {
+  const total_bytes = wind_1_bytes + wind_2_bytes + wind_3_bytes;
   const data = [
-    { label: "wind_1", count: "204,001", part: 59, color: colors[0] },
-    { label: "wind_2", count: "121,017", part: 35, color: colors[1] },
-    { label: "wind_3", count: "31,118", part: 6, color: colors[2] },
+    {
+      label: "wind_1",
+      count: wind_1_bytes,
+      part: Math.round((wind_1_bytes / total_bytes) * 100),
+      color: colors[0],
+    },
+    {
+      label: "wind_2",
+      count: wind_2_bytes,
+      part: Math.round((wind_2_bytes / total_bytes) * 100),
+      color: colors[1],
+    },
+    {
+      label: "wind_3",
+      count: wind_3_bytes,
+      part: Math.round((wind_3_bytes / total_bytes) * 100),
+      color: colors[2],
+    },
   ];
+
+  function bytesToMegabytes(bytes: number): string {
+    const megabytes = bytes / 1048576;
+    return `${megabytes.toFixed(2)} MB`;
+  }
 
   const segments = data.map((segment) => (
     <Progress.Section
@@ -36,7 +66,7 @@ export function TableStatistics({ description, colors }: TableStatisticsProps) {
       </Text>
 
       <Group justify="space-between" align="flex-end" gap={0}>
-        <Text fw={700}>{stat.count}</Text>
+        <Text fw={700}>{bytesToMegabytes(stat.count)}</Text>
         <Text c={stat.color} fw={700} size="sm" className={classes.statCount}>
           {stat.part}%
         </Text>
@@ -49,7 +79,7 @@ export function TableStatistics({ description, colors }: TableStatisticsProps) {
       <Group justify="space-between">
         <Group align="flex-end" gap="xs">
           <Text fz="xl" fw={700}>
-            345,765 MB
+            {bytesToMegabytes(total_bytes)}
           </Text>
         </Group>
         <IconDeviceAnalytics size={22} className={classes.icon} stroke={1.5} />

@@ -129,18 +129,27 @@ export default function App() {
                     <TableStatistics
                       description={"Total data ingested for both deployments"}
                       colors={["#ec777e", "#e22732", "#9e0419"]}
+                      wind_1_bytes={204001000}
+                      wind_2_bytes={121017000}
+                      wind_3_bytes={31118000}
                     ></TableStatistics>
                   </Grid.Col>
                   <Grid.Col span={12} h={"24vh"}>
                     <TableStatistics
                       description={"Total data transferred for ModelarDB"}
                       colors={["#64a0ff", "#0969ff", "#0043b5"]}
+                      wind_1_bytes={204001000}
+                      wind_2_bytes={121017000}
+                      wind_3_bytes={31118000}
                     ></TableStatistics>
                   </Grid.Col>
                   <Grid.Col span={12}>
                     <TableStatistics
                       description={"Total data transferred for Parquet"}
                       colors={["#ad86dd", "#7d3fc9", "#52238d"]}
+                      wind_1_bytes={204001000}
+                      wind_2_bytes={121010070}
+                      wind_3_bytes={31118000}
                     ></TableStatistics>
                   </Grid.Col>
                 </Grid>
