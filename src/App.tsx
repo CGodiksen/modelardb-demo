@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useHotkeys } from "@mantine/hooks";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
 
@@ -8,12 +8,21 @@ import { IngestionControls } from "./components/IngestionControls/IngestionContr
 import { DataTransferStatistics } from "./components/DataTransferStatistics/DataTransferStatistics.tsx";
 import { TableStatistics } from "./components/TableStatistics/TableStatistics.tsx";
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
+import {
+  IngestedSize,
+  RemoteObjectStoreTableSize,
+} from "./interfaces/event.ts";
 
 import { theme } from "./theme";
 import "@mantine/core/styles.css";
 import "./App.css";
 
 export default function App() {
+  const [totalIngestedSize, setTotalIngestedSize] = useState(0);
+  const [dataIngestedEvents, setDataIngestedEvents] = useState<IngestedSize[]>(
+    [],
+  );
+
   useHotkeys([
     [
       "ctrl+t",
@@ -80,13 +89,6 @@ export default function App() {
   ]);
 
   useEffect(() => {
-    type RemoteObjectStoreTableSize = {
-      node_type: string;
-      wind_1_size: number;
-      wind_2_size: number;
-      wind_3_size: number;
-    };
-
     listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
       console.log(
         `Received remote object store size data for ${event.payload.node_type}: \n 
@@ -96,15 +98,9 @@ export default function App() {
       );
     });
 
-    type IngestedSize = {
-      table_name: string;
-      size: number;
-    };
-
     listen<IngestedSize>("data-ingested", (event) => {
-      console.log(
-        `Received data ingested event for ${event.payload.table_name}: ${event.payload.size}`,
-      );
+      setTotalIngestedSize((prev) => prev + event.payload.size);
+      setDataIngestedEvents((prev) => [...prev, event.payload]);
     });
   }, []);
 
@@ -129,11 +125,23 @@ export default function App() {
               </Grid.Col>
               <Grid.Col span={6} h={"74vh"}>
                 <Grid grow>
-                  <Grid.Col span={12} h={"37vh"}>
-                    <TableStatistics deployment={"modelardb"}></TableStatistics>
+                  <Grid.Col span={12} h={"24vh"}>
+                    <TableStatistics
+                      description={"Total data ingested for both deployments"}
+                      colors={["#ec777e", "#e22732", "#9e0419"]}
+                    ></TableStatistics>
+                  </Grid.Col>
+                  <Grid.Col span={12} h={"24vh"}>
+                    <TableStatistics
+                      description={"Total data transferred for ModelarDB"}
+                      colors={["#64a0ff", "#0969ff", "#0043b5"]}
+                    ></TableStatistics>
                   </Grid.Col>
                   <Grid.Col span={12}>
-                    <TableStatistics deployment={"parquet"}></TableStatistics>
+                    <TableStatistics
+                      description={"Total data transferred for Parquet"}
+                      colors={["#ad86dd", "#7d3fc9", "#52238d"]}
+                    ></TableStatistics>
                   </Grid.Col>
                 </Grid>
               </Grid.Col>
