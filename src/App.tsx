@@ -18,10 +18,25 @@ import "@mantine/core/styles.css";
 import "./App.css";
 
 export default function App() {
-  const [totalIngestedSize, setTotalIngestedSize] = useState(0);
-  const [dataIngestedEvents, setDataIngestedEvents] = useState<IngestedSize[]>(
-    [],
-  );
+  const [totalIngestedWind1Size, setTotalIngestedWind1Size] = useState(0);
+  const [totalIngestedWind2Size, setTotalIngestedWind2Size] = useState(0);
+  const [totalIngestedWind3Size, setTotalIngestedWind3Size] = useState(0);
+
+  const [totalTransferredSizeModelardb, setTotalTransferredSizeModelardb] =
+    useState<RemoteObjectStoreTableSize>({
+      node_type: "modelardb",
+      wind_1_size: 0,
+      wind_2_size: 0,
+      wind_3_size: 0,
+    });
+
+  const [totalTransferredSizeParquet, setTotalTransferredSizeParquet] =
+    useState<RemoteObjectStoreTableSize>({
+      node_type: "parquet",
+      wind_1_size: 0,
+      wind_2_size: 0,
+      wind_3_size: 0,
+    });
 
   useHotkeys([
     [
@@ -90,17 +105,21 @@ export default function App() {
 
   useEffect(() => {
     listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
-      console.log(
-        `Received remote object store size data for ${event.payload.node_type}: \n 
-        wind_1: ${event.payload.wind_1_size} \n 
-        wind_2: ${event.payload.wind_2_size} \n 
-        wind_3: ${event.payload.wind_3_size}`,
-      );
+      if (event.payload.node_type === "modelardb") {
+        setTotalTransferredSizeModelardb(event.payload);
+      } else {
+        setTotalTransferredSizeParquet(event.payload);
+      }
     });
 
     listen<IngestedSize>("data-ingested", (event) => {
-      setTotalIngestedSize((prev) => prev + event.payload.size);
-      setDataIngestedEvents((prev) => [...prev, event.payload]);
+      if (event.payload.table_name === "wind_1") {
+        setTotalIngestedWind1Size((prev) => prev + event.payload.size);
+      } else if (event.payload.table_name === "wind_2") {
+        setTotalIngestedWind2Size((prev) => prev + event.payload.size);
+      } else {
+        setTotalIngestedWind3Size((prev) => prev + event.payload.size);
+      }
     });
   }, []);
 
@@ -129,27 +148,27 @@ export default function App() {
                     <TableStatistics
                       description={"Total data ingested for both deployments"}
                       colors={["#ec777e", "#e22732", "#9e0419"]}
-                      wind_1_bytes={204001000}
-                      wind_2_bytes={121017000}
-                      wind_3_bytes={31118000}
+                      wind_1_bytes={totalIngestedWind1Size}
+                      wind_2_bytes={totalIngestedWind2Size}
+                      wind_3_bytes={totalIngestedWind3Size}
                     ></TableStatistics>
                   </Grid.Col>
                   <Grid.Col span={12} h={"24vh"}>
                     <TableStatistics
                       description={"Total data transferred for ModelarDB"}
                       colors={["#64a0ff", "#0969ff", "#0043b5"]}
-                      wind_1_bytes={204001000}
-                      wind_2_bytes={121017000}
-                      wind_3_bytes={31118000}
+                      wind_1_bytes={totalTransferredSizeModelardb.wind_1_size}
+                      wind_2_bytes={totalTransferredSizeModelardb.wind_2_size}
+                      wind_3_bytes={totalTransferredSizeModelardb.wind_3_size}
                     ></TableStatistics>
                   </Grid.Col>
                   <Grid.Col span={12}>
                     <TableStatistics
                       description={"Total data transferred for Parquet"}
                       colors={["#ad86dd", "#7d3fc9", "#52238d"]}
-                      wind_1_bytes={204001000}
-                      wind_2_bytes={121010070}
-                      wind_3_bytes={31118000}
+                      wind_1_bytes={totalTransferredSizeParquet.wind_1_size}
+                      wind_2_bytes={totalTransferredSizeParquet.wind_2_size}
+                      wind_3_bytes={totalTransferredSizeParquet.wind_3_size}
                     ></TableStatistics>
                   </Grid.Col>
                 </Grid>
