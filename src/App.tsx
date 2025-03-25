@@ -85,7 +85,8 @@ export default function App() {
 
   function updateBucketedData(
     bucketedData: BucketedData[],
-    event: IngestedSize,
+    ingestedBytes: number,
+    transferredBytes: number,
   ): BucketedData[] {
     const bucketInterval = 15000; // 15 seconds
     const maxAge = 120000; // 2 minutes
@@ -98,12 +99,13 @@ export default function App() {
     );
 
     if (existingBucket) {
-      existingBucket.ingested_bytes += event.size;
+      existingBucket.ingested_bytes += ingestedBytes;
+      existingBucket.transferred_bytes += transferredBytes;
     } else {
       bucketedData.push({
         timestamp: bucketTime,
-        ingested_bytes: event.size,
-        transferred_bytes: 300000,
+        ingested_bytes: ingestedBytes,
+        transferred_bytes: transferredBytes,
       });
     }
 
@@ -113,19 +115,49 @@ export default function App() {
   useEffect(() => {
     listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
       if (event.payload.node_type === "modelardb") {
-        setTotalTransferredSizeModelardb(event.payload);
+        setTotalTransferredSizeModelardb((prev) => {
+          const changeInSizeWind1 =
+            event.payload.wind_1_size - prev.wind_1_size;
+          const changeInSizeWind2 =
+            event.payload.wind_2_size - prev.wind_2_size;
+          const changeInSizeWind3 =
+            event.payload.wind_3_size - prev.wind_3_size;
+          setBucketedModelardbData((prevData) => {
+            return updateBucketedData(
+              prevData,
+              0,
+              changeInSizeWind1 + changeInSizeWind2 + changeInSizeWind3,
+            );
+          });
+          return event.payload;
+        });
       } else {
-        setTotalTransferredSizeParquet(event.payload);
+        setTotalTransferredSizeParquet((prev) => {
+          const changeInSizeWind1 =
+            event.payload.wind_1_size - prev.wind_1_size;
+          const changeInSizeWind2 =
+            event.payload.wind_2_size - prev.wind_2_size;
+          const changeInSizeWind3 =
+            event.payload.wind_3_size - prev.wind_3_size;
+          setBucketedParquetData((prevData) => {
+            return updateBucketedData(
+              prevData,
+              0,
+              changeInSizeWind1 + changeInSizeWind2 + changeInSizeWind3,
+            );
+          });
+          return event.payload;
+        });
       }
     });
 
     listen<IngestedSize>("data-ingested", (event) => {
       setBucketedModelardbData((prevData) => {
-        return updateBucketedData(prevData, event.payload);
+        return updateBucketedData(prevData, event.payload.size, 0);
       });
 
       setBucketedParquetData((prevData) => {
-        return updateBucketedData(prevData, event.payload);
+        return updateBucketedData(prevData, event.payload.size, 0);
       });
 
       if (event.payload.table_name === "wind_1") {
