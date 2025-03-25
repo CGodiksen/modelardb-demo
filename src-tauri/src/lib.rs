@@ -291,6 +291,7 @@ fn table_schema() -> Schema {
 
 #[tauri::command]
 async fn flush_nodes(
+    app: AppHandle,
     state: State<'_, Mutex<AppState>>,
     interval_seconds: u64,
 ) -> Result<(), String> {
@@ -300,26 +301,54 @@ async fn flush_nodes(
         handle.abort();
     }
 
-    let join_handle = tokio::spawn(flush_nodes_task(interval_seconds));
+    let join_handle = tokio::spawn(flush_nodes_task(
+        app,
+        state.modelardb_remote_object_store.clone(),
+        state.parquet_remote_object_store.clone(),
+        interval_seconds,
+    ));
     state.flush_task = Some(join_handle);
 
     Ok(())
 }
 
-async fn flush_nodes_task(interval_seconds: u64) {
+async fn flush_nodes_task(
+    app: AppHandle,
+    modelardb_remote_object_store: AmazonS3,
+    parquet_remote_object_store: AmazonS3,
+    interval_seconds: u64,
+) {
     let edge_nodes = edge_nodes();
 
     loop {
         for (modelardb_node, parquet_node) in &edge_nodes {
-            tokio::spawn(flush_node(modelardb_node.clone()));
-            tokio::spawn(flush_node(parquet_node.clone()));
+            tokio::spawn(flush_node(
+                app.clone(),
+                modelardb_node.clone(),
+                "modelardb".to_owned(),
+                modelardb_remote_object_store.clone(),
+            ));
+            tokio::spawn(flush_node(
+                app.clone(),
+                parquet_node.clone(),
+                "parquet".to_owned(),
+                parquet_remote_object_store.clone(),
+            ));
 
             time::sleep(Duration::from_secs(interval_seconds / 10)).await;
         }
     }
 }
 
-async fn flush_node(node: Node) {
+#[derive(Clone, Serialize)]
+struct TablesFlushed {
+    node_type: String,
+    wind_1_size: u64,
+    wind_2_size: u64,
+    wind_3_size: u64,
+}
+
+async fn flush_node(app: AppHandle, node: Node, node_type: String, remote_object_store: AmazonS3) {
     let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
         .await
         .unwrap();
@@ -330,6 +359,34 @@ async fn flush_node(node: Node) {
     };
 
     flight_client.do_action(action).await.unwrap();
+
+    let wind_1_table_size = table_size(&remote_object_store, "wind_1").await;
+    let wind_2_table_size = table_size(&remote_object_store, "wind_2").await;
+    let wind_3_table_size = table_size(&remote_object_store, "wind_3").await;
+
+    app.emit(
+        "tables-flushed",
+        TablesFlushed {
+            node_type,
+            wind_1_size: wind_1_table_size,
+            wind_2_size: wind_2_table_size,
+            wind_3_size: wind_3_table_size,
+        },
+    )
+    .unwrap();
+}
+
+async fn table_size(object_store: &AmazonS3, table_name: &str) -> u64 {
+    let table_path = Path::from(format!("tables/{}", table_name));
+    let table_files = object_store
+        .list(Some(&table_path))
+        .collect::<Vec<_>>()
+        .await;
+
+    table_files
+        .into_iter()
+        .map(|file| file.unwrap().size)
+        .sum::<u64>()
 }
 
 fn edge_nodes() -> Vec<(Node, Node)> {
@@ -441,7 +498,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            app.manage(Mutex::new(AppState::default()));
+            app.manage(Mutex::new(AppState::new()));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
