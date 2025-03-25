@@ -16,7 +16,7 @@ export function NodeMap({}) {
   }, []);
 
   return (
-    <Container fluid>
+    <Container fluid ps={5} pe={5}>
       <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
         <Map
           style={{ height: "72vh" }}

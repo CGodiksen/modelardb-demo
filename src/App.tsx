@@ -51,34 +51,6 @@ export default function App() {
 
   useHotkeys([
     [
-      "ctrl+r",
-      () => {
-        invoke("ingest_into_table", {
-          tableName: "wind_1",
-          count: 100,
-        }).then(() => {
-          console.log("Started ingesting data into wind_1.");
-        });
-
-        invoke("ingest_into_table", {
-          tableName: "wind_2",
-          count: 200,
-        }).then(() => {
-          console.log("Started ingesting data into wind_2.");
-        });
-
-        invoke("ingest_into_table", {
-          tableName: "wind_3",
-          count: 300,
-        }).then(() => {
-          console.log("Started ingesting data into wind_3.");
-        });
-      },
-    ],
-  ]);
-
-  useHotkeys([
-    [
       "ctrl+f",
       () => {
         invoke("flush_nodes", {
