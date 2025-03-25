@@ -9,6 +9,7 @@ import { DataTransferStatistics } from "./components/DataTransferStatistics/Data
 import { TableStatistics } from "./components/TableStatistics/TableStatistics.tsx";
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
 import {
+  BucketedData,
   IngestedSize,
   RemoteObjectStoreTableSize,
 } from "./interfaces/event.ts";
@@ -18,6 +19,8 @@ import "@mantine/core/styles.css";
 import "./App.css";
 
 export default function App() {
+  const [bucketedData, setBucketedData] = useState<BucketedData[]>([]);
+
   const [totalIngestedWind1Size, setTotalIngestedWind1Size] = useState(0);
   const [totalIngestedWind2Size, setTotalIngestedWind2Size] = useState(0);
   const [totalIngestedWind3Size, setTotalIngestedWind3Size] = useState(0);
@@ -84,7 +87,31 @@ export default function App() {
       }
     });
 
+    const bucketInterval = 15000; // 15 seconds
+    const maxAge = 120000; // 2 minutes
+
     listen<IngestedSize>("data-ingested", (event) => {
+      const now = Date.now();
+      const bucketTime = Math.floor(now / bucketInterval) * bucketInterval;
+
+      setBucketedData((prevData) => {
+        const newData = [...prevData];
+        const existingBucket = newData.find(
+          (bucket) => bucket.timestamp === bucketTime,
+        );
+
+        if (existingBucket) {
+          existingBucket.ingested_bytes += event.payload.size;
+        } else {
+          newData.push({
+            timestamp: bucketTime,
+            ingested_bytes: event.payload.size,
+          });
+        }
+
+        return newData.filter((bucket) => now - bucket.timestamp <= maxAge);
+      });
+
       if (event.payload.table_name === "wind_1") {
         setTotalIngestedWind1Size((prev) => prev + event.payload.size);
       } else if (event.payload.table_name === "wind_2") {
@@ -106,12 +133,14 @@ export default function App() {
               </Grid.Col>
               <Grid.Col span={9}>
                 <DataTransferStatistics
-                  deployment={"modelardb"}
+                  bucketedData={bucketedData}
+                  deployment={"ModelarDB"}
                 ></DataTransferStatistics>
               </Grid.Col>
               <Grid.Col span={9}>
                 <DataTransferStatistics
-                  deployment={"parquet"}
+                  bucketedData={bucketedData}
+                  deployment={"Parquet"}
                 ></DataTransferStatistics>
               </Grid.Col>
               <Grid.Col span={6} h={"74vh"}>

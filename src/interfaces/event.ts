@@ -9,3 +9,8 @@ export interface IngestedSize {
   table_name: string;
   size: number;
 }
+
+export interface BucketedData {
+  timestamp: number;
+  ingested_bytes: number;
+}

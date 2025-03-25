@@ -21,7 +21,7 @@ export function IngestionControls() {
     string | number
   >(300);
 
-  function numberWithCommas(x) {
+  function numberWithCommas(x: number): string {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
@@ -66,9 +66,9 @@ export function IngestionControls() {
                 <Text fw={700} fz="xl">
                   {numberWithCommas(
                     (8 + 12 * 4) *
-                      (wind1IngestionCount +
-                        wind2IngestionCount +
-                        wind3IngestionCount),
+                      ((wind1IngestionCount as number) +
+                        (wind2IngestionCount as number) +
+                        (wind3IngestionCount as number)),
                   )}{" "}
                   Bytes
                 </Text>
