@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useHotkeys } from "@mantine/hooks";
+import { useEffect } from "react";
+import { listen } from "@tauri-apps/api/event";
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
 
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
@@ -63,6 +65,37 @@ export default function App() {
       },
     ],
   ]);
+
+  useHotkeys([
+    [
+      "ctrl+m",
+      () => {
+        invoke("monitor_remote_object_stores", {
+          intervalSeconds: 5,
+        }).then(() => {
+          console.log("Started monitoring remote object stores.");
+        });
+      },
+    ],
+  ]);
+
+  useEffect(() => {
+    type RemoteObjectStoreTableSize = {
+      node_type: string;
+      wind_1_size: number;
+      wind_2_size: number;
+      wind_3_size: number;
+    };
+
+    listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
+      console.log(
+        `Received remote object store size data for ${event.payload.node_type}: \n 
+        wind_1: ${event.payload.wind_1_size} \n 
+        wind_2: ${event.payload.wind_2_size} \n 
+        wind_3: ${event.payload.wind_3_size}`,
+      );
+    });
+  }, []);
 
   return (
     <MantineProvider defaultColorScheme="dark" theme={theme}>
