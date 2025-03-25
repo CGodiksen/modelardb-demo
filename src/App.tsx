@@ -106,6 +106,7 @@ export default function App() {
           newData.push({
             timestamp: bucketTime,
             ingested_bytes: event.payload.size,
+            transferred_bytes: 300000,
           });
         }
 

@@ -13,4 +13,5 @@ export interface IngestedSize {
 export interface BucketedData {
   timestamp: number;
   ingested_bytes: number;
+  transferred_bytes: number;
 }

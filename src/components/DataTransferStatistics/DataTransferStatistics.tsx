@@ -27,11 +27,26 @@ export function DataTransferStatistics({
     timestamp: formatDate(bucket.timestamp),
   }));
 
+  function calculateCompressionRatio(bucketedData: BucketedData[]): number {
+    const totalIngestedBytes = bucketedData.reduce(
+      (sum, bucket) => sum + bucket.ingested_bytes,
+      0,
+    );
+    const totalTransferredBytes = bucketedData.reduce(
+      (sum, bucket) => sum + bucket.transferred_bytes,
+      0,
+    );
+
+    if (totalIngestedBytes === 0) return 0;
+
+    return (1 - totalTransferredBytes / totalIngestedBytes) * 100;
+  }
+
   return (
     <Container fluid ps={5} pe={5}>
       <Paper withBorder radius="md" p={10} pb={15} ms={0}>
         <Text fz="xl" fw={700}>
-          80%
+          {calculateCompressionRatio(bucketedData).toFixed(2)}%
         </Text>
         <Text c="dimmed" fz="sm">
           Compression ratio for {deployment} in the last 2 minutes
@@ -47,6 +62,11 @@ export function DataTransferStatistics({
               name: "ingested_bytes",
               color: "violet.6",
               label: "Ingested bytes",
+            },
+            {
+              name: "transferred_bytes",
+              color: "#7d3fc9",
+              label: "Transferred bytes",
             },
           ]}
           tickLine="y"
