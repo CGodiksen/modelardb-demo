@@ -5,11 +5,13 @@ import { BucketedData } from "../../interfaces/event.ts";
 type DataTransferStatisticsProps = {
   deployment: string;
   bucketedData: BucketedData[];
+  colors: string[];
 };
 
 export function DataTransferStatistics({
   deployment,
   bucketedData,
+  colors,
 }: DataTransferStatisticsProps) {
   function formatDate(timestamp: number): string {
     const date = new Date(timestamp);
@@ -60,12 +62,12 @@ export function DataTransferStatistics({
           series={[
             {
               name: "ingested_bytes",
-              color: "violet.6",
+              color: colors[0],
               label: "Ingested bytes",
             },
             {
               name: "transferred_bytes",
-              color: "#7d3fc9",
+              color: colors[1],
               label: "Transferred bytes",
             },
           ]}

@@ -19,7 +19,12 @@ import "@mantine/core/styles.css";
 import "./App.css";
 
 export default function App() {
-  const [bucketedData, setBucketedData] = useState<BucketedData[]>([]);
+  const [bucketedModelardbData, setBucketedModelardbData] = useState<
+    BucketedData[]
+  >([]);
+  const [bucketedParquetData, setBucketedParquetData] = useState<
+    BucketedData[]
+  >([]);
 
   const [totalIngestedWind1Size, setTotalIngestedWind1Size] = useState(0);
   const [totalIngestedWind2Size, setTotalIngestedWind2Size] = useState(0);
@@ -78,6 +83,33 @@ export default function App() {
     ],
   ]);
 
+  function updateBucketedData(
+    bucketedData: BucketedData[],
+    event: IngestedSize,
+  ): BucketedData[] {
+    const bucketInterval = 15000; // 15 seconds
+    const maxAge = 120000; // 2 minutes
+
+    const now = Date.now();
+    const bucketTime = Math.floor(now / bucketInterval) * bucketInterval;
+
+    const existingBucket = bucketedData.find(
+      (bucket) => bucket.timestamp === bucketTime,
+    );
+
+    if (existingBucket) {
+      existingBucket.ingested_bytes += event.size;
+    } else {
+      bucketedData.push({
+        timestamp: bucketTime,
+        ingested_bytes: event.size,
+        transferred_bytes: 300000,
+      });
+    }
+
+    return bucketedData.filter((bucket) => now - bucket.timestamp <= maxAge);
+  }
+
   useEffect(() => {
     listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
       if (event.payload.node_type === "modelardb") {
@@ -87,30 +119,13 @@ export default function App() {
       }
     });
 
-    const bucketInterval = 15000; // 15 seconds
-    const maxAge = 120000; // 2 minutes
-
     listen<IngestedSize>("data-ingested", (event) => {
-      const now = Date.now();
-      const bucketTime = Math.floor(now / bucketInterval) * bucketInterval;
+      setBucketedModelardbData((prevData) => {
+        return updateBucketedData(prevData, event.payload);
+      });
 
-      setBucketedData((prevData) => {
-        const newData = [...prevData];
-        const existingBucket = newData.find(
-          (bucket) => bucket.timestamp === bucketTime,
-        );
-
-        if (existingBucket) {
-          existingBucket.ingested_bytes += event.payload.size;
-        } else {
-          newData.push({
-            timestamp: bucketTime,
-            ingested_bytes: event.payload.size,
-            transferred_bytes: 300000,
-          });
-        }
-
-        return newData.filter((bucket) => now - bucket.timestamp <= maxAge);
+      setBucketedParquetData((prevData) => {
+        return updateBucketedData(prevData, event.payload);
       });
 
       if (event.payload.table_name === "wind_1") {
@@ -134,14 +149,16 @@ export default function App() {
               </Grid.Col>
               <Grid.Col span={9}>
                 <DataTransferStatistics
-                  bucketedData={bucketedData}
+                  bucketedData={bucketedModelardbData}
                   deployment={"ModelarDB"}
+                  colors={["#0969ff", "#0043b5"]}
                 ></DataTransferStatistics>
               </Grid.Col>
               <Grid.Col span={9}>
                 <DataTransferStatistics
-                  bucketedData={bucketedData}
+                  bucketedData={bucketedParquetData}
                   deployment={"Parquet"}
+                  colors={["#7d3fc9", "#52238d"]}
                 ></DataTransferStatistics>
               </Grid.Col>
               <Grid.Col span={6} h={"74vh"}>
