@@ -24,9 +24,11 @@ arrow-json = "54.2.1"
 datafusion = "46.0.0"
 modelardb_embedded = { git = "https://github.com/ModelarData/ModelarDB-RS.git", rev="b9cf479" }
 modelardb_types = { git = "https://github.com/ModelarData/ModelarDB-RS.git", rev="b9cf479" }
+object_store = { version = "0.12.0", features = ["aws"] }
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 tokio = "1.44.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 futures-util = "0.3.31"
+url = "2.5.4"

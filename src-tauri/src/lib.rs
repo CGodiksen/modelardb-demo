@@ -17,15 +17,67 @@ use modelardb_embedded::modelardb::client::{Client, Node};
 use modelardb_embedded::modelardb::ModelarDB;
 use modelardb_embedded::TableType;
 use modelardb_types::types::{ArrowTimestamp, ArrowValue, ErrorBound, TimestampBuilder};
-use tauri::{Manager, State};
+use object_store::aws::{AmazonS3, AmazonS3Builder};
+use object_store::path::Path;
+use object_store::ObjectStore;
+use serde::Serialize;
+use tauri::{AppHandle, Emitter, Manager, State};
 use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
 use tokio::time;
+use url::Url;
 
-#[derive(Default)]
 struct AppState {
     ingestion_tasks: HashMap<String, JoinHandle<()>>,
     flush_task: Option<JoinHandle<()>>,
+    modelardb_remote_object_store: AmazonS3,
+    parquet_remote_object_store: AmazonS3,
+}
+
+impl AppState {
+    fn new() -> Self {
+        let modelardb_remote_object_store = build_s3_object_store("modelardb".to_owned());
+        let parquet_remote_object_store = build_s3_object_store("parquet".to_owned());
+
+        Self {
+            ingestion_tasks: HashMap::new(),
+            flush_task: None,
+            modelardb_remote_object_store,
+            parquet_remote_object_store,
+        }
+    }
+}
+
+fn build_s3_object_store(bucket_name: String) -> AmazonS3 {
+    let location = format!("s3://{bucket_name}");
+
+    let storage_options = HashMap::from([
+        ("aws_access_key_id".to_owned(), "minioadmin".to_owned()),
+        ("aws_secret_access_key".to_owned(), "minioadmin".to_owned()),
+        (
+            "aws_endpoint_url".to_owned(),
+            "http://127.0.0.1:9000".to_owned(),
+        ),
+        ("aws_bucket_name".to_owned(), bucket_name),
+        ("aws_s3_allow_unsafe_rename".to_owned(), "true".to_owned()),
+    ]);
+
+    let url = Url::parse(&location).unwrap();
+
+    // Build the Amazon S3 object store with the given storage options manually to allow http.
+    storage_options
+        .iter()
+        .fold(
+            AmazonS3Builder::new()
+                .with_url(url.to_string())
+                .with_allow_http(true),
+            |builder, (key, value)| match key.parse() {
+                Ok(k) => builder.with_config(k, value),
+                Err(_) => builder,
+            },
+        )
+        .build()
+        .unwrap()
 }
 
 #[tauri::command]
