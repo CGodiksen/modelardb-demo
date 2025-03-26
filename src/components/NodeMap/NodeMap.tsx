@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Container } from "@mantine/core";
+import { ActionIcon, Container } from "@mantine/core";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
+import { IconSettings } from "@tabler/icons-react";
 
 import { NodeMarker } from "../NodeMarker/NodeMarker.tsx";
 import { ModelardbNode } from "../../interfaces/node.ts";
@@ -18,6 +19,18 @@ export function NodeMap({}) {
   return (
     <Container fluid ps={5} pe={5}>
       <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+        <ActionIcon
+          aria-label="Settings"
+          style={{
+            position: "absolute",
+            top: "272px",
+            right: "1380px",
+            zIndex: 1,
+          }}
+        >
+          <IconSettings style={{ width: "70%", height: "70%" }} stroke={1.5} />
+        </ActionIcon>
+
         <Map
           style={{ height: "72vh" }}
           defaultCenter={{ lat: 51.3980119, lng: -0.1886247 }}

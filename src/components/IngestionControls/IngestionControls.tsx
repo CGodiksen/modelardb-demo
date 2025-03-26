@@ -66,7 +66,7 @@ export function IngestionControls() {
             <Group justify="apart">
               <div>
                 <Text c="dimmed" tt="uppercase" fw={700} fz="xs">
-                  Total ingestion rate
+                  node ingestion rate
                 </Text>
                 <Text fw={700} fz="xl">
                   {(totalIngestionRate / 1024).toFixed(2)} KB

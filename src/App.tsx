@@ -190,7 +190,7 @@ export default function App() {
               <Grid.Col span={9}>
                 <DataTransferStatistics
                   bucketedData={bucketedParquetData}
-                  deployment={"Parquet"}
+                  deployment={"Apache Parquet"}
                   colors={["#7d3fc9", "#52238d"]}
                 ></DataTransferStatistics>
               </Grid.Col>
@@ -216,7 +216,7 @@ export default function App() {
                   </Grid.Col>
                   <Grid.Col span={12}>
                     <TableStatistics
-                      description={"Total data transferred for Parquet"}
+                      description={"Total data transferred for Apache Parquet"}
                       colors={["#ad86dd", "#7d3fc9", "#52238d"]}
                       table_1_bytes={totalTransferredSizeParquet.table_1_size}
                       table_2_bytes={totalTransferredSizeParquet.table_2_size}
