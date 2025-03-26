@@ -17,6 +17,7 @@ import {
 import { theme } from "./theme";
 import "@mantine/core/styles.css";
 import "./App.css";
+import { tables } from "./data/tables.ts";
 
 export default function App() {
   const [bucketedModelardbData, setBucketedModelardbData] = useState<
@@ -26,24 +27,24 @@ export default function App() {
     BucketedData[]
   >([]);
 
-  const [totalIngestedWind1Size, setTotalIngestedWind1Size] = useState(0);
-  const [totalIngestedWind2Size, setTotalIngestedWind2Size] = useState(0);
-  const [totalIngestedWind3Size, setTotalIngestedWind3Size] = useState(0);
+  const [totalIngestedTable1Size, setTotalIngestedTable1Size] = useState(0);
+  const [totalIngestedTable2Size, setTotalIngestedTable2Size] = useState(0);
+  const [totalIngestedTable3Size, setTotalIngestedTable3Size] = useState(0);
 
   const [totalTransferredSizeModelardb, setTotalTransferredSizeModelardb] =
     useState<RemoteObjectStoreTableSize>({
       node_type: "modelardb",
-      wind_1_size: 0,
-      wind_2_size: 0,
-      wind_3_size: 0,
+      table_1_size: 0,
+      table_2_size: 0,
+      table_3_size: 0,
     });
 
   const [totalTransferredSizeParquet, setTotalTransferredSizeParquet] =
     useState<RemoteObjectStoreTableSize>({
       node_type: "parquet",
-      wind_1_size: 0,
-      wind_2_size: 0,
-      wind_3_size: 0,
+      table_1_size: 0,
+      table_2_size: 0,
+      table_3_size: 0,
     });
 
   useHotkeys([
@@ -116,34 +117,34 @@ export default function App() {
     listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
       if (event.payload.node_type === "modelardb") {
         setTotalTransferredSizeModelardb((prev) => {
-          const changeInSizeWind1 =
-            event.payload.wind_1_size - prev.wind_1_size;
-          const changeInSizeWind2 =
-            event.payload.wind_2_size - prev.wind_2_size;
-          const changeInSizeWind3 =
-            event.payload.wind_3_size - prev.wind_3_size;
+          const changeInSizeTable1 =
+            event.payload.table_1_size - prev.table_1_size;
+          const changeInSizeTable2 =
+            event.payload.table_2_size - prev.table_2_size;
+          const changeInSizeTable3 =
+            event.payload.table_3_size - prev.table_3_size;
           setBucketedModelardbData((prevData) => {
             return updateBucketedData(
               prevData,
               0,
-              changeInSizeWind1 + changeInSizeWind2 + changeInSizeWind3,
+              changeInSizeTable1 + changeInSizeTable2 + changeInSizeTable3,
             );
           });
           return event.payload;
         });
       } else {
         setTotalTransferredSizeParquet((prev) => {
-          const changeInSizeWind1 =
-            event.payload.wind_1_size - prev.wind_1_size;
-          const changeInSizeWind2 =
-            event.payload.wind_2_size - prev.wind_2_size;
-          const changeInSizeWind3 =
-            event.payload.wind_3_size - prev.wind_3_size;
+          const changeInSizeTable1 =
+            event.payload.table_1_size - prev.table_1_size;
+          const changeInSizeTable2 =
+            event.payload.table_2_size - prev.table_2_size;
+          const changeInSizeTable3 =
+            event.payload.table_3_size - prev.table_3_size;
           setBucketedParquetData((prevData) => {
             return updateBucketedData(
               prevData,
               0,
-              changeInSizeWind1 + changeInSizeWind2 + changeInSizeWind3,
+              changeInSizeTable1 + changeInSizeTable2 + changeInSizeTable3,
             );
           });
           return event.payload;
@@ -160,12 +161,12 @@ export default function App() {
         return updateBucketedData(prevData, event.payload.size, 0);
       });
 
-      if (event.payload.table_name === "wind_1") {
-        setTotalIngestedWind1Size((prev) => prev + event.payload.size);
-      } else if (event.payload.table_name === "wind_2") {
-        setTotalIngestedWind2Size((prev) => prev + event.payload.size);
+      if (event.payload.table_name === tables[0].name) {
+        setTotalIngestedTable1Size((prev) => prev + event.payload.size);
+      } else if (event.payload.table_name === tables[1].name) {
+        setTotalIngestedTable2Size((prev) => prev + event.payload.size);
       } else {
-        setTotalIngestedWind3Size((prev) => prev + event.payload.size);
+        setTotalIngestedTable3Size((prev) => prev + event.payload.size);
       }
     });
   }, []);
@@ -199,27 +200,27 @@ export default function App() {
                     <TableStatistics
                       description={"Total data ingested for both deployments"}
                       colors={["#ec777e", "#e22732", "#9e0419"]}
-                      wind_1_bytes={totalIngestedWind1Size}
-                      wind_2_bytes={totalIngestedWind2Size}
-                      wind_3_bytes={totalIngestedWind3Size}
+                      table_1_bytes={totalIngestedTable1Size}
+                      table_2_bytes={totalIngestedTable2Size}
+                      table_3_bytes={totalIngestedTable3Size}
                     ></TableStatistics>
                   </Grid.Col>
                   <Grid.Col span={12} h={"24vh"}>
                     <TableStatistics
                       description={"Total data transferred for ModelarDB"}
                       colors={["#64a0ff", "#0969ff", "#0043b5"]}
-                      wind_1_bytes={totalTransferredSizeModelardb.wind_1_size}
-                      wind_2_bytes={totalTransferredSizeModelardb.wind_2_size}
-                      wind_3_bytes={totalTransferredSizeModelardb.wind_3_size}
+                      table_1_bytes={totalTransferredSizeModelardb.table_1_size}
+                      table_2_bytes={totalTransferredSizeModelardb.table_2_size}
+                      table_3_bytes={totalTransferredSizeModelardb.table_3_size}
                     ></TableStatistics>
                   </Grid.Col>
                   <Grid.Col span={12}>
                     <TableStatistics
                       description={"Total data transferred for Parquet"}
                       colors={["#ad86dd", "#7d3fc9", "#52238d"]}
-                      wind_1_bytes={totalTransferredSizeParquet.wind_1_size}
-                      wind_2_bytes={totalTransferredSizeParquet.wind_2_size}
-                      wind_3_bytes={totalTransferredSizeParquet.wind_3_size}
+                      table_1_bytes={totalTransferredSizeParquet.table_1_size}
+                      table_2_bytes={totalTransferredSizeParquet.table_2_size}
+                      table_3_bytes={totalTransferredSizeParquet.table_3_size}
                     ></TableStatistics>
                   </Grid.Col>
                 </Grid>

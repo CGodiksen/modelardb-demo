@@ -1,8 +1,8 @@
 export interface RemoteObjectStoreTableSize {
   node_type: string;
-  wind_1_size: number;
-  wind_2_size: number;
-  wind_3_size: number;
+  table_1_size: number;
+  table_2_size: number;
+  table_3_size: number;
 }
 
 export interface IngestedSize {

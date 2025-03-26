@@ -27,6 +27,10 @@ use tokio::task::JoinHandle;
 use tokio::time;
 use url::Url;
 
+const LOSSLESS_TABLE_NAME: &str = "wind_lossless";
+const FIVE_ERROR_BOUND_TABLE_NAME: &str = "wind_5";
+const FIFTEEN_ERROR_BOUND_TABLE_NAME: &str = "wind_15";
+
 struct AppState {
     ingestion_tasks: HashMap<String, JoinHandle<()>>,
     flush_task: Option<JoinHandle<()>>,
@@ -123,15 +127,18 @@ async fn create_tables() {
         TableType::ModelTable(table_schema.clone(), fifteen_error_bounds, HashMap::new());
 
     modelardb_client
-        .create("wind_1", lossless_table_type)
+        .create(LOSSLESS_TABLE_NAME, lossless_table_type)
         .await
         .unwrap();
     modelardb_client
-        .create("wind_2", five_error_bound_table_type)
+        .create(FIVE_ERROR_BOUND_TABLE_NAME, five_error_bound_table_type)
         .await
         .unwrap();
     modelardb_client
-        .create("wind_3", fifteen_error_bound_table_type)
+        .create(
+            FIFTEEN_ERROR_BOUND_TABLE_NAME,
+            fifteen_error_bound_table_type,
+        )
         .await
         .unwrap();
 
@@ -141,14 +148,17 @@ async fn create_tables() {
     let table_type = TableType::NormalTable(table_schema.clone());
 
     parquet_client
-        .create("wind_1", table_type.clone())
+        .create(LOSSLESS_TABLE_NAME, table_type.clone())
         .await
         .unwrap();
     parquet_client
-        .create("wind_2", table_type.clone())
+        .create(FIVE_ERROR_BOUND_TABLE_NAME, table_type.clone())
         .await
         .unwrap();
-    parquet_client.create("wind_3", table_type).await.unwrap();
+    parquet_client
+        .create(FIFTEEN_ERROR_BOUND_TABLE_NAME, table_type)
+        .await
+        .unwrap();
 }
 
 #[tauri::command]
@@ -450,9 +460,9 @@ async fn monitor_remote_object_stores_task(
 #[derive(Clone, Serialize)]
 struct RemoteObjectStoreTableSize {
     node_type: String,
-    wind_1_size: u64,
-    wind_2_size: u64,
-    wind_3_size: u64,
+    table_1_size: u64,
+    table_2_size: u64,
+    table_3_size: u64,
 }
 
 async fn emit_remote_object_store_table_size(
@@ -460,17 +470,17 @@ async fn emit_remote_object_store_table_size(
     object_store: AmazonS3,
     node_type: String,
 ) {
-    let wind_1_table_size = table_size(&object_store, "wind_1").await;
-    let wind_2_table_size = table_size(&object_store, "wind_2").await;
-    let wind_3_table_size = table_size(&object_store, "wind_3").await;
+    let table_1_size = table_size(&object_store, LOSSLESS_TABLE_NAME).await;
+    let table_2_size = table_size(&object_store, FIVE_ERROR_BOUND_TABLE_NAME).await;
+    let table_3_size = table_size(&object_store, FIFTEEN_ERROR_BOUND_TABLE_NAME).await;
 
     app.emit(
         "remote-object-store-size",
         RemoteObjectStoreTableSize {
             node_type: node_type.clone(),
-            wind_1_size: wind_1_table_size,
-            wind_2_size: wind_2_table_size,
-            wind_3_size: wind_3_table_size,
+            table_1_size: table_1_size,
+            table_2_size: table_2_size,
+            table_3_size: table_3_size,
         },
     )
     .unwrap();

@@ -1,41 +1,42 @@
 import { IconDeviceAnalytics } from "@tabler/icons-react";
 import { Box, Group, Paper, Progress, SimpleGrid, Text } from "@mantine/core";
 
+import { tables } from "../../data/tables.ts";
 import classes from "./TableStatistics.module.css";
 
 type TableStatisticsProps = {
   description: string;
   colors: string[];
-  wind_1_bytes: number;
-  wind_2_bytes: number;
-  wind_3_bytes: number;
+  table_1_bytes: number;
+  table_2_bytes: number;
+  table_3_bytes: number;
 };
 
 export function TableStatistics({
   description,
   colors,
-  wind_1_bytes,
-  wind_2_bytes,
-  wind_3_bytes,
+  table_1_bytes,
+  table_2_bytes,
+  table_3_bytes,
 }: TableStatisticsProps) {
-  const total_bytes = wind_1_bytes + wind_2_bytes + wind_3_bytes;
+  const total_bytes = table_1_bytes + table_2_bytes + table_3_bytes;
   const data = [
     {
-      label: "wind_1",
-      count: wind_1_bytes,
-      part: Math.round((wind_1_bytes / total_bytes) * 100),
+      label: tables[0].label,
+      count: table_1_bytes,
+      part: Math.round((table_1_bytes / total_bytes) * 100),
       color: colors[0],
     },
     {
-      label: "wind_2",
-      count: wind_2_bytes,
-      part: Math.round((wind_2_bytes / total_bytes) * 100),
+      label: tables[1].label,
+      count: table_2_bytes,
+      part: Math.round((table_2_bytes / total_bytes) * 100),
       color: colors[1],
     },
     {
-      label: "wind_3",
-      count: wind_3_bytes,
-      part: Math.round((wind_3_bytes / total_bytes) * 100),
+      label: tables[2].label,
+      count: table_3_bytes,
+      part: Math.round((table_3_bytes / total_bytes) * 100),
       color: colors[2],
     },
   ];

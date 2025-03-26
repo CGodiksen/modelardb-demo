@@ -10,14 +10,16 @@ import { useState } from "react";
 import { useHotkeys } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/core";
 
+import { tables } from "../../data/tables.ts";
+
 export function IngestionControls() {
-  const [wind1IngestionCount, setWind1IngestionCount] = useState<
+  const [table1IngestionCount, setTable1IngestionCount] = useState<
     string | number
   >(100);
-  const [wind2IngestionCount, setWind2IngestionCount] = useState<
+  const [table2IngestionCount, setTable2IngestionCount] = useState<
     string | number
   >(200);
-  const [wind3IngestionCount, setWind3IngestionCount] = useState<
+  const [table3IngestionCount, setTable3IngestionCount] = useState<
     string | number
   >(300);
 
@@ -30,24 +32,24 @@ export function IngestionControls() {
       "ctrl+r",
       () => {
         invoke("ingest_into_table", {
-          tableName: "wind_1",
-          count: wind1IngestionCount,
+          tableName: tables[0].name,
+          count: table1IngestionCount,
         }).then(() => {
-          console.log("Started ingesting data into wind_1.");
+          console.log(`Started ingesting data into ${tables[0]}.`);
         });
 
         invoke("ingest_into_table", {
-          tableName: "wind_2",
-          count: wind2IngestionCount,
+          tableName: tables[1].name,
+          count: table2IngestionCount,
         }).then(() => {
-          console.log("Started ingesting data into wind_2.");
+          console.log(`Started ingesting data into ${tables[1]}.`);
         });
 
         invoke("ingest_into_table", {
-          tableName: "wind_3",
-          count: wind3IngestionCount,
+          tableName: tables[2].name,
+          count: table3IngestionCount,
         }).then(() => {
-          console.log("Started ingesting data into wind_3.");
+          console.log(`Started ingesting data into ${tables[2]}.`);
         });
       },
     ],
@@ -61,14 +63,14 @@ export function IngestionControls() {
             <Group justify="apart">
               <div>
                 <Text c="dimmed" tt="uppercase" fw={700} fz="xs">
-                  ingestion rate
+                  Total ingestion rate
                 </Text>
                 <Text fw={700} fz="xl">
                   {numberWithCommas(
                     (8 + 12 * 4) *
-                      ((wind1IngestionCount as number) +
-                        (wind2IngestionCount as number) +
-                        (wind3IngestionCount as number)),
+                      ((table1IngestionCount as number) +
+                        (table2IngestionCount as number) +
+                        (table3IngestionCount as number)),
                   )}{" "}
                   Bytes
                 </Text>
@@ -82,42 +84,42 @@ export function IngestionControls() {
         <Grid.Col span={6}>
           <Paper withBorder radius="md" p={10}>
             <NumberInput
-              label="wind_1 (lossless)"
+              label={tables[0].label}
               description="Ingested data points per second"
               min={0}
               max={10000}
               allowDecimal={false}
               step={100}
-              value={wind1IngestionCount}
-              onChange={setWind1IngestionCount}
+              value={table1IngestionCount}
+              onChange={setTable1IngestionCount}
             />
           </Paper>
         </Grid.Col>
         <Grid.Col span={6}>
           <Paper withBorder radius="md" p={10}>
             <NumberInput
-              label="wind_2 (5%)"
+              label={tables[1].label}
               description="Ingested data points per second"
               min={0}
               max={10000}
               allowDecimal={false}
               step={100}
-              value={wind2IngestionCount}
-              onChange={setWind2IngestionCount}
+              value={table2IngestionCount}
+              onChange={setTable2IngestionCount}
             />
           </Paper>
         </Grid.Col>
         <Grid.Col span={6}>
           <Paper withBorder radius="md" p={10}>
             <NumberInput
-              label="wind_3 (15%)"
+              label={tables[2].label}
               description="Ingested data points per second"
               min={0}
               max={10000}
               allowDecimal={false}
               step={100}
-              value={wind3IngestionCount}
-              onChange={setWind3IngestionCount}
+              value={table3IngestionCount}
+              onChange={setTable3IngestionCount}
             />
           </Paper>
         </Grid.Col>
