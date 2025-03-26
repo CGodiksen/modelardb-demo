@@ -31,6 +31,8 @@ const LOSSLESS_TABLE_NAME: &str = "wind_lossless";
 const FIVE_ERROR_BOUND_TABLE_NAME: &str = "wind_5";
 const FIFTEEN_ERROR_BOUND_TABLE_NAME: &str = "wind_15";
 
+const NODE_COUNT: u64 = 12;
+
 struct AppState {
     ingestion_tasks: HashMap<String, JoinHandle<()>>,
     flush_task: Option<JoinHandle<()>>,
@@ -88,7 +90,7 @@ fn build_s3_object_store(bucket_name: String) -> AmazonS3 {
 
 #[tauri::command]
 async fn create_tables() {
-    let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9998".to_owned());
+    let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9980".to_owned());
     let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
 
     let table_schema = table_schema();
@@ -142,7 +144,7 @@ async fn create_tables() {
         .await
         .unwrap();
 
-    let parquet_manager_node = Node::Manager("grpc://127.0.0.1:9970".to_owned());
+    let parquet_manager_node = Node::Manager("grpc://127.0.0.1:9880".to_owned());
     let mut parquet_client = Client::connect(parquet_manager_node).await.unwrap();
 
     let table_type = TableType::NormalTable(table_schema.clone());
@@ -204,7 +206,7 @@ async fn ingest_into_table_task(app: AppHandle, table_name: String, count: usize
                     parquet_node.clone(),
                     index,
                     &table_name,
-                    record_batch.slice((40000 * index) + offset, count),
+                    record_batch.slice((30000 * index) + offset, count),
                 )
             })
             .collect();
@@ -213,7 +215,7 @@ async fn ingest_into_table_task(app: AppHandle, table_name: String, count: usize
 
         offset += count;
 
-        if offset + count > 40000 {
+        if offset + count > 30000 {
             offset = 0;
         }
 
@@ -347,7 +349,7 @@ async fn flush_nodes_task(interval_seconds: u64) {
             tokio::spawn(flush_node(modelardb_node.clone()));
             tokio::spawn(flush_node(parquet_node.clone()));
 
-            time::sleep(Duration::from_secs(interval_seconds / 10)).await;
+            time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;
         }
     }
 }
@@ -369,43 +371,51 @@ fn edge_nodes() -> Vec<(Node, Node)> {
     vec![
         (
             Node::Server("grpc://127.0.0.1:9981".to_owned()),
-            Node::Server("grpc://127.0.0.1:9971".to_owned()),
+            Node::Server("grpc://127.0.0.1:9881".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9982".to_owned()),
-            Node::Server("grpc://127.0.0.1:9972".to_owned()),
+            Node::Server("grpc://127.0.0.1:9882".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9983".to_owned()),
-            Node::Server("grpc://127.0.0.1:9973".to_owned()),
+            Node::Server("grpc://127.0.0.1:9883".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9984".to_owned()),
-            Node::Server("grpc://127.0.0.1:9974".to_owned()),
+            Node::Server("grpc://127.0.0.1:9884".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9985".to_owned()),
-            Node::Server("grpc://127.0.0.1:9975".to_owned()),
+            Node::Server("grpc://127.0.0.1:9885".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9986".to_owned()),
-            Node::Server("grpc://127.0.0.1:9976".to_owned()),
+            Node::Server("grpc://127.0.0.1:9886".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9987".to_owned()),
-            Node::Server("grpc://127.0.0.1:9977".to_owned()),
+            Node::Server("grpc://127.0.0.1:9887".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9988".to_owned()),
-            Node::Server("grpc://127.0.0.1:9978".to_owned()),
+            Node::Server("grpc://127.0.0.1:9888".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9989".to_owned()),
-            Node::Server("grpc://127.0.0.1:9979".to_owned()),
+            Node::Server("grpc://127.0.0.1:9889".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9990".to_owned()),
-            Node::Server("grpc://127.0.0.1:9980".to_owned()),
+            Node::Server("grpc://127.0.0.1:9890".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9991".to_owned()),
+            Node::Server("grpc://127.0.0.1:9891".to_owned()),
+        ),
+        (
+            Node::Server("grpc://127.0.0.1:9992".to_owned()),
+            Node::Server("grpc://127.0.0.1:9892".to_owned()),
         ),
     ]
 }
@@ -478,9 +488,9 @@ async fn emit_remote_object_store_table_size(
         "remote-object-store-size",
         RemoteObjectStoreTableSize {
             node_type: node_type.clone(),
-            table_1_size: table_1_size,
-            table_2_size: table_2_size,
-            table_3_size: table_3_size,
+            table_1_size,
+            table_2_size,
+            table_3_size,
         },
     )
     .unwrap();
