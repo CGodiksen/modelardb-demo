@@ -23,9 +23,12 @@ export function IngestionControls() {
     string | number
   >(300);
 
-  function numberWithCommas(x: number): string {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
+  const totalDataPointCount =
+    (table1IngestionCount as number) +
+    (table2IngestionCount as number) +
+    (table3IngestionCount as number);
+
+  const totalIngestionRate = (8 + 12 * 4) * totalDataPointCount;
 
   useHotkeys([
     [
@@ -66,13 +69,7 @@ export function IngestionControls() {
                   Total ingestion rate
                 </Text>
                 <Text fw={700} fz="xl">
-                  {numberWithCommas(
-                    (8 + 12 * 4) *
-                      ((table1IngestionCount as number) +
-                        (table2IngestionCount as number) +
-                        (table3IngestionCount as number)),
-                  )}{" "}
-                  Bytes
+                  {(totalIngestionRate / 1024).toFixed(2)} KB
                 </Text>
               </div>
             </Group>

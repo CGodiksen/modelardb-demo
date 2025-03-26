@@ -174,7 +174,7 @@ export default function App() {
   return (
     <MantineProvider defaultColorScheme="dark" theme={theme}>
       <AppShell padding="sm">
-        <AppShell.Main>
+        <AppShell.Main pb={0} pe={5}>
           <Container m={5} p={5} fluid>
             <Grid columns={24} grow>
               <Grid.Col span={6} h={"23vh"}>
