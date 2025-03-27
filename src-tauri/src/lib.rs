@@ -195,17 +195,22 @@ async fn ingest_into_table_task(app: AppHandle, table_name: String, count: usize
 
     let mut offset = 0;
 
+    let mut node_record_batches = vec![];
+    for node_index in 0..NODE_COUNT {
+        let node_record_batch = record_batch.slice((30000 * node_index) as usize, 30000);
+        node_record_batches.push(node_record_batch);
+    }
+
     loop {
         for (index, (modelardb_client, parquet_client)) in edge_clients.iter().enumerate() {
-            ingest_data_points_into_nodes(
+            tokio::spawn(ingest_data_points_into_nodes(
                 app.clone(),
                 modelardb_client.clone(),
                 parquet_client.clone(),
                 index,
                 table_name.clone(),
-                record_batch.slice((30000 * index) + offset, count),
-            )
-            .await;
+                node_record_batches[index].slice(offset, count),
+            ));
         }
 
         offset += count;
