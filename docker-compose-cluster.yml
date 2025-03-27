@@ -42,7 +42,7 @@ services:
   modelardb-manager:
     image: modelardb
     container_name: modelardb-manager
-    command: [ "target/debug/modelardbm", "s3://modelardb" ]
+    command: [ "target/release/modelardbm", "s3://modelardb" ]
     ports:
       - "9980:9980"
     environment:
@@ -58,7 +58,7 @@ services:
   modelardb-edge-1: &modelardb-base
     image: modelardb
     container_name: modelardb-edge-1
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9980" ]
+    command: [ "target/release/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9980" ]
     ports:
       - "9981:9981"
     environment:
@@ -207,7 +207,7 @@ services:
   modelardb-cloud:
     <<: *modelardb-base
     container_name: modelardb-cloud
-    command: [ "target/debug/modelardbd", "cloud", "memory://", "grpc://modelardb-manager:9980" ]
+    command: [ "target/release/modelardbd", "cloud", "memory://", "grpc://modelardb-manager:9980" ]
     ports:
       - "9999:9999"
     environment:
@@ -221,7 +221,7 @@ services:
   parquet-manager:
     image: modelardb
     container_name: parquet-manager
-    command: [ "target/debug/modelardbm", "s3://parquet" ]
+    command: [ "target/release/modelardbm", "s3://parquet" ]
     ports:
       - "9880:9880"
     environment:
@@ -237,7 +237,7 @@ services:
   parquet-edge-1: &parquet-base
     image: modelardb
     container_name: parquet-edge-1
-    command: [ "target/debug/modelardbd", "edge", "memory://", "grpc://parquet-manager:9880" ]
+    command: [ "target/release/modelardbd", "edge", "memory://", "grpc://parquet-manager:9880" ]
     ports:
       - "9881:9881"
     environment:
@@ -386,7 +386,7 @@ services:
   parquet-cloud:
     <<: *parquet-base
     container_name: parquet-cloud
-    command: [ "target/debug/modelardbd", "cloud", "memory://", "grpc://parquet-manager:9880" ]
+    command: [ "target/release/modelardbd", "cloud", "memory://", "grpc://parquet-manager:9880" ]
     ports:
       - "9899:9899"
     environment:
