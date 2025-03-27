@@ -98,16 +98,16 @@ async fn create_tables() {
         TableType::ModelTable(table_schema.clone(), HashMap::new(), HashMap::new());
 
     let field_column_names = vec![
-        "wind speed",
-        "pitch angle",
-        "rotor speed",
-        "active power",
+        "wind_speed",
+        "pitch_angle",
+        "rotor_speed",
+        "active_power",
         "cos_nacelle_dir",
         "sin_nacelle_dir",
         "cos_wind_dir",
         "sin_wind_dir",
-        "cor. nacelle direction",
-        "cor. wind direction",
+        "cor_nacelle_direction",
+        "cor_wind_direction",
     ];
 
     let five_error_bounds: HashMap<String, ErrorBound> = field_column_names
@@ -182,7 +182,7 @@ async fn ingest_into_table(
 }
 
 async fn ingest_into_table_task(app: AppHandle, table_name: String, count: usize) {
-    let file = tokio::fs::File::open("../data/wind.parquet").await.unwrap();
+    let file = tokio::fs::File::open("../data/wind_cleaned.parquet").await.unwrap();
     let builder = ParquetRecordBatchStreamBuilder::new(file).await.unwrap();
 
     let stream = builder.build().unwrap();
@@ -267,6 +267,7 @@ async fn ingest_data_points_into_nodes(
             Arc::new(timestamps.finish()),
             Arc::new(park_id_array),
             Arc::new(windmill_id_array),
+            data_points.column(0).clone(),
             data_points.column(1).clone(),
             data_points.column(2).clone(),
             data_points.column(3).clone(),
@@ -276,7 +277,6 @@ async fn ingest_data_points_into_nodes(
             data_points.column(7).clone(),
             data_points.column(8).clone(),
             data_points.column(9).clone(),
-            data_points.column(10).clone(),
         ],
     )
     .unwrap();
@@ -305,19 +305,19 @@ async fn ingest_data_points_into_nodes(
 
 fn table_schema() -> Schema {
     Schema::new(vec![
-        Field::new("datetime", ArrowTimestamp::DATA_TYPE, false),
+        Field::new("timestamp", ArrowTimestamp::DATA_TYPE, false),
         Field::new("park_id", DataType::Utf8, false),
         Field::new("windmill_id", DataType::Utf8, false),
-        Field::new("wind speed", ArrowValue::DATA_TYPE, false),
-        Field::new("pitch angle", ArrowValue::DATA_TYPE, false),
-        Field::new("rotor speed", ArrowValue::DATA_TYPE, false),
-        Field::new("active power", ArrowValue::DATA_TYPE, false),
+        Field::new("wind_speed", ArrowValue::DATA_TYPE, false),
+        Field::new("pitch_angle", ArrowValue::DATA_TYPE, false),
+        Field::new("rotor_speed", ArrowValue::DATA_TYPE, false),
+        Field::new("active_power", ArrowValue::DATA_TYPE, false),
         Field::new("cos_nacelle_dir", ArrowValue::DATA_TYPE, false),
         Field::new("sin_nacelle_dir", ArrowValue::DATA_TYPE, false),
         Field::new("cos_wind_dir", ArrowValue::DATA_TYPE, false),
         Field::new("sin_wind_dir", ArrowValue::DATA_TYPE, false),
-        Field::new("cor. nacelle direction", ArrowValue::DATA_TYPE, false),
-        Field::new("cor. wind direction", ArrowValue::DATA_TYPE, false),
+        Field::new("cor_nacelle_direction", ArrowValue::DATA_TYPE, false),
+        Field::new("cor_wind_direction", ArrowValue::DATA_TYPE, false),
     ])
 }
 

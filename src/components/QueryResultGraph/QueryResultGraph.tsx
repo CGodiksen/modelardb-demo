@@ -15,13 +15,13 @@ export function QueryResultGraph({ queryData }: { queryData: any[] }) {
   };
 
   const data = queryData.map((row) => {
-    const { datetime, ...rest } = row;
+    const { timestamp, ...rest } = row;
     const filteredRest = Object.fromEntries(
       Object.entries(rest).filter(([_, value]) => typeof value === "number"),
     );
 
     return {
-      date: formatDate(datetime),
+      date: formatDate(timestamp),
       ...filteredRest,
     };
   });
