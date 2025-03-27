@@ -11,7 +11,6 @@ use arrow_flight::Action;
 use arrow_json::ArrayWriter;
 use datafusion::parquet::arrow::ParquetRecordBatchStreamBuilder;
 use datafusion::physical_plan::common;
-use futures_util::stream::FuturesUnordered;
 use futures_util::{StreamExt, TryStreamExt};
 use modelardb_embedded::modelardb::client::{Client, Node};
 use modelardb_embedded::modelardb::ModelarDB;
@@ -192,26 +191,22 @@ async fn ingest_into_table_task(app: AppHandle, table_name: String, count: usize
         compute::concat_batches(&record_batches[0].schema(), &record_batches).unwrap();
 
     let edge_nodes = edge_nodes();
+    let edge_clients = connect_to_nodes(edge_nodes).await;
 
     let mut offset = 0;
 
     loop {
-        let mut futures: FuturesUnordered<_> = edge_nodes
-            .iter()
-            .enumerate()
-            .map(|(index, (modelardb_node, parquet_node))| {
-                ingest_data_points_into_nodes(
-                    app.clone(),
-                    modelardb_node.clone(),
-                    parquet_node.clone(),
-                    index,
-                    &table_name,
-                    record_batch.slice((30000 * index) + offset, count),
-                )
-            })
-            .collect();
-
-        while let Some(()) = futures.next().await {}
+        for (index, (modelardb_client, parquet_client)) in edge_clients.iter().enumerate() {
+            ingest_data_points_into_nodes(
+                app.clone(),
+                modelardb_client.clone(),
+                parquet_client.clone(),
+                index,
+                table_name.clone(),
+                record_batch.slice((30000 * index) + offset, count),
+            )
+            .await;
+        }
 
         offset += count;
 
@@ -231,15 +226,12 @@ struct IngestedSize {
 
 async fn ingest_data_points_into_nodes(
     app: AppHandle,
-    modelardb_node: Node,
-    parquet_node: Node,
+    mut modelardb_client: Client,
+    mut parquet_client: Client,
     node_id: usize,
-    table_name: &str,
+    table_name: String,
     data_points: RecordBatch,
 ) {
-    let mut modelardb_client = Client::connect(modelardb_node).await.unwrap();
-    let mut parquet_client = Client::connect(parquet_node).await.unwrap();
-
     let mut timestamps = TimestampBuilder::with_capacity(data_points.num_rows());
 
     let start = SystemTime::now();
@@ -290,18 +282,18 @@ async fn ingest_data_points_into_nodes(
     app.emit(
         "data-ingested",
         IngestedSize {
-            table_name: table_name.to_owned(),
+            table_name: table_name.clone(),
             size: ingested_size,
         },
     )
     .unwrap();
 
     modelardb_client
-        .write(table_name, record_batch.clone())
+        .write(&table_name, record_batch.clone())
         .await
         .unwrap();
     parquet_client
-        .write(table_name, record_batch)
+        .write(&table_name, record_batch)
         .await
         .unwrap();
 }
@@ -418,6 +410,19 @@ fn edge_nodes() -> Vec<(Node, Node)> {
             Node::Server("grpc://127.0.0.1:9892".to_owned()),
         ),
     ]
+}
+
+async fn connect_to_nodes(nodes: Vec<(Node, Node)>) -> Vec<(Client, Client)> {
+    let mut clients = vec![];
+
+    for (modelardb_node, parquet_node) in nodes {
+        let modelardb_client = Client::connect(modelardb_node).await.unwrap();
+        let parquet_client = Client::connect(parquet_node).await.unwrap();
+
+        clients.push((modelardb_client, parquet_client));
+    }
+
+    clients
 }
 
 #[tauri::command]
