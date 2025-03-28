@@ -81,7 +81,7 @@ export function IngestionControls() {
         <Grid.Col span={6}>
           <Paper withBorder radius="md" p={10}>
             <NumberInput
-              label={tables[0].label}
+              label={tables[0].name}
               description="Ingested data points per second"
               min={0}
               max={10000}
@@ -95,7 +95,7 @@ export function IngestionControls() {
         <Grid.Col span={6}>
           <Paper withBorder radius="md" p={10}>
             <NumberInput
-              label={tables[1].label}
+              label={tables[1].name}
               description="Ingested data points per second"
               min={0}
               max={10000}
@@ -109,7 +109,7 @@ export function IngestionControls() {
         <Grid.Col span={6}>
           <Paper withBorder radius="md" p={10}>
             <NumberInput
-              label={tables[2].label}
+              label={tables[2].name}
               description="Ingested data points per second"
               min={0}
               max={10000}

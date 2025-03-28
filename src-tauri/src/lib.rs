@@ -26,7 +26,7 @@ use tokio::task::JoinHandle;
 use tokio::time;
 use url::Url;
 
-const LOSSLESS_TABLE_NAME: &str = "wind_lossless";
+const LOSSLESS_TABLE_NAME: &str = "wind";
 const FIVE_ERROR_BOUND_TABLE_NAME: &str = "wind_5";
 const FIFTEEN_ERROR_BOUND_TABLE_NAME: &str = "wind_15";
 

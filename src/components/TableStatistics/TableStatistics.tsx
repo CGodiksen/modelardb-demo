@@ -10,6 +10,8 @@ type TableStatisticsProps = {
   table_1_bytes: number;
   table_2_bytes: number;
   table_3_bytes: number;
+  show_error_bound: boolean;
+  lossless: boolean;
 };
 
 export function TableStatistics({
@@ -18,26 +20,31 @@ export function TableStatistics({
   table_1_bytes,
   table_2_bytes,
   table_3_bytes,
+  show_error_bound,
+  lossless,
 }: TableStatisticsProps) {
   const total_bytes = table_1_bytes + table_2_bytes + table_3_bytes;
   const data = [
     {
-      label: tables[0].label,
+      label: tables[0].name,
       count: table_1_bytes,
       part: Math.round((table_1_bytes / total_bytes) * 100),
       color: colors[0],
+      error_bound: lossless ? "lossless" : tables[0].error_bound,
     },
     {
-      label: tables[1].label,
+      label: tables[1].name,
       count: table_2_bytes,
       part: Math.round((table_2_bytes / total_bytes) * 100),
       color: colors[1],
+      error_bound: lossless ? "lossless" : tables[1].error_bound,
     },
     {
-      label: tables[2].label,
+      label: tables[2].name,
       count: table_3_bytes,
       part: Math.round((table_3_bytes / total_bytes) * 100),
       color: colors[2],
+      error_bound: lossless ? "lossless" : tables[2].error_bound,
     },
   ];
 
@@ -63,7 +70,7 @@ export function TableStatistics({
       className={classes.stat}
     >
       <Text tt="uppercase" fz="xs" c="dimmed" fw={700}>
-        {stat.label}
+        {stat.label} {show_error_bound ? `(${stat.error_bound})` : ""}
       </Text>
 
       <Group justify="space-between" align="flex-end" gap={0}>

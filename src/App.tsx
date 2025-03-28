@@ -205,6 +205,8 @@ export default function App() {
                       table_1_bytes={totalIngestedTable1Size}
                       table_2_bytes={totalIngestedTable2Size}
                       table_3_bytes={totalIngestedTable3Size}
+                      show_error_bound={false}
+                      lossless={false}
                     ></TableStatistics>
                   </Grid.Col>
                   <Grid.Col span={12} h={"24vh"}>
@@ -216,6 +218,8 @@ export default function App() {
                       table_1_bytes={totalTransferredSizeModelardb.table_1_size}
                       table_2_bytes={totalTransferredSizeModelardb.table_2_size}
                       table_3_bytes={totalTransferredSizeModelardb.table_3_size}
+                      show_error_bound={true}
+                      lossless={false}
                     ></TableStatistics>
                   </Grid.Col>
                   <Grid.Col span={12}>
@@ -227,6 +231,8 @@ export default function App() {
                       table_1_bytes={totalTransferredSizeParquet.table_1_size}
                       table_2_bytes={totalTransferredSizeParquet.table_2_size}
                       table_3_bytes={totalTransferredSizeParquet.table_3_size}
+                      show_error_bound={true}
+                      lossless={true}
                     ></TableStatistics>
                   </Grid.Col>
                 </Grid>
