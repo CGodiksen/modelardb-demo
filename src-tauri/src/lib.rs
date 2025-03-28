@@ -182,7 +182,9 @@ async fn ingest_into_table(
 }
 
 async fn ingest_into_table_task(app: AppHandle, table_name: String, count: usize) {
-    let file = tokio::fs::File::open("../data/wind_cleaned.parquet").await.unwrap();
+    let file = tokio::fs::File::open("../data/wind_cleaned.parquet")
+        .await
+        .unwrap();
     let builder = ParquetRecordBatchStreamBuilder::new(file).await.unwrap();
 
     let stream = builder.build().unwrap();
@@ -561,8 +563,22 @@ async fn client_tables(url: String) -> Vec<ClientTableResponse> {
 
 #[tauri::command]
 async fn client_query(url: String, query: String) -> Vec<u8> {
-    let node = Node::Server(url);
-    let mut client = Client::connect(node).await.unwrap();
+    let node = Node::Server(url.clone());
+    let mut client = Client::connect(node.clone()).await.unwrap();
+
+    // If it is not a cloud node, flush the memory of the edge node before querying.
+    if url != "grpc://127.0.0.1:9999".to_owned() && url != "grpc://127.0.0.1:9899".to_owned() {
+        let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
+            .await
+            .unwrap();
+
+        let action = Action {
+            r#type: "FlushMemory".to_owned(),
+            body: vec![].into(),
+        };
+
+        flight_client.do_action(action).await.unwrap();
+    }
 
     let record_batch_stream = client.read(&query).await.unwrap();
     let record_batches = common::collect(record_batch_stream).await.unwrap();
