@@ -198,7 +198,9 @@ export default function App() {
                 <Grid grow>
                   <Grid.Col span={12} h={"24vh"}>
                     <TableStatistics
-                      description={"Total data ingested for both deployments"}
+                      description={
+                        "Total uncompressed data ingested for both deployments"
+                      }
                       colors={["#ec777e", "#e22732", "#9e0419"]}
                       table_1_bytes={totalIngestedTable1Size}
                       table_2_bytes={totalIngestedTable2Size}
@@ -207,7 +209,9 @@ export default function App() {
                   </Grid.Col>
                   <Grid.Col span={12} h={"24vh"}>
                     <TableStatistics
-                      description={"Total data transferred for ModelarDB"}
+                      description={
+                        "Total compressed data transferred for ModelarDB"
+                      }
                       colors={["#64a0ff", "#0969ff", "#0043b5"]}
                       table_1_bytes={totalTransferredSizeModelardb.table_1_size}
                       table_2_bytes={totalTransferredSizeModelardb.table_2_size}
@@ -216,7 +220,9 @@ export default function App() {
                   </Grid.Col>
                   <Grid.Col span={12}>
                     <TableStatistics
-                      description={"Total data transferred for Apache Parquet"}
+                      description={
+                        "Total compressed data transferred for Apache Parquet"
+                      }
                       colors={["#ad86dd", "#7d3fc9", "#52238d"]}
                       table_1_bytes={totalTransferredSizeParquet.table_1_size}
                       table_2_bytes={totalTransferredSizeParquet.table_2_size}

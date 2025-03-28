@@ -27,8 +27,8 @@ export function DataTransferStatistics({
   const formattedBucketedData = bucketedData.map((bucket) => ({
     ...bucket,
     timestamp: formatDate(bucket.timestamp),
-    ingested_bytes: (bucket.ingested_bytes / 1024).toFixed(2),
-    transferred_bytes: (bucket.transferred_bytes / 1024).toFixed(2),
+    ingested_bytes: (bucket.ingested_bytes / 1048576).toFixed(2),
+    transferred_bytes: (bucket.transferred_bytes / 1048576).toFixed(2),
   }));
 
   function calculateCompressionRatio(bucketedData: BucketedData[]): number {
@@ -43,17 +43,17 @@ export function DataTransferStatistics({
 
     if (totalIngestedBytes === 0) return 0;
 
-    return (1 - totalTransferredBytes / totalIngestedBytes) * 100;
+    return totalIngestedBytes / totalTransferredBytes;
   }
 
   return (
     <Container fluid ps={5} pe={5}>
       <Paper withBorder radius="md" p={10} pb={15} ms={0} pt={5}>
         <Text fz="xl" fw={700}>
-          {calculateCompressionRatio(bucketedData).toFixed(2)}%
+          {calculateCompressionRatio(bucketedData).toFixed(2)}x
         </Text>
         <Text c="dimmed" fz="sm">
-          Compression ratio for {deployment} in the last 2 minutes
+          Total compression ratio for {deployment} in the last 2 minutes
         </Text>
 
         <BarChart
@@ -65,16 +65,16 @@ export function DataTransferStatistics({
             {
               name: "ingested_bytes",
               color: colors[0],
-              label: "Ingested KB",
+              label: "Ingested MB",
             },
             {
               name: "transferred_bytes",
               color: colors[1],
-              label: "Transferred KB",
+              label: "Transferred MB",
             },
           ]}
           tickLine="y"
-          yAxisProps={{ domain: [0, 15000] }}
+          yAxisProps={{ domain: [0, 15] }}
         />
       </Paper>
     </Container>

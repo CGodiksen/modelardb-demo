@@ -15,13 +15,13 @@ import { tables } from "../../data/tables.ts";
 export function IngestionControls() {
   const [table1IngestionCount, setTable1IngestionCount] = useState<
     string | number
-  >(100);
+  >(200);
   const [table2IngestionCount, setTable2IngestionCount] = useState<
     string | number
   >(200);
   const [table3IngestionCount, setTable3IngestionCount] = useState<
     string | number
-  >(300);
+  >(200);
 
   const totalDataPointCount =
     (table1IngestionCount as number) +
@@ -69,7 +69,7 @@ export function IngestionControls() {
                   node ingestion rate
                 </Text>
                 <Text fw={700} fz="xl">
-                  {(totalIngestionRate / 1024).toFixed(2)} KB
+                  {(totalIngestionRate / 1048576).toFixed(2)} MB
                 </Text>
               </div>
             </Group>
