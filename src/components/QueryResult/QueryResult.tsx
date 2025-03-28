@@ -1,5 +1,5 @@
 import { Card, Tabs, Text } from "@mantine/core";
-import { IconGraph, IconTable } from "@tabler/icons-react";
+import { IconFileAnalytics, IconGraph, IconTable } from "@tabler/icons-react";
 
 import { QueryResultTable } from "../QueryResultTable/QueryResultTable.tsx";
 import { QueryResultGraph } from "../QueryResultGraph/QueryResultGraph.tsx";
@@ -24,6 +24,12 @@ export function QueryResult({ queryData }: { queryData: any[] }) {
             <Tabs.Tab value="graph" leftSection={<IconGraph size={20} />}>
               Graph
             </Tabs.Tab>
+            <Tabs.Tab
+              value="analytics"
+              leftSection={<IconFileAnalytics size={20} />}
+            >
+              Analytics
+            </Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="table">
@@ -31,6 +37,9 @@ export function QueryResult({ queryData }: { queryData: any[] }) {
           </Tabs.Panel>
           <Tabs.Panel value="graph">
             <QueryResultGraph queryData={queryData}></QueryResultGraph>
+          </Tabs.Panel>
+          <Tabs.Panel value="analytics">
+            <Text p={10}>Query result analytics</Text>
           </Tabs.Panel>
         </Tabs>
       </Card>
