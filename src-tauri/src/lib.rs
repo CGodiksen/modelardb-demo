@@ -325,6 +325,7 @@ fn table_schema() -> Schema {
 
 #[tauri::command]
 async fn flush_nodes(
+    app: AppHandle,
     state: State<'_, Mutex<AppState>>,
     interval_seconds: u64,
 ) -> Result<(), String> {
@@ -334,18 +335,23 @@ async fn flush_nodes(
         handle.abort();
     }
 
-    let join_handle = tokio::spawn(flush_nodes_task(interval_seconds));
+    let join_handle = tokio::spawn(flush_nodes_task(app, interval_seconds));
     state.flush_task = Some(join_handle);
 
     Ok(())
 }
 
-async fn flush_nodes_task(interval_seconds: u64) {
+async fn flush_nodes_task(app: AppHandle, interval_seconds: u64) {
     let edge_nodes = edge_nodes();
 
     loop {
         for (modelardb_node, parquet_node) in &edge_nodes {
+            app.emit("flushing-modelardb-node", modelardb_node.url())
+                .unwrap();
             tokio::spawn(flush_node(modelardb_node.clone()));
+
+            app.emit("flushing-parquet-node", parquet_node.url())
+                .unwrap();
             tokio::spawn(flush_node(parquet_node.clone()));
 
             time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;

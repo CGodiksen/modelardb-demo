@@ -5,15 +5,26 @@ import { IconSettings } from "@tabler/icons-react";
 
 import { NodeMarker } from "../NodeMarker/NodeMarker.tsx";
 import { ModelardbNode } from "../../interfaces/node.ts";
+import { listen } from "@tauri-apps/api/event";
 
 export function NodeMap({}) {
   const [nodes, setNodes] = useState<ModelardbNode[]>([]);
+  const [flushingModelardbNode, setFlushingModelardbNode] = useState("");
+  const [flushingParquetNode, setFlushingParquetNode] = useState("");
 
   useEffect(() => {
     fetch("/data/nodes.json")
       .then((res) => res.json())
       .then((data) => setNodes(data))
       .catch((error) => console.error("Error fetching nodes:", error));
+
+    listen<string>("flushing-modelardb-node", (event) => {
+      setFlushingModelardbNode(event.payload);
+    });
+
+    listen<string>("flushing-parquet-node", (event) => {
+      setFlushingParquetNode(event.payload);
+    });
   }, []);
 
   return (
@@ -41,7 +52,15 @@ export function NodeMap({}) {
           mapId={"DEMO_MAP_ID"}
         >
           {nodes.map((node, index) => (
-            <NodeMarker key={index} node={node}></NodeMarker>
+            <NodeMarker
+              key={index}
+              node={node}
+              flushingNode={
+                node.type == "modelardb"
+                  ? flushingModelardbNode
+                  : flushingParquetNode
+              }
+            ></NodeMarker>
           ))}
         </Map>
       </APIProvider>

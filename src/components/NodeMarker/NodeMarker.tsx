@@ -9,7 +9,13 @@ import { QueryEditor } from "../QueryEditor/QueryEditor.tsx";
 import { QueryResult } from "../QueryResult/QueryResult.tsx";
 import { NodePin } from "../NodePin/NodePin.tsx";
 
-export function NodeMarker({ node }: { node: ModelardbNode }) {
+export function NodeMarker({
+  node,
+  flushingNode,
+}: {
+  node: ModelardbNode;
+  flushingNode: string;
+}) {
   const [opened, { open, close }] = useDisclosure(false);
   const [editorText, setEditorText] = useState("");
   const [queryData, setQueryData] = useState<any[]>([]);
@@ -49,7 +55,7 @@ export function NodeMarker({ node }: { node: ModelardbNode }) {
         position={{ lat: node.latitude, lng: node.longitude }}
         onClick={open}
       >
-        <NodePin node={node}></NodePin>
+        <NodePin node={node} flushingNode={flushingNode}></NodePin>
       </AdvancedMarker>
     </>
   );
