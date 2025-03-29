@@ -21,7 +21,7 @@ export function ClientModal() {
       "print(local.read(read_sql))",
   );
 
-  const [consoleOutput, setConsoleOutput] = useState(
+  const [consoleOutput, _setConsoleOutput] = useState(
     "{'active_power': [377.95465087890625,\n" +
       "                  380.32586669921875,\n" +
       "                  382.20159912109375,\n" +

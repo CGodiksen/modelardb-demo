@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { Modal, Title } from "@mantine/core";
@@ -14,6 +15,8 @@ type NodeMarkerProps = {
 
 export function NodeMarker({ node, flushingNode }: NodeMarkerProps) {
   const [opened, { open, close }] = useDisclosure(false);
+  const [editorText, setEditorText] = useState("");
+  const [queryData, setQueryData] = useState<any[]>([]);
 
   return (
     <>
@@ -25,7 +28,15 @@ export function NodeMarker({ node, flushingNode }: NodeMarkerProps) {
           size={"80%"}
           centered={true}
         >
-          {node.url && <NodeModal node={node}></NodeModal>}
+          {node.url && (
+            <NodeModal
+              node={node}
+              editorText={editorText}
+              setEditorText={setEditorText}
+              queryData={queryData}
+              setQueryData={setQueryData}
+            ></NodeModal>
+          )}
           {node.server_mode == "local" && <ClientModal></ClientModal>}
         </Modal>
       )}

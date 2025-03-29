@@ -74,7 +74,7 @@ export function DataTransferStatistics({
             },
           ]}
           tickLine="y"
-          yAxisProps={{ domain: [0, 15] }}
+          yAxisProps={{ domain: [0, 50] }}
         />
       </Paper>
     </Container>
