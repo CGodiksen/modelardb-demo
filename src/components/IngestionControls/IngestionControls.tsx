@@ -15,13 +15,13 @@ import { tables } from "../../data/tables.ts";
 export function IngestionControls() {
   const [table1IngestionCount, setTable1IngestionCount] = useState<
     string | number
-  >(200);
+  >(1000);
   const [table2IngestionCount, setTable2IngestionCount] = useState<
     string | number
-  >(200);
+  >(1000);
   const [table3IngestionCount, setTable3IngestionCount] = useState<
     string | number
-  >(200);
+  >(1000);
 
   const totalDataPointCount =
     (table1IngestionCount as number) +

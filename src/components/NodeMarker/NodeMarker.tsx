@@ -5,6 +5,7 @@ import { Modal, Title } from "@mantine/core";
 import { ModelardbNode } from "../../interfaces/node.ts";
 import { NodePin } from "../NodePin/NodePin.tsx";
 import { NodeModal } from "../NodeModal/NodeModal.tsx";
+import { ClientModal } from "../ClientModal/ClientModal.tsx";
 
 type NodeMarkerProps = {
   node: ModelardbNode;
@@ -16,15 +17,16 @@ export function NodeMarker({ node, flushingNode }: NodeMarkerProps) {
 
   return (
     <>
-      {node.url && node.type == "modelardb" && (
+      {node.type == "modelardb" && (
         <Modal
           opened={opened}
           onClose={close}
-          title={<Title order={3}>{node.url}</Title>}
+          title={<Title order={3}>{node.url ? node.url : "Local"}</Title>}
           size={"80%"}
           centered={true}
         >
-          <NodeModal node={node}></NodeModal>
+          {node.url && <NodeModal node={node}></NodeModal>}
+          {node.server_mode == "local" && <ClientModal></ClientModal>}
         </Modal>
       )}
 
