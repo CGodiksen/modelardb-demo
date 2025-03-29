@@ -71,19 +71,6 @@ export default function App() {
     ],
   ]);
 
-  useHotkeys([
-    [
-      "ctrl+m",
-      () => {
-        invoke("monitor_remote_object_stores", {
-          intervalSeconds: 5,
-        }).then(() => {
-          console.log("Started monitoring remote object stores.");
-        });
-      },
-    ],
-  ]);
-
   function updateBucketedData(
     bucketedData: BucketedData[],
     ingestedBytes: number,

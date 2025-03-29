@@ -35,7 +35,6 @@ const NODE_COUNT: u64 = 12;
 struct AppState {
     ingestion_tasks: HashMap<String, JoinHandle<()>>,
     flush_task: Option<JoinHandle<()>>,
-    monitor_remote_object_store_task: Option<JoinHandle<()>>,
     modelardb_remote_object_store: AmazonS3,
     parquet_remote_object_store: AmazonS3,
 }
@@ -48,7 +47,6 @@ impl AppState {
         Self {
             ingestion_tasks: HashMap::new(),
             flush_task: None,
-            monitor_remote_object_store_task: None,
             modelardb_remote_object_store,
             parquet_remote_object_store,
         }
@@ -335,31 +333,59 @@ async fn flush_nodes(
         handle.abort();
     }
 
-    let join_handle = tokio::spawn(flush_nodes_task(app, interval_seconds));
+    let join_handle = tokio::spawn(flush_nodes_task(
+        app,
+        state.modelardb_remote_object_store.clone(),
+        state.parquet_remote_object_store.clone(),
+        interval_seconds,
+    ));
+
     state.flush_task = Some(join_handle);
 
     Ok(())
 }
 
-async fn flush_nodes_task(app: AppHandle, interval_seconds: u64) {
+async fn flush_nodes_task(
+    app: AppHandle,
+    modelardb_remote_object_store: AmazonS3,
+    parquet_remote_object_store: AmazonS3,
+    interval_seconds: u64,
+) {
     let edge_nodes = edge_nodes();
 
     loop {
         for (modelardb_node, parquet_node) in &edge_nodes {
             app.emit("flushing-modelardb-node", modelardb_node.url())
                 .unwrap();
-            tokio::spawn(flush_node(modelardb_node.clone()));
+
+            tokio::spawn(flush_node_and_emit_remote_object_store_table_size(
+                app.clone(),
+                modelardb_node.clone(),
+                modelardb_remote_object_store.clone(),
+                "modelardb".to_owned(),
+            ));
 
             app.emit("flushing-parquet-node", parquet_node.url())
                 .unwrap();
-            tokio::spawn(flush_node(parquet_node.clone()));
+
+            tokio::spawn(flush_node_and_emit_remote_object_store_table_size(
+                app.clone(),
+                parquet_node.clone(),
+                parquet_remote_object_store.clone(),
+                "parquet".to_owned(),
+            ));
 
             time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;
         }
     }
 }
 
-async fn flush_node(node: Node) {
+async fn flush_node_and_emit_remote_object_store_table_size(
+    app: AppHandle,
+    node: Node,
+    object_store: AmazonS3,
+    node_type: String,
+) {
     let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
         .await
         .unwrap();
@@ -370,6 +396,50 @@ async fn flush_node(node: Node) {
     };
 
     flight_client.do_action(action).await.unwrap();
+
+    emit_remote_object_store_table_size(app, object_store, node_type).await;
+}
+
+#[derive(Clone, Serialize)]
+struct RemoteObjectStoreTableSize {
+    node_type: String,
+    table_1_size: u64,
+    table_2_size: u64,
+    table_3_size: u64,
+}
+
+async fn emit_remote_object_store_table_size(
+    app: AppHandle,
+    object_store: AmazonS3,
+    node_type: String,
+) {
+    let table_1_size = table_size(&object_store, LOSSLESS_TABLE_NAME).await;
+    let table_2_size = table_size(&object_store, FIVE_ERROR_BOUND_TABLE_NAME).await;
+    let table_3_size = table_size(&object_store, FIFTEEN_ERROR_BOUND_TABLE_NAME).await;
+
+    app.emit(
+        "remote-object-store-size",
+        RemoteObjectStoreTableSize {
+            node_type: node_type.clone(),
+            table_1_size,
+            table_2_size,
+            table_3_size,
+        },
+    )
+    .unwrap();
+}
+
+async fn table_size(object_store: &AmazonS3, table_name: &str) -> u64 {
+    let table_path = Path::from(format!("tables/{}", table_name));
+    let table_files = object_store
+        .list(Some(&table_path))
+        .collect::<Vec<_>>()
+        .await;
+
+    table_files
+        .into_iter()
+        .map(|file| file.unwrap().size)
+        .sum::<u64>()
 }
 
 fn edge_nodes() -> Vec<(Node, Node)> {
@@ -436,95 +506,6 @@ async fn connect_to_nodes(nodes: Vec<(Node, Node)>) -> Vec<(Client, Client)> {
     }
 
     clients
-}
-
-#[tauri::command]
-async fn monitor_remote_object_stores(
-    app: AppHandle,
-    state: State<'_, Mutex<AppState>>,
-    interval_seconds: u64,
-) -> Result<(), String> {
-    let mut state = state.lock().await;
-
-    if let Some(handle) = &state.monitor_remote_object_store_task {
-        handle.abort();
-    }
-
-    let join_handle = tokio::spawn(monitor_remote_object_stores_task(
-        app,
-        state.modelardb_remote_object_store.clone(),
-        state.parquet_remote_object_store.clone(),
-        interval_seconds,
-    ));
-
-    state.monitor_remote_object_store_task = Some(join_handle);
-
-    Ok(())
-}
-
-async fn monitor_remote_object_stores_task(
-    app: AppHandle,
-    modelardb_remote_object_store: AmazonS3,
-    parquet_remote_object_store: AmazonS3,
-    interval_seconds: u64,
-) {
-    loop {
-        tokio::spawn(emit_remote_object_store_table_size(
-            app.clone(),
-            modelardb_remote_object_store.clone(),
-            "modelardb".to_owned(),
-        ));
-
-        tokio::spawn(emit_remote_object_store_table_size(
-            app.clone(),
-            parquet_remote_object_store.clone(),
-            "parquet".to_owned(),
-        ));
-
-        time::sleep(Duration::from_secs(interval_seconds)).await;
-    }
-}
-
-#[derive(Clone, Serialize)]
-struct RemoteObjectStoreTableSize {
-    node_type: String,
-    table_1_size: u64,
-    table_2_size: u64,
-    table_3_size: u64,
-}
-
-async fn emit_remote_object_store_table_size(
-    app: AppHandle,
-    object_store: AmazonS3,
-    node_type: String,
-) {
-    let table_1_size = table_size(&object_store, LOSSLESS_TABLE_NAME).await;
-    let table_2_size = table_size(&object_store, FIVE_ERROR_BOUND_TABLE_NAME).await;
-    let table_3_size = table_size(&object_store, FIFTEEN_ERROR_BOUND_TABLE_NAME).await;
-
-    app.emit(
-        "remote-object-store-size",
-        RemoteObjectStoreTableSize {
-            node_type: node_type.clone(),
-            table_1_size,
-            table_2_size,
-            table_3_size,
-        },
-    )
-    .unwrap();
-}
-
-async fn table_size(object_store: &AmazonS3, table_name: &str) -> u64 {
-    let table_path = Path::from(format!("tables/{}", table_name));
-    let table_files = object_store
-        .list(Some(&table_path))
-        .collect::<Vec<_>>()
-        .await;
-
-    table_files
-        .into_iter()
-        .map(|file| file.unwrap().size)
-        .sum::<u64>()
 }
 
 #[derive(serde::Serialize)]
@@ -612,7 +593,6 @@ pub fn run() {
             create_tables,
             ingest_into_table,
             flush_nodes,
-            monitor_remote_object_stores,
             client_tables,
             client_query
         ])
