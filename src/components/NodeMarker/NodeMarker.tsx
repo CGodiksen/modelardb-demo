@@ -1,24 +1,18 @@
-import { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
-import { Container, Grid, Modal, Title } from "@mantine/core";
+import { Modal, Title } from "@mantine/core";
 
 import { ModelardbNode } from "../../interfaces/node.ts";
-import { SchemaBrowser } from "../SchemaBrowser/SchemaBrowser.tsx";
-import { QueryEditor } from "../QueryEditor/QueryEditor.tsx";
-import { QueryResult } from "../QueryResult/QueryResult.tsx";
 import { NodePin } from "../NodePin/NodePin.tsx";
+import { NodeModal } from "../NodeModal/NodeModal.tsx";
 
-export function NodeMarker({
-  node,
-  flushingNode,
-}: {
+type NodeMarkerProps = {
   node: ModelardbNode;
   flushingNode: string;
-}) {
+};
+
+export function NodeMarker({ node, flushingNode }: NodeMarkerProps) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [editorText, setEditorText] = useState("");
-  const [queryData, setQueryData] = useState<any[]>([]);
 
   return (
     <>
@@ -30,24 +24,7 @@ export function NodeMarker({
           size={"80%"}
           centered={true}
         >
-          <Container fluid p={0} mt={0}>
-            <Grid grow>
-              <Grid.Col span={4} h={"35vh"}>
-                <SchemaBrowser node={node}></SchemaBrowser>
-              </Grid.Col>
-              <Grid.Col span={8}>
-                <QueryEditor
-                  node={node}
-                  editorText={editorText}
-                  setEditorText={setEditorText}
-                  setQueryData={setQueryData}
-                ></QueryEditor>
-              </Grid.Col>
-              <Grid.Col span={12} h={"35vh"}>
-                <QueryResult queryData={queryData}></QueryResult>
-              </Grid.Col>
-            </Grid>
-          </Container>
+          <NodeModal node={node}></NodeModal>
         </Modal>
       )}
 
