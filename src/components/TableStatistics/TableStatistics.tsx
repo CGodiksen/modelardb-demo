@@ -3,6 +3,7 @@ import { Box, Group, Paper, Progress, SimpleGrid, Text } from "@mantine/core";
 
 import { tables } from "../../data/tables.ts";
 import classes from "./TableStatistics.module.css";
+import { formatBytes } from "../../util.ts";
 
 type TableStatisticsProps = {
   description: string;
@@ -48,11 +49,6 @@ export function TableStatistics({
     },
   ];
 
-  function bytesToMegabytes(bytes: number): string {
-    const megabytes = bytes / 1048576;
-    return `${megabytes.toFixed(2)} MB`;
-  }
-
   const segments = data.map((segment) => (
     <Progress.Section
       value={segment.part}
@@ -74,7 +70,7 @@ export function TableStatistics({
       </Text>
 
       <Group justify="space-between" align="flex-end" gap={0}>
-        <Text fw={700}>{bytesToMegabytes(stat.count)}</Text>
+        <Text fw={700}>{formatBytes(stat.count, 2)}</Text>
         <Text c={stat.color} fw={700} size="sm" className={classes.statCount}>
           {stat.part}%
         </Text>
@@ -87,7 +83,7 @@ export function TableStatistics({
       <Group justify="space-between">
         <Group align="flex-end" gap="xs">
           <Text fz="xl" fw={700}>
-            {bytesToMegabytes(total_bytes)}
+            {formatBytes(total_bytes, 2)}
           </Text>
         </Group>
         <IconDeviceAnalytics size={22} className={classes.icon} stroke={1.5} />

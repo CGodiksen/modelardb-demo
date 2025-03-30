@@ -11,6 +11,7 @@ import { useHotkeys } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/core";
 
 import { tables } from "../../data/tables.ts";
+import { formatBytes } from "../../util.ts";
 
 export function IngestionControls() {
   const [table1IngestionCount, setTable1IngestionCount] = useState<
@@ -69,7 +70,7 @@ export function IngestionControls() {
                   node ingestion rate
                 </Text>
                 <Text fw={700} fz="xl">
-                  {(totalIngestionRate / 1048576).toFixed(2)} MB
+                  {formatBytes(totalIngestionRate, 2)}
                 </Text>
               </div>
             </Group>
