@@ -1,19 +1,9 @@
 import { LineChart } from "@mantine/charts";
 import "@mantine/charts/styles.css";
 
-export function QueryResultGraph({ queryData }: { queryData: any[] }) {
-  const formatDate = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
-    const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
-  };
+import { formatDate } from "../../util.ts";
 
+export function QueryResultGraph({ queryData }: { queryData: any[] }) {
   const data = queryData.map((row) => {
     const { timestamp, ...rest } = row;
     const filteredRest = Object.fromEntries(
@@ -21,7 +11,7 @@ export function QueryResultGraph({ queryData }: { queryData: any[] }) {
     );
 
     return {
-      date: formatDate(timestamp),
+      date: formatDate(timestamp, true),
       ...filteredRest,
     };
   });

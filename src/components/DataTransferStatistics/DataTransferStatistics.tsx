@@ -1,6 +1,8 @@
 import { Container, Paper, Text } from "@mantine/core";
 import { BarChart } from "@mantine/charts";
+
 import { BucketedData } from "../../interfaces/event.ts";
+import { formatDate } from "../../util.ts";
 
 type DataTransferStatisticsProps = {
   deployment: string;
@@ -13,20 +15,9 @@ export function DataTransferStatistics({
   bucketedData,
   colors,
 }: DataTransferStatisticsProps) {
-  function formatDate(timestamp: number): string {
-    const date = new Date(timestamp);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  }
-
   const formattedBucketedData = bucketedData.map((bucket) => ({
     ...bucket,
-    timestamp: formatDate(bucket.timestamp),
+    timestamp: formatDate(bucket.timestamp, false),
     ingested_bytes: (bucket.ingested_bytes / 1048576).toFixed(2),
     transferred_bytes: (bucket.transferred_bytes / 1048576).toFixed(2),
   }));
