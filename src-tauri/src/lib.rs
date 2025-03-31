@@ -12,8 +12,8 @@ use arrow_json::ArrayWriter;
 use datafusion::parquet::arrow::ParquetRecordBatchStreamBuilder;
 use datafusion::physical_plan::common;
 use futures_util::{StreamExt, TryStreamExt};
-use modelardb_embedded::modelardb::client::{Client, Node};
-use modelardb_embedded::modelardb::ModelarDB;
+use modelardb_embedded::operations::client::{Client, Node};
+use modelardb_embedded::operations::Operations;
 use modelardb_embedded::TableType;
 use modelardb_types::types::{ArrowTimestamp, ArrowValue, ErrorBound, TimestampBuilder};
 use object_store::aws::{AmazonS3, AmazonS3Builder};
@@ -554,7 +554,7 @@ async fn client_query(url: String, query: String) -> Vec<u8> {
     let mut client = Client::connect(node.clone()).await.unwrap();
 
     // If it is not a cloud node, flush the memory of the edge node before querying.
-    if url != "grpc://127.0.0.1:9999".to_owned() && url != "grpc://127.0.0.1:9899".to_owned() {
+    if url != *"grpc://127.0.0.1:9999" && url != *"grpc://127.0.0.1:9899" {
         let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
             .await
             .unwrap();
