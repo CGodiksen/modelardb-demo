@@ -3,12 +3,12 @@ x-aws-variables: &aws-variables
   AWS_SECRET_ACCESS_KEY: minioadmin
   AWS_DEFAULT_REGION: eu-central-1
   AWS_ENDPOINT: http://minio-server:9000
-  AWS_ALLOW_HTTP: "true"
+  AWS_ALLOW_HTTP: true
 
 x-modelardb-variables: &modelardb-variables
   MODELARDBD_IP_ADDRESS: host.docker.internal
   AWS_DEFAULT_REGION: eu-central-1
-  AWS_ALLOW_HTTP: "true"
+  AWS_ALLOW_HTTP: true
 
 services:
   # Object store services.
@@ -30,7 +30,8 @@ services:
       - minio-server
     entrypoint:
       /bin/sh -c "
-      /usr/bin/mc config host add modelardb-minio http://minio-server:9000 minioadmin minioadmin;
+      sleep 2;
+      /usr/bin/mc alias set modelardb-minio http://minio-server:9000 minioadmin minioadmin;
       /usr/bin/mc mb modelardb-minio/modelardb;
       /usr/bin/mc mb modelardb-minio/parquet;
       exit 0;
@@ -47,8 +48,8 @@ services:
       <<: *aws-variables
       MODELARDBM_PORT: 9980
     depends_on:
-      - minio-server
-      - create-bucket
+      create-bucket:
+        condition: service_completed_successfully
     healthcheck:
       test: [ "CMD", "echo", "ready" ]
       interval: 2s
@@ -56,7 +57,7 @@ services:
   modelardb-edge-1: &modelardb-base
     image: modelardb
     container_name: modelardb-edge-1
-    command: [ "target/release/modelardbd", "edge", "memory://", "grpc://modelardb-manager:9980" ]
+    command: [ "target/release/modelardbd", "edge", "data/edge", "grpc://modelardb-manager:9980" ]
     ports:
       - "9981:9981"
     environment:
@@ -109,7 +110,7 @@ services:
   modelardb-cloud:
     <<: *modelardb-base
     container_name: modelardb-cloud
-    command: [ "target/release/modelardbd", "cloud", "memory://", "grpc://modelardb-manager:9980" ]
+    command: [ "target/release/modelardbd", "cloud", "data/cloud", "grpc://modelardb-manager:9980" ]
     ports:
       - "9999:9999"
     environment:
@@ -130,8 +131,8 @@ services:
       <<: *aws-variables
       MODELARDBM_PORT: 9880
     depends_on:
-      - minio-server
-      - create-bucket
+      create-bucket:
+        condition: service_completed_successfully
     healthcheck:
       test: [ "CMD", "echo", "ready" ]
       interval: 2s
@@ -139,7 +140,7 @@ services:
   parquet-edge-1: &parquet-base
     image: modelardb
     container_name: parquet-edge-1
-    command: [ "target/release/modelardbd", "edge", "memory://", "grpc://parquet-manager:9880" ]
+    command: [ "target/release/modelardbd", "edge", "data/edge", "grpc://parquet-manager:9880" ]
     ports:
       - "9881:9881"
     environment:
@@ -192,7 +193,7 @@ services:
   parquet-cloud:
     <<: *parquet-base
     container_name: parquet-cloud
-    command: [ "target/release/modelardbd", "cloud", "memory://", "grpc://parquet-manager:9880" ]
+    command: [ "target/release/modelardbd", "cloud", "data/cloud", "grpc://parquet-manager:9880" ]
     ports:
       - "9899:9899"
     environment:
