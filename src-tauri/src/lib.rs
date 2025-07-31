@@ -460,38 +460,6 @@ fn edge_nodes() -> Vec<(Node, Node)> {
             Node::Server("grpc://127.0.0.1:9984".to_owned()),
             Node::Server("grpc://127.0.0.1:9884".to_owned()),
         ),
-        (
-            Node::Server("grpc://127.0.0.1:9985".to_owned()),
-            Node::Server("grpc://127.0.0.1:9885".to_owned()),
-        ),
-        (
-            Node::Server("grpc://127.0.0.1:9986".to_owned()),
-            Node::Server("grpc://127.0.0.1:9886".to_owned()),
-        ),
-        (
-            Node::Server("grpc://127.0.0.1:9987".to_owned()),
-            Node::Server("grpc://127.0.0.1:9887".to_owned()),
-        ),
-        (
-            Node::Server("grpc://127.0.0.1:9988".to_owned()),
-            Node::Server("grpc://127.0.0.1:9888".to_owned()),
-        ),
-        (
-            Node::Server("grpc://127.0.0.1:9989".to_owned()),
-            Node::Server("grpc://127.0.0.1:9889".to_owned()),
-        ),
-        (
-            Node::Server("grpc://127.0.0.1:9990".to_owned()),
-            Node::Server("grpc://127.0.0.1:9890".to_owned()),
-        ),
-        (
-            Node::Server("grpc://127.0.0.1:9991".to_owned()),
-            Node::Server("grpc://127.0.0.1:9891".to_owned()),
-        ),
-        (
-            Node::Server("grpc://127.0.0.1:9992".to_owned()),
-            Node::Server("grpc://127.0.0.1:9892".to_owned()),
-        ),
     ]
 }
 
