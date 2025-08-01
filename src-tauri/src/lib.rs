@@ -93,7 +93,7 @@ async fn create_tables() {
     let table_schema = table_schema();
 
     let lossless_table_type =
-        TableType::ModelTable(table_schema.clone(), HashMap::new(), HashMap::new());
+        TableType::TimeSeriesTable(table_schema.clone(), HashMap::new(), HashMap::new());
 
     let field_column_names = vec![
         "wind_speed",
@@ -120,10 +120,10 @@ async fn create_tables() {
         .collect();
 
     let five_error_bound_table_type =
-        TableType::ModelTable(table_schema.clone(), five_error_bounds, HashMap::new());
+        TableType::TimeSeriesTable(table_schema.clone(), five_error_bounds, HashMap::new());
 
     let fifteen_error_bound_table_type =
-        TableType::ModelTable(table_schema.clone(), fifteen_error_bounds, HashMap::new());
+        TableType::TimeSeriesTable(table_schema.clone(), fifteen_error_bounds, HashMap::new());
 
     modelardb_client
         .create(LOSSLESS_TABLE_NAME, lossless_table_type)
