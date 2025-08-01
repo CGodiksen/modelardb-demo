@@ -23,8 +23,8 @@
     "type": "modelardb",
     "url": "grpc://127.0.0.1:9983",
     "server_mode": "edge",
-    "latitude": 51.924444,
-    "longitude": 2.128333
+    "latitude": 52.124444,
+    "longitude": 2.328333
   },
   {
     "type": "modelardb",
@@ -58,8 +58,8 @@
     "type": "parquet",
     "url": "grpc://127.0.0.1:9883",
     "server_mode": "edge",
-    "latitude": 50.5670948,
-    "longitude": 0.2214118
+    "latitude": 50.4670948,
+    "longitude": 0.6214118
   },
   {
     "type": "parquet",

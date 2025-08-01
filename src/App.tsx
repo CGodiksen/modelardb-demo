@@ -13,6 +13,9 @@ import {
 import { theme } from "./theme";
 import "@mantine/core/styles.css";
 import "./App.css";
+import { NodeGroup } from "./components/NodeGroup/NodeGroup.tsx";
+import { Configuration } from "./components/Configuration/Configuration.tsx";
+import { DataTransferChart } from "./components/DataTransferChart/DataTransferChart.tsx";
 
 export default function App() {
   useHotkeys([
@@ -59,25 +62,19 @@ export default function App() {
         <AppShell.Main pb={0} pe={5}>
           <Container m={5} p={5} fluid>
             <Grid columns={24} grow>
-              <Grid.Col span={6} h={"23vh"}>
-                
+              <Grid.Col span={6} h={"29vh"}>
+                <Configuration></Configuration>
               </Grid.Col>
-              <Grid.Col span={9}>
-
+              <Grid.Col span={18}>
+                <DataTransferChart></DataTransferChart>
               </Grid.Col>
-              <Grid.Col span={9}>
-
-              </Grid.Col>
-              <Grid.Col span={6} h={"74vh"}>
+              <Grid.Col span={6} h={"68vh"}>
                 <Grid grow>
-                  <Grid.Col span={12} h={"24vh"}>
-                    
+                  <Grid.Col span={12} h={"33vh"}>
+                    <NodeGroup></NodeGroup>
                   </Grid.Col>
-                  <Grid.Col span={12} h={"24vh"}>
-                    
-                  </Grid.Col>
-                  <Grid.Col span={12}>
-                    
+                  <Grid.Col span={12} h={"33vh"}>
+                    <NodeGroup></NodeGroup>
                   </Grid.Col>
                 </Grid>
               </Grid.Col>
