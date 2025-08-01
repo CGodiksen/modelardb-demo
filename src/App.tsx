@@ -5,11 +5,9 @@ import { listen } from "@tauri-apps/api/event";
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
 
 import { IngestionControls } from "./components/IngestionControls/IngestionControls.tsx";
-import { DataTransferStatistics } from "./components/DataTransferStatistics/DataTransferStatistics.tsx";
 import { TableStatistics } from "./components/TableStatistics/TableStatistics.tsx";
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
 import {
-  BucketedData,
   IngestedSize,
   RemoteObjectStoreTableSize,
 } from "./interfaces/event.ts";
@@ -17,16 +15,8 @@ import {
 import { theme } from "./theme";
 import "@mantine/core/styles.css";
 import "./App.css";
-import { tables } from "./data/tables.ts";
 
 export default function App() {
-  const [bucketedModelardbData, setBucketedModelardbData] = useState<
-    BucketedData[]
-  >([]);
-  const [bucketedParquetData, setBucketedParquetData] = useState<
-    BucketedData[]
-  >([]);
-
   const [totalIngestedTable1Size, setTotalIngestedTable1Size] = useState(0);
   const [totalIngestedTable2Size, setTotalIngestedTable2Size] = useState(0);
   const [totalIngestedTable3Size, setTotalIngestedTable3Size] = useState(0);
@@ -71,90 +61,17 @@ export default function App() {
     ],
   ]);
 
-  function updateBucketedData(
-    bucketedData: BucketedData[],
-    ingestedBytes: number,
-    transferredBytes: number,
-  ): BucketedData[] {
-    const bucketInterval = 15000; // 15 seconds
-    const maxAge = 120000; // 2 minutes
-
-    const now = Date.now();
-    const bucketTime = Math.floor(now / bucketInterval) * bucketInterval;
-
-    const existingBucket = bucketedData.find(
-      (bucket) => bucket.timestamp === bucketTime,
-    );
-
-    if (existingBucket) {
-      existingBucket.ingested_bytes += ingestedBytes;
-      existingBucket.transferred_bytes += transferredBytes;
-    } else {
-      bucketedData.push({
-        timestamp: bucketTime,
-        ingested_bytes: ingestedBytes,
-        transferred_bytes: transferredBytes,
-      });
-    }
-
-    return bucketedData.filter((bucket) => now - bucket.timestamp <= maxAge);
-  }
-
   useEffect(() => {
     listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
       if (event.payload.node_type === "modelardb") {
-        setTotalTransferredSizeModelardb((prev) => {
-          const changeInSizeTable1 =
-            event.payload.table_1_size - prev.table_1_size;
-          const changeInSizeTable2 =
-            event.payload.table_2_size - prev.table_2_size;
-          const changeInSizeTable3 =
-            event.payload.table_3_size - prev.table_3_size;
-          setBucketedModelardbData((prevData) => {
-            return updateBucketedData(
-              prevData,
-              0,
-              changeInSizeTable1 + changeInSizeTable2 + changeInSizeTable3,
-            );
-          });
-          return event.payload;
-        });
+        console.log(event);
       } else {
-        setTotalTransferredSizeParquet((prev) => {
-          const changeInSizeTable1 =
-            event.payload.table_1_size - prev.table_1_size;
-          const changeInSizeTable2 =
-            event.payload.table_2_size - prev.table_2_size;
-          const changeInSizeTable3 =
-            event.payload.table_3_size - prev.table_3_size;
-          setBucketedParquetData((prevData) => {
-            return updateBucketedData(
-              prevData,
-              0,
-              changeInSizeTable1 + changeInSizeTable2 + changeInSizeTable3,
-            );
-          });
-          return event.payload;
-        });
+        console.log(event);
       }
     });
 
     listen<IngestedSize>("data-ingested", (event) => {
-      setBucketedModelardbData((prevData) => {
-        return updateBucketedData(prevData, event.payload.size, 0);
-      });
-
-      setBucketedParquetData((prevData) => {
-        return updateBucketedData(prevData, event.payload.size, 0);
-      });
-
-      if (event.payload.table_name === tables[0].name) {
-        setTotalIngestedTable1Size((prev) => prev + event.payload.size);
-      } else if (event.payload.table_name === tables[1].name) {
-        setTotalIngestedTable2Size((prev) => prev + event.payload.size);
-      } else {
-        setTotalIngestedTable3Size((prev) => prev + event.payload.size);
-      }
+      console.log(event);
     });
   }, []);
 
@@ -168,18 +85,10 @@ export default function App() {
                 <IngestionControls></IngestionControls>
               </Grid.Col>
               <Grid.Col span={9}>
-                <DataTransferStatistics
-                  bucketedData={bucketedModelardbData}
-                  deployment={"ModelarDB"}
-                  colors={["#0969ff", "#0043b5"]}
-                ></DataTransferStatistics>
+
               </Grid.Col>
               <Grid.Col span={9}>
-                <DataTransferStatistics
-                  bucketedData={bucketedParquetData}
-                  deployment={"Apache Parquet"}
-                  colors={["#7d3fc9", "#52238d"]}
-                ></DataTransferStatistics>
+
               </Grid.Col>
               <Grid.Col span={6} h={"74vh"}>
                 <Grid grow>
