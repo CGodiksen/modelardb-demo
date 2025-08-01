@@ -26,11 +26,9 @@ use tokio::task::JoinHandle;
 use tokio::time;
 use url::Url;
 
-const LOSSLESS_TABLE_NAME: &str = "wind";
-const FIVE_ERROR_BOUND_TABLE_NAME: &str = "wind_5";
-const FIFTEEN_ERROR_BOUND_TABLE_NAME: &str = "wind_15";
+const TABLE_NAME: &str = "wind";
 
-const NODE_COUNT: u64 = 12;
+const NODE_COUNT: u64 = 4;
 
 struct AppState {
     ingestion_tasks: HashMap<String, JoinHandle<()>>,
@@ -92,9 +90,6 @@ async fn create_tables() {
 
     let table_schema = table_schema();
 
-    let lossless_table_type =
-        TableType::TimeSeriesTable(table_schema.clone(), HashMap::new(), HashMap::new());
-
     let field_column_names = vec![
         "wind_speed",
         "pitch_angle",
@@ -114,30 +109,11 @@ async fn create_tables() {
         .map(|name| (name.to_owned(), ErrorBound::try_new_absolute(5.0).unwrap()))
         .collect();
 
-    let fifteen_error_bounds: HashMap<String, ErrorBound> = field_column_names
-        .into_iter()
-        .map(|name| (name.to_owned(), ErrorBound::try_new_absolute(15.0).unwrap()))
-        .collect();
-
     let five_error_bound_table_type =
         TableType::TimeSeriesTable(table_schema.clone(), five_error_bounds, HashMap::new());
 
-    let fifteen_error_bound_table_type =
-        TableType::TimeSeriesTable(table_schema.clone(), fifteen_error_bounds, HashMap::new());
-
     modelardb_client
-        .create(LOSSLESS_TABLE_NAME, lossless_table_type)
-        .await
-        .unwrap();
-    modelardb_client
-        .create(FIVE_ERROR_BOUND_TABLE_NAME, five_error_bound_table_type)
-        .await
-        .unwrap();
-    modelardb_client
-        .create(
-            FIFTEEN_ERROR_BOUND_TABLE_NAME,
-            fifteen_error_bound_table_type,
-        )
+        .create(TABLE_NAME, five_error_bound_table_type)
         .await
         .unwrap();
 
@@ -147,15 +123,7 @@ async fn create_tables() {
     let table_type = TableType::NormalTable(table_schema.clone());
 
     parquet_client
-        .create(LOSSLESS_TABLE_NAME, table_type.clone())
-        .await
-        .unwrap();
-    parquet_client
-        .create(FIVE_ERROR_BOUND_TABLE_NAME, table_type.clone())
-        .await
-        .unwrap();
-    parquet_client
-        .create(FIFTEEN_ERROR_BOUND_TABLE_NAME, table_type)
+        .create(TABLE_NAME, table_type.clone())
         .await
         .unwrap();
 }
@@ -403,9 +371,7 @@ async fn flush_node_and_emit_remote_object_store_table_size(
 #[derive(Clone, Serialize)]
 struct RemoteObjectStoreTableSize {
     node_type: String,
-    table_1_size: u64,
-    table_2_size: u64,
-    table_3_size: u64,
+    table_size: u64,
 }
 
 async fn emit_remote_object_store_table_size(
@@ -413,17 +379,13 @@ async fn emit_remote_object_store_table_size(
     object_store: AmazonS3,
     node_type: String,
 ) {
-    let table_1_size = table_size(&object_store, LOSSLESS_TABLE_NAME).await;
-    let table_2_size = table_size(&object_store, FIVE_ERROR_BOUND_TABLE_NAME).await;
-    let table_3_size = table_size(&object_store, FIFTEEN_ERROR_BOUND_TABLE_NAME).await;
+    let table_size = table_size(&object_store, TABLE_NAME).await;
 
     app.emit(
         "remote-object-store-size",
         RemoteObjectStoreTableSize {
             node_type: node_type.clone(),
-            table_1_size,
-            table_2_size,
-            table_3_size,
+            table_size,
         },
     )
     .unwrap();
