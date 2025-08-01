@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
 
-import { IngestionControls } from "./components/IngestionControls/IngestionControls.tsx";
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
 import {
   IngestedSize,
@@ -61,7 +60,7 @@ export default function App() {
           <Container m={5} p={5} fluid>
             <Grid columns={24} grow>
               <Grid.Col span={6} h={"23vh"}>
-                <IngestionControls></IngestionControls>
+                
               </Grid.Col>
               <Grid.Col span={9}>
 
