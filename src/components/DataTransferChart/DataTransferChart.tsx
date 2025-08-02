@@ -1,10 +1,124 @@
-import { Container } from "@mantine/core";
+import { Container, Paper } from "@mantine/core";
+import { listen } from "@tauri-apps/api/event";
+import { useEffect, useState } from "react";
+import {
+  IngestedSize,
+  RemoteObjectStoreTableSize,
+} from "../../interfaces/event";
+import { formatDate } from "../../util";
+import { LineChart } from "@mantine/charts";
 
-export function DataTransferChart({ }) {
+interface DataBucket {
+  timestamp: number;
+  ingestedSize: number;
+  modelarDbSize: number;
+  parquetSize: number;
+}
+
+export function DataTransferChart({}) {
+  const [bucketedData, setBucketedData] = useState<DataBucket[]>([
+    {
+      timestamp: Date.now(),
+      ingestedSize: 0,
+      modelarDbSize: 0,
+      parquetSize: 0,
+    },
+  ]);
+  const [ingestedBytes, setIngestedBytes] = useState(0);
+  const [modelarDbBytes, setModelarDbBytes] = useState(0);
+  const [parquetBytes, setParquetBytes] = useState(0);
+
+  useEffect(() => {
+    const bucketInterval = 15000; // 15 seconds
+    const maxAge = 300000; // 5 minutes
+
+    const now = Date.now();
+    const bucketTime = Math.floor(now / bucketInterval) * bucketInterval;
+
+    // Copy the current bucketed data to avoid mutating state directly.
+    const currentBuckets = [...bucketedData];
+
+    // If the last bucket is not the current time, add a new one.
+    if (currentBuckets[currentBuckets.length - 1].timestamp !== bucketTime) {
+      currentBuckets.push({
+        timestamp: bucketTime,
+        ingestedSize: ingestedBytes,
+        modelarDbSize: modelarDbBytes,
+        parquetSize: parquetBytes,
+      });
+    }
+
+    // Remove old buckets that are older than maxAge
+    const filteredBuckets = currentBuckets.filter(
+      (bucket) => bucket.timestamp >= now - maxAge
+    );
+
+    setBucketedData(filteredBuckets);
+  }, [ingestedBytes, modelarDbBytes, parquetBytes]);
+
+  useEffect(() => {
+    listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
+      if (event.payload.node_type === "modelardb") {
+        setModelarDbBytes(event.payload.table_size);
+      } else {
+        setParquetBytes(event.payload.table_size);
+      }
+    });
+
+    listen<IngestedSize>("data-ingested", (event) => {
+      setIngestedBytes((prev) => prev + event.payload.size);
+    });
+  }, []);
+
+  // When the data is fetched, we format it for the chart.
+  const formattedBucketedData = bucketedData.map((bucket) => ({
+    ...bucket,
+    timestamp: formatDate(bucket.timestamp, false),
+    ingested_bytes: (bucket.ingestedSize / 1048576).toFixed(2),
+    transferred_modelardb_bytes: (bucket.modelarDbSize / 1048576).toFixed(2),
+    transferred_parquet_bytes: (bucket.parquetSize / 1048576).toFixed(2),
+  }));
+
   return (
     <Container fluid ps={5} pe={5}>
-      <h2>Data Transfer Chart</h2>
-      <p>This is a placeholder for the Data Transfer Chart component.</p>
+      <Paper withBorder radius="md" p={10} pb={15} ms={0} pt={5}>
+        <LineChart
+          h={250}
+          pt={20}
+          data={formattedBucketedData}
+          dataKey="timestamp"
+          series={[
+            {
+              name: "ingested_bytes",
+              color: "#ec777e",
+              label: "Ingested MB",
+            },
+            {
+              name: "transferred_modelardb_bytes",
+              color: "#64a0ff",
+              label: "Transferred ModelarDB MB",
+            },
+            {
+              name: "transferred_parquet_bytes",
+              color: "#ad86dd",
+              label: "Transferred Parquet MB",
+            },
+          ]}
+          curveType="linear"
+          yAxisProps={{
+            min: 0,
+            domain: [
+              0,
+              Math.max(
+                10,
+                bucketedData[bucketedData.length - 1].ingestedSize / 1048576
+              ),
+            ],
+            tickFormatter: (v: number) => v.toFixed(1),
+            label: { value: "MB", angle: -90, position: "insideLeft" },
+          }}
+        />
+      </Paper>
     </Container>
   );
 }

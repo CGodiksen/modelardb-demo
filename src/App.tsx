@@ -1,21 +1,15 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useHotkeys } from "@mantine/hooks";
-import { useEffect } from "react";
-import { listen } from "@tauri-apps/api/event";
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
 
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
-import {
-  IngestedSize,
-  RemoteObjectStoreTableSize,
-} from "./interfaces/event.ts";
 
 import { theme } from "./theme";
-import "@mantine/core/styles.css";
-import "./App.css";
 import { NodeGroup } from "./components/NodeGroup/NodeGroup.tsx";
 import { Configuration } from "./components/Configuration/Configuration.tsx";
 import { DataTransferChart } from "./components/DataTransferChart/DataTransferChart.tsx";
+import "@mantine/core/styles.css";
+import "./App.css";
 
 export default function App() {
   useHotkeys([
@@ -47,27 +41,13 @@ export default function App() {
       "ctrl+f",
       () => {
         invoke("flush_nodes", {
-          intervalSeconds: 60,
+          intervalSeconds: 20,
         }).then(() => {
           console.log("Started flushing data from nodes.");
         });
       },
     ],
   ]);
-
-  useEffect(() => {
-    listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
-      if (event.payload.node_type === "modelardb") {
-        console.log(event);
-      } else {
-        console.log(event);
-      }
-    });
-
-    listen<IngestedSize>("data-ingested", (event) => {
-      console.log(event);
-    });
-  }, []);
 
   return (
     <MantineProvider defaultColorScheme="dark" theme={theme}>
