@@ -20,6 +20,19 @@ import { DataTransferChart } from "./components/DataTransferChart/DataTransferCh
 export default function App() {
   useHotkeys([
     [
+      "ctrl+r",
+      () => {
+        invoke("ingest_into_table", {
+          count: 1000,
+        }).then(() => {
+          console.log(`Started ingesting data into the table.`);
+        });
+      },
+    ],
+  ]);
+
+  useHotkeys([
+    [
       "ctrl+t",
       () => {
         invoke("create_tables", {}).then(() => {

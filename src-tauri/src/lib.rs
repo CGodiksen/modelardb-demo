@@ -31,7 +31,7 @@ const TABLE_NAME: &str = "wind";
 const NODE_COUNT: u64 = 4;
 
 struct AppState {
-    ingestion_tasks: HashMap<String, JoinHandle<()>>,
+    ingestion_task: Option<JoinHandle<()>>,
     flush_task: Option<JoinHandle<()>>,
     modelardb_remote_object_store: AmazonS3,
     parquet_remote_object_store: AmazonS3,
@@ -43,7 +43,7 @@ impl AppState {
         let parquet_remote_object_store = build_s3_object_store("parquet".to_owned());
 
         Self {
-            ingestion_tasks: HashMap::new(),
+            ingestion_task: None,
             flush_task: None,
             modelardb_remote_object_store,
             parquet_remote_object_store,
@@ -132,22 +132,21 @@ async fn create_tables() {
 async fn ingest_into_table(
     app: AppHandle,
     state: State<'_, Mutex<AppState>>,
-    table_name: String,
     count: usize,
 ) -> Result<(), String> {
     let mut state = state.lock().await;
 
-    if let Some(handle) = &state.ingestion_tasks.get(&table_name) {
+    if let Some(handle) = &state.ingestion_task {
         handle.abort();
     }
 
-    let join_handle = tokio::spawn(ingest_into_table_task(app, table_name.clone(), count));
-    state.ingestion_tasks.insert(table_name, join_handle);
+    let join_handle = tokio::spawn(ingest_into_table_task(app, count));
+    state.ingestion_task = Some(join_handle);
 
     Ok(())
 }
 
-async fn ingest_into_table_task(app: AppHandle, table_name: String, count: usize) {
+async fn ingest_into_table_task(app: AppHandle, count: usize) {
     let file = tokio::fs::File::open("../data/wind_cleaned.parquet")
         .await
         .unwrap();
@@ -176,7 +175,6 @@ async fn ingest_into_table_task(app: AppHandle, table_name: String, count: usize
                 modelardb_client.clone(),
                 parquet_client.clone(),
                 index,
-                table_name.clone(),
                 node_record_batches[index].slice(offset, count),
             ));
         }
@@ -202,7 +200,6 @@ async fn ingest_data_points_into_nodes(
     mut modelardb_client: Client,
     mut parquet_client: Client,
     node_id: usize,
-    table_name: String,
     data_points: RecordBatch,
 ) {
     let mut timestamps = TimestampBuilder::with_capacity(data_points.num_rows());
@@ -255,18 +252,18 @@ async fn ingest_data_points_into_nodes(
     app.emit(
         "data-ingested",
         IngestedSize {
-            table_name: table_name.clone(),
+            table_name: TABLE_NAME.to_owned(),
             size: ingested_size,
         },
     )
     .unwrap();
 
     modelardb_client
-        .write(&table_name, record_batch.clone())
+        .write(TABLE_NAME, record_batch.clone())
         .await
         .unwrap();
     parquet_client
-        .write(&table_name, record_batch)
+        .write(TABLE_NAME, record_batch)
         .await
         .unwrap();
 }
