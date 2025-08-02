@@ -1,4 +1,4 @@
-import { Container, Paper } from "@mantine/core";
+import { Container, Paper, Text } from "@mantine/core";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import {
@@ -81,27 +81,32 @@ export function DataTransferChart({}) {
 
   return (
     <Container fluid ps={5} pe={5}>
-      <Paper withBorder radius="md" p={10} pb={15} ms={0} pt={5}>
+      <Paper withBorder radius="md" p={5} pb={15} ms={0} pt={5}>
+        <Text pos={"relative"} top={20} left={10} size="lg" fw={700} mt={-15}>
+          Compression Ratio
+        </Text>
         <LineChart
           h={250}
-          pt={20}
+          ps={10}
+          pe={10}
           data={formattedBucketedData}
           dataKey="timestamp"
+          withLegend
           series={[
             {
               name: "ingested_bytes",
               color: "#ec777e",
-              label: "Ingested MB",
+              label: "Ingested Data",
             },
             {
               name: "transferred_modelardb_bytes",
               color: "#64a0ff",
-              label: "Transferred ModelarDB MB",
+              label: `ModelarDB (${(ingestedBytes / modelarDbBytes).toFixed(2)}x)`,
             },
             {
               name: "transferred_parquet_bytes",
               color: "#ad86dd",
-              label: "Transferred Parquet MB",
+              label: `Apache Parquet (${(ingestedBytes / parquetBytes).toFixed(2)}x)`,
             },
           ]}
           curveType="linear"
@@ -115,7 +120,12 @@ export function DataTransferChart({}) {
               ),
             ],
             tickFormatter: (v: number) => v.toFixed(1),
-            label: { value: "MB", angle: -90, position: "insideLeft" },
+            label: {
+              value: "MB",
+              angle: -90,
+              position: "insideLeft",
+              offset: -4,
+            },
           }}
         />
       </Paper>
