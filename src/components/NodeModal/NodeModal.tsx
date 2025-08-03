@@ -4,22 +4,16 @@ import { SchemaBrowser } from "../SchemaBrowser/SchemaBrowser.tsx";
 import { QueryEditor } from "../QueryEditor/QueryEditor.tsx";
 import { QueryResult } from "../QueryResult/QueryResult.tsx";
 import { ModelardbNode } from "../../interfaces/node.ts";
+import { useState } from "react";
 
 type NodeModalProps = {
   node: ModelardbNode;
-  editorText: string;
-  setEditorText: (text: string) => void;
-  queryData: any[];
-  setQueryData: (data: any[]) => void;
 };
 
-export function NodeModal({
-  node,
-  editorText,
-  setEditorText,
-  queryData,
-  setQueryData,
-}: NodeModalProps) {
+export function NodeModal({ node }: NodeModalProps) {
+  const [editorText, setEditorText] = useState("");
+  const [queryData, setQueryData] = useState<any[]>([]);
+
   return (
     <Container fluid p={0} mt={0}>
       <Grid grow>

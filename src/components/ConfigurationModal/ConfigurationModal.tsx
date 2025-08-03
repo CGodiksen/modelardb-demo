@@ -60,6 +60,7 @@ export function ConfigurationModal({ close }: ConfigurationModalProps) {
           min={100}
           max={10000}
           step={100}
+          suffix=" Hz"
           allowDecimal={false}
           key={form.key("sampling_rate")}
           {...form.getInputProps("sampling_rate")}
