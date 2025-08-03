@@ -82,7 +82,7 @@ export function DataTransferChart({}) {
   return (
     <Container fluid ps={5} pe={5}>
       <Paper withBorder radius="md" p={5} pb={15} ms={0} pt={5}>
-        <Text pos={"relative"} top={20} left={10} size="lg" fw={700} mt={-15}>
+        <Text pos={"relative"} top={20} left={20} size="lg" fw={700} mt={-15}>
           Compression Ratio
         </Text>
         <LineChart

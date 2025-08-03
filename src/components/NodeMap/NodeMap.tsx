@@ -6,17 +6,11 @@ import { NodeMarker } from "../NodeMarker/NodeMarker.tsx";
 import { ModelardbNode } from "../../interfaces/node.ts";
 import { listen } from "@tauri-apps/api/event";
 
-export function NodeMap({ }) {
-  const [nodes, setNodes] = useState<ModelardbNode[]>([]);
+export function NodeMap({ nodes }: { nodes: ModelardbNode[] }) {
   const [flushingModelardbNode, setFlushingModelardbNode] = useState("");
   const [flushingParquetNode, setFlushingParquetNode] = useState("");
 
   useEffect(() => {
-    fetch("/data/nodes.json")
-      .then((res) => res.json())
-      .then((data) => setNodes(data))
-      .catch((error) => console.error("Error fetching nodes:", error));
-
     listen<string>("flushing-modelardb-node", (event) => {
       setFlushingModelardbNode(event.payload);
     });

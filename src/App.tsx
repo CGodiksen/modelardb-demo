@@ -8,10 +8,14 @@ import { theme } from "./theme";
 import { NodeGroup } from "./components/NodeGroup/NodeGroup.tsx";
 import { Configuration } from "./components/Configuration/Configuration.tsx";
 import { DataTransferChart } from "./components/DataTransferChart/DataTransferChart.tsx";
+import { useEffect, useState } from "react";
+import { ModelardbNode } from "./interfaces/node.ts";
 import "@mantine/core/styles.css";
 import "./App.css";
 
 export default function App() {
+  const [nodes, setNodes] = useState<ModelardbNode[]>([]);
+
   useHotkeys([
     [
       "ctrl+r",
@@ -49,6 +53,13 @@ export default function App() {
     ],
   ]);
 
+  useEffect(() => {
+    fetch("/data/nodes.json")
+      .then((res) => res.json())
+      .then((data) => setNodes(data))
+      .catch((error) => console.error("Error fetching nodes:", error));
+  }, []);
+
   return (
     <MantineProvider defaultColorScheme="dark" theme={theme}>
       <AppShell padding="sm">
@@ -64,15 +75,21 @@ export default function App() {
               <Grid.Col span={6} h={"68vh"}>
                 <Grid grow>
                   <Grid.Col span={12} h={"33vh"}>
-                    <NodeGroup></NodeGroup>
+                    <NodeGroup
+                      type="modelardb"
+                      nodes={nodes.filter((node) => node.type === "modelardb")}
+                    ></NodeGroup>
                   </Grid.Col>
                   <Grid.Col span={12} h={"33vh"}>
-                    <NodeGroup></NodeGroup>
+                    <NodeGroup
+                      type="parquet"
+                      nodes={nodes.filter((node) => node.type === "parquet")}
+                    ></NodeGroup>
                   </Grid.Col>
                 </Grid>
               </Grid.Col>
               <Grid.Col span={18}>
-                <NodeMap></NodeMap>
+                <NodeMap nodes={nodes}></NodeMap>
               </Grid.Col>
             </Grid>
           </Container>
