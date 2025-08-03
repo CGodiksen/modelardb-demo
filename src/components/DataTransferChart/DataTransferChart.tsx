@@ -95,17 +95,17 @@ export function DataTransferChart({}) {
           series={[
             {
               name: "ingested_bytes",
-              color: "#ec777e",
+              color: "#e22732",
               label: "Ingested Data",
             },
             {
               name: "transferred_modelardb_bytes",
-              color: "#64a0ff",
+              color: "#0969ff",
               label: `ModelarDB (${(ingestedBytes / modelarDbBytes).toFixed(2)}x)`,
             },
             {
               name: "transferred_parquet_bytes",
-              color: "#ad86dd",
+              color: "#7d3fc9",
               label: `Apache Parquet (${(ingestedBytes / parquetBytes).toFixed(2)}x)`,
             },
           ]}
