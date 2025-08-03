@@ -4,9 +4,12 @@ import { ModelardbNode } from "../../interfaces/node";
 import { Sparkline } from "@mantine/charts";
 import classes from "./NodeDetail.module.css";
 
-export function NodeDetail({ node }: { node: ModelardbNode }) {
-  const color = node.type == "modelardb" ? "#0969ff" : "#7d3fc9";
+type NodeDetailProps = {
+  node: ModelardbNode;
+  color: string;
+};
 
+export function NodeDetail({ node, color }: NodeDetailProps) {
   return (
     <Paper
       radius="md"
@@ -17,7 +20,7 @@ export function NodeDetail({ node }: { node: ModelardbNode }) {
       pb={15}
     >
       <ThemeIcon className={classes.icon} size={40} radius={40} color={color}>
-        <IconWindmill size={32} stroke={1.5} />
+        <IconWindmill size={30} stroke={1.5} />
       </ThemeIcon>
 
       <Group justify="space-between" mt={-45} mb={10}>
