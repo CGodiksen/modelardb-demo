@@ -86,7 +86,7 @@ export function DataTransferChart({}) {
           Compression Ratio
         </Text>
         <LineChart
-          h={250}
+          h={210}
           ps={10}
           pe={10}
           data={formattedBucketedData}

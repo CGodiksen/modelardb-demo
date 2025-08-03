@@ -66,29 +66,36 @@ export default function App() {
         <AppShell.Main pb={0} pe={5}>
           <Container m={5} p={5} fluid>
             <Grid columns={24} grow>
-              <Grid.Col span={6} h={"29vh"}>
+              <Grid.Col span={7} h={"25vh"}>
                 <Configuration></Configuration>
               </Grid.Col>
-              <Grid.Col span={18}>
+              <Grid.Col span={17}>
                 <DataTransferChart></DataTransferChart>
               </Grid.Col>
-              <Grid.Col span={6} h={"68vh"}>
+              <Grid.Col span={7} h={"72vh"}>
                 <Grid grow>
-                  <Grid.Col span={12} h={"33vh"}>
+                  <Grid.Col span={12} h={"35vh"}>
                     <NodeGroup
                       type="modelardb"
-                      nodes={nodes.filter((node) => node.type === "modelardb")}
+                      nodes={nodes.filter(
+                        (node) =>
+                          node.type === "modelardb" &&
+                          node.server_mode === "edge"
+                      )}
                     ></NodeGroup>
                   </Grid.Col>
-                  <Grid.Col span={12} h={"33vh"}>
+                  <Grid.Col span={12} h={"35vh"} pt={15}>
                     <NodeGroup
                       type="parquet"
-                      nodes={nodes.filter((node) => node.type === "parquet")}
+                      nodes={nodes.filter(
+                        (node) =>
+                          node.type === "parquet" && node.server_mode === "edge"
+                      )}
                     ></NodeGroup>
                   </Grid.Col>
                 </Grid>
               </Grid.Col>
-              <Grid.Col span={18}>
+              <Grid.Col span={17}>
                 <NodeMap nodes={nodes}></NodeMap>
               </Grid.Col>
             </Grid>

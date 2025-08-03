@@ -24,7 +24,7 @@ export function NodeMap({ nodes }: { nodes: ModelardbNode[] }) {
     <Container fluid ps={5} pe={5}>
       <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
         <Map
-          style={{ height: "67vh" }}
+          style={{ height: "70vh" }}
           defaultCenter={{ lat: 51.3980119, lng: 0.4886247 }}
           defaultZoom={8.2}
           gestureHandling={"greedy"}
