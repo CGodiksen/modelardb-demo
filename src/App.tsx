@@ -1,9 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useHotkeys } from "@mantine/hooks";
 import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
-
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
-
 import { theme } from "./theme";
 import { NodeGroup } from "./components/NodeGroup/NodeGroup.tsx";
 import { Configuration } from "./components/Configuration/Configuration.tsx";
