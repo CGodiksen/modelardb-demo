@@ -28,10 +28,10 @@ export function NodeGroup({ type, nodes }: NodeGroupProps) {
         opened={opened}
         onClose={close}
         title={<Title order={3}>Simulation Configuration</Title>}
-        size={"40%"}
+        size={"30%"}
         centered={true}
       >
-        <ConfigurationModal></ConfigurationModal>
+        <ConfigurationModal close={close} />
       </Modal>
 
       <Container fluid ps={5} pe={5} style={{ height: "100%" }}>
