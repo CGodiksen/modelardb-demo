@@ -1,15 +1,16 @@
 import { Container, Group, Paper, Text } from "@mantine/core";
+import { SystemTypeIcon } from "../SystemTypeIcon/SystemTypeIcon";
 
 type CompressionRatioProps = {
   ratio: number;
-  type: string;
+  type: "ModelarDB" | "Apache Parquet" | "All";
 };
 
 export function CompressionRatio({ ratio, type }: CompressionRatioProps) {
   return (
     <Container fluid>
       <Paper withBorder radius="md" p={10}>
-        <Group justify="apart">
+        <Group justify="space-between">
           <div>
             <Text c="dimmed" tt="uppercase" fw={700} fz="xs">
               Compression ratio
@@ -18,6 +19,8 @@ export function CompressionRatio({ ratio, type }: CompressionRatioProps) {
               {ratio.toFixed(2)}x
             </Text>
           </div>
+
+          <SystemTypeIcon type={type} marginTop={-40}></SystemTypeIcon>
         </Group>
         <Text c="dimmed" fz="sm">
           {type}

@@ -81,7 +81,7 @@ export default function App() {
                   setParquetBytes={setParquetBytes}
                 ></DataTransferChart>
               </Grid.Col>
-              <Grid.Col span={3} pe={20} pt={15} ps={0}>
+              <Grid.Col span={3} pe={0} pt={15} ps={0}>
                 <Grid grow>
                   <Grid.Col span={12}>
                     <CompressionRatio
@@ -92,7 +92,7 @@ export default function App() {
                   <Grid.Col span={12}>
                     <CompressionRatio
                       ratio={ingestedBytes / parquetBytes}
-                      type="Parquet"
+                      type="Apache Parquet"
                     ></CompressionRatio>
                   </Grid.Col>
                 </Grid>

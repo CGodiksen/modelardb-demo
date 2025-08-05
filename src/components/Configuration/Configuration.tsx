@@ -9,29 +9,25 @@ export function Configuration() {
           <ConfigurationSetting
             title="Compression"
             value="5% Error Bound"
-            type="ModelarDB nodes"
+            type="ModelarDB"
           />
         </Grid.Col>
         <Grid.Col span={6}>
           <ConfigurationSetting
             title="Compression"
             value="Lossless"
-            type="Parquet nodes"
+            type="Apache Parquet"
           />
         </Grid.Col>
         <Grid.Col span={6}>
           <ConfigurationSetting
             title="Sampling Rate"
             value="1000 Hz"
-            type="All nodes"
+            type="All"
           />
         </Grid.Col>
         <Grid.Col span={6}>
-          <ConfigurationSetting
-            title="Bandwidth"
-            value="500 Mbps"
-            type="All nodes"
-          />
+          <ConfigurationSetting title="Bandwidth" value="500 Mbps" type="All" />
         </Grid.Col>
       </Grid>
     </Container>

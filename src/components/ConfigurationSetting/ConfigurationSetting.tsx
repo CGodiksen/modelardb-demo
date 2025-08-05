@@ -1,9 +1,10 @@
 import { Paper, Group, Text } from "@mantine/core";
+import { SystemTypeIcon } from "../SystemTypeIcon/SystemTypeIcon";
 
 type ConfigurationSettingProps = {
   title: string;
   value: string;
-  type: string;
+  type: "ModelarDB" | "Apache Parquet" | "All";
 };
 
 export function ConfigurationSetting({
@@ -13,7 +14,7 @@ export function ConfigurationSetting({
 }: ConfigurationSettingProps) {
   return (
     <Paper withBorder radius="md" p={10}>
-      <Group justify="apart">
+      <Group justify="space-between">
         <div>
           <Text c="dimmed" tt="uppercase" fw={700} fz="xs">
             {title}
@@ -22,9 +23,11 @@ export function ConfigurationSetting({
             {value}
           </Text>
         </div>
+
+        <SystemTypeIcon type={type} marginTop={-25}></SystemTypeIcon>
       </Group>
       <Text c="dimmed" fz="sm" mt={5}>
-        {type}
+        {type} nodes
       </Text>
     </Paper>
   );
