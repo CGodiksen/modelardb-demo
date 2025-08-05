@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { ModelardbNode } from "./interfaces/node.ts";
 import "@mantine/core/styles.css";
 import "./App.css";
+import { CompressionRatio } from "./components/CompressionRatio/CompressionRatio.tsx";
 
 export default function App() {
   const [nodes, setNodes] = useState<ModelardbNode[]>([]);
@@ -67,8 +68,24 @@ export default function App() {
               <Grid.Col span={7} h={"25vh"}>
                 <Configuration></Configuration>
               </Grid.Col>
-              <Grid.Col span={17}>
+              <Grid.Col span={14} pe={0}>
                 <DataTransferChart></DataTransferChart>
+              </Grid.Col>
+              <Grid.Col span={3} pe={20} pt={15} ps={0}>
+                <Grid grow>
+                  <Grid.Col span={12}>
+                    <CompressionRatio
+                      ratio={10}
+                      type="ModelarDB"
+                    ></CompressionRatio>
+                  </Grid.Col>
+                  <Grid.Col span={12}>
+                    <CompressionRatio
+                      ratio={5}
+                      type="Parquet"
+                    ></CompressionRatio>
+                  </Grid.Col>
+                </Grid>
               </Grid.Col>
               <Grid.Col span={7} h={"72vh"}>
                 <Grid grow>

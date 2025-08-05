@@ -82,13 +82,11 @@ export function DataTransferChart({}) {
   return (
     <Container fluid ps={5} pe={5}>
       <Paper withBorder radius="md" p={5} pb={15} ms={0} pt={5}>
-        <Text pos={"relative"} top={20} left={20} fz={22} fw={700} mt={-15}>
-          Compression Ratio
-        </Text>
         <LineChart
           h={210}
           ps={10}
           pe={10}
+          mt={10}
           data={formattedBucketedData}
           dataKey="timestamp"
           withLegend
@@ -101,12 +99,12 @@ export function DataTransferChart({}) {
             {
               name: "transferred_modelardb_bytes",
               color: "#0969ff",
-              label: `ModelarDB (${(ingestedBytes / modelarDbBytes).toFixed(2)}x)`,
+              label: `ModelarDB`,
             },
             {
               name: "transferred_parquet_bytes",
               color: "#7d3fc9",
-              label: `Apache Parquet (${(ingestedBytes / parquetBytes).toFixed(2)}x)`,
+              label: `Apache Parquet`,
             },
           ]}
           curveType="linear"
