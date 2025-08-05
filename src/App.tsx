@@ -101,7 +101,7 @@ export default function App() {
                 <Grid grow>
                   <Grid.Col span={12} h={"35vh"}>
                     <NodeGroup
-                      type="modelardb"
+                      type="ModelarDB"
                       nodes={nodes.filter(
                         (node) =>
                           node.type === "modelardb" &&
@@ -111,7 +111,7 @@ export default function App() {
                   </Grid.Col>
                   <Grid.Col span={12} h={"35vh"} pt={15}>
                     <NodeGroup
-                      type="parquet"
+                      type="Apache Parquet"
                       nodes={nodes.filter(
                         (node) =>
                           node.type === "parquet" && node.server_mode === "edge"

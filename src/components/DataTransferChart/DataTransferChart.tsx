@@ -7,6 +7,7 @@ import {
 } from "../../interfaces/event";
 import { formatDate } from "../../util";
 import { LineChart } from "@mantine/charts";
+import { COMPARISON_SYSTEM_COLOR, MODELARDB_COLOR } from "../../constants";
 
 type DataTransferChartProps = {
   ingestedBytes: number;
@@ -106,17 +107,17 @@ export function DataTransferChart({
           series={[
             {
               name: "ingested_bytes",
-              color: "#e22732",
+              color: "#FFC107",
               label: "Ingested Data",
             },
             {
               name: "transferred_modelardb_bytes",
-              color: "#0969ff",
+              color: MODELARDB_COLOR,
               label: `ModelarDB`,
             },
             {
               name: "transferred_parquet_bytes",
-              color: "#7d3fc9",
+              color: COMPARISON_SYSTEM_COLOR,
               label: `Apache Parquet`,
             },
           ]}

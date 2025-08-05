@@ -12,15 +12,16 @@ import { NodeDetail } from "../NodeDetail/NodeDetail";
 import { IconSettings } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { ConfigurationModal } from "../ConfigurationModal/ConfigurationModal";
+import { COMPARISON_SYSTEM_COLOR, MODELARDB_COLOR } from "../../constants";
 
 type NodeGroupProps = {
-  type: "modelardb" | "parquet";
+  type: "ModelarDB" | "Apache Parquet";
   nodes: ModelardbNode[];
 };
 
 export function NodeGroup({ type, nodes }: NodeGroupProps) {
   const [opened, { open, close }] = useDisclosure(false);
-  const color = nodes[0]?.type == "modelardb" ? "#0969ff" : "#7d3fc9";
+  const color = type == "ModelarDB" ? MODELARDB_COLOR : COMPARISON_SYSTEM_COLOR;
 
   return (
     <>
@@ -37,7 +38,7 @@ export function NodeGroup({ type, nodes }: NodeGroupProps) {
       <Container fluid ps={5} pe={5} style={{ height: "100%" }}>
         <Group justify="space-between">
           <Text fz={22} fw={700}>
-            {type.charAt(0).toUpperCase() + type.slice(1)}
+            {type}
           </Text>
           <ActionIcon aria-label="Settings" m={5} color={color} onClick={open}>
             <IconSettings

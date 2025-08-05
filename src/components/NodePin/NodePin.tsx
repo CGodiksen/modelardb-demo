@@ -3,6 +3,7 @@ import { IconCloud, IconUser, IconWindmill } from "@tabler/icons-react";
 
 import { ModelardbNode } from "../../interfaces/node.ts";
 import { useEffect, useState } from "react";
+import { COMPARISON_SYSTEM_COLOR, MODELARDB_COLOR } from "../../constants.ts";
 
 export function NodePin({
   node,
@@ -11,7 +12,8 @@ export function NodePin({
   node: ModelardbNode;
   flushingNode: string;
 }) {
-  const color = node.type == "modelardb" ? "#0969ff" : "#7d3fc9";
+  const color =
+    node.type == "modelardb" ? MODELARDB_COLOR : COMPARISON_SYSTEM_COLOR;
   const [loadingValue, setLoadingValue] = useState(0);
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export function NodePin({
     );
   } else if (node.server_mode == "local") {
     return (
-      <ActionIcon variant="filled" radius={"lg"} color={"#0969ff"}>
+      <ActionIcon variant="filled" radius={"lg"} color={MODELARDB_COLOR}>
         <IconUser stroke={1.75} />
       </ActionIcon>
     );
