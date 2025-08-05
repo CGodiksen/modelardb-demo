@@ -15,7 +15,7 @@ export function CompressionRatio({ ratio, type }: CompressionRatioProps) {
               Compression ratio
             </Text>
             <Text fw={700} fz="25px" mt={5}>
-              {ratio}x
+              {ratio.toFixed(2)}x
             </Text>
           </div>
         </Group>

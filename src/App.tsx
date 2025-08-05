@@ -8,12 +8,15 @@ import { Configuration } from "./components/Configuration/Configuration.tsx";
 import { DataTransferChart } from "./components/DataTransferChart/DataTransferChart.tsx";
 import { useEffect, useState } from "react";
 import { ModelardbNode } from "./interfaces/node.ts";
+import { CompressionRatio } from "./components/CompressionRatio/CompressionRatio.tsx";
 import "@mantine/core/styles.css";
 import "./App.css";
-import { CompressionRatio } from "./components/CompressionRatio/CompressionRatio.tsx";
 
 export default function App() {
   const [nodes, setNodes] = useState<ModelardbNode[]>([]);
+  const [ingestedBytes, setIngestedBytes] = useState(0);
+  const [modelarDbBytes, setModelarDbBytes] = useState(0);
+  const [parquetBytes, setParquetBytes] = useState(0);
 
   useHotkeys([
     [
@@ -69,19 +72,26 @@ export default function App() {
                 <Configuration></Configuration>
               </Grid.Col>
               <Grid.Col span={14} pe={0}>
-                <DataTransferChart></DataTransferChart>
+                <DataTransferChart
+                  ingestedBytes={ingestedBytes}
+                  setIngestedBytes={setIngestedBytes}
+                  modelarDbBytes={modelarDbBytes}
+                  setModelarDbBytes={setModelarDbBytes}
+                  parquetBytes={parquetBytes}
+                  setParquetBytes={setParquetBytes}
+                ></DataTransferChart>
               </Grid.Col>
               <Grid.Col span={3} pe={20} pt={15} ps={0}>
                 <Grid grow>
                   <Grid.Col span={12}>
                     <CompressionRatio
-                      ratio={10}
+                      ratio={ingestedBytes / modelarDbBytes}
                       type="ModelarDB"
                     ></CompressionRatio>
                   </Grid.Col>
                   <Grid.Col span={12}>
                     <CompressionRatio
-                      ratio={5}
+                      ratio={ingestedBytes / parquetBytes}
                       type="Parquet"
                     ></CompressionRatio>
                   </Grid.Col>

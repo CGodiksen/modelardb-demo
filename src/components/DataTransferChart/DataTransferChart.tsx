@@ -1,4 +1,4 @@
-import { Container, Paper, Text } from "@mantine/core";
+import { Container, Paper } from "@mantine/core";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import {
@@ -8,6 +8,15 @@ import {
 import { formatDate } from "../../util";
 import { LineChart } from "@mantine/charts";
 
+type DataTransferChartProps = {
+  ingestedBytes: number;
+  setIngestedBytes: React.Dispatch<React.SetStateAction<number>>;
+  modelarDbBytes: number;
+  setModelarDbBytes: React.Dispatch<React.SetStateAction<number>>;
+  parquetBytes: number;
+  setParquetBytes: React.Dispatch<React.SetStateAction<number>>;
+};
+
 interface DataBucket {
   timestamp: number;
   ingestedSize: number;
@@ -15,7 +24,14 @@ interface DataBucket {
   parquetSize: number;
 }
 
-export function DataTransferChart({}) {
+export function DataTransferChart({
+  ingestedBytes,
+  setIngestedBytes,
+  modelarDbBytes,
+  setModelarDbBytes,
+  parquetBytes,
+  setParquetBytes,
+}: DataTransferChartProps) {
   const [bucketedData, setBucketedData] = useState<DataBucket[]>([
     {
       timestamp: Date.now(),
@@ -24,9 +40,6 @@ export function DataTransferChart({}) {
       parquetSize: 0,
     },
   ]);
-  const [ingestedBytes, setIngestedBytes] = useState(0);
-  const [modelarDbBytes, setModelarDbBytes] = useState(0);
-  const [parquetBytes, setParquetBytes] = useState(0);
 
   useEffect(() => {
     const bucketInterval = 15000; // 15 seconds
