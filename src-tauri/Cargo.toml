@@ -16,6 +16,7 @@ tauri-build = { version = "2", features = [] }
 arrow = "55.0.0"
 arrow-flight = "55.0.0"
 arrow-json = "55.0.0"
+bollard = "0.19.2"
 datafusion = "47.0.0"
 modelardb_embedded = { git = "https://github.com/ModelarData/ModelarDB-RS.git" }
 modelardb_types = { git = "https://github.com/ModelarData/ModelarDB-RS.git" }
