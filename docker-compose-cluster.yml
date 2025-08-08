@@ -64,7 +64,7 @@ services:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9981
     volumes:
-      - modelardb-edge-1:/usr/src/app/data/edge
+      - modelardb-9981:/usr/src/app/data/edge
     restart: on-failure:10
     depends_on:
       modelardb-manager:
@@ -82,7 +82,7 @@ services:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9982
     volumes:
-      - modelardb-edge-2:/usr/src/app/data/edge
+      - modelardb-9982:/usr/src/app/data/edge
     depends_on:
       modelardb-edge-1:
         condition: service_healthy
@@ -96,7 +96,7 @@ services:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9983
     volumes:
-      - modelardb-edge-3:/usr/src/app/data/edge
+      - modelardb-9983:/usr/src/app/data/edge
     depends_on:
       modelardb-edge-2:
         condition: service_healthy
@@ -110,7 +110,7 @@ services:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9984
     volumes:
-      - modelardb-edge-4:/usr/src/app/data/edge
+      - modelardb-9984:/usr/src/app/data/edge
     depends_on:
       modelardb-edge-3:
         condition: service_healthy
@@ -155,7 +155,7 @@ services:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9881
     volumes:
-      - comparison-edge-1:/usr/src/app/data/edge
+      - comparison-9881:/usr/src/app/data/edge
     restart: on-failure:10
     depends_on:
       parquet-manager:
@@ -173,7 +173,7 @@ services:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9882
     volumes:
-      - comparison-edge-2:/usr/src/app/data/edge
+      - comparison-9882:/usr/src/app/data/edge
     depends_on:
       parquet-edge-1:
         condition: service_healthy
@@ -187,7 +187,7 @@ services:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9883
     volumes:
-      - comparison-edge-3:/usr/src/app/data/edge
+      - comparison-9883:/usr/src/app/data/edge
     depends_on:
       parquet-edge-2:
         condition: service_healthy
@@ -201,7 +201,7 @@ services:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9884
     volumes:
-      - comparison-edge-4:/usr/src/app/data/edge
+      - comparison-9884:/usr/src/app/data/edge
     depends_on:
       parquet-edge-3:
         condition: service_healthy
@@ -220,11 +220,11 @@ services:
         condition: service_healthy
 
 volumes:
-    modelardb-edge-1:
-    modelardb-edge-2:
-    modelardb-edge-3:
-    modelardb-edge-4:
-    comparison-edge-1:
-    comparison-edge-2:
-    comparison-edge-3:
-    comparison-edge-4:
+  modelardb-9981:
+  modelardb-9982:
+  modelardb-9983:
+  modelardb-9984:
+  comparison-9881:
+  comparison-9882:
+  comparison-9883:
+  comparison-9884:

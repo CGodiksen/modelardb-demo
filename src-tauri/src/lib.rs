@@ -9,6 +9,7 @@ use arrow::datatypes::{ArrowPrimitiveType, DataType, Field, Schema};
 use arrow_flight::flight_service_client::FlightServiceClient;
 use arrow_flight::Action;
 use arrow_json::ArrayWriter;
+use bollard::Docker;
 use datafusion::parquet::arrow::ParquetRecordBatchStreamBuilder;
 use datafusion::physical_plan::common;
 use futures_util::{StreamExt, TryStreamExt};
@@ -33,6 +34,7 @@ const NODE_COUNT: u64 = 4;
 struct AppState {
     ingestion_task: Option<JoinHandle<()>>,
     flush_task: Option<JoinHandle<()>>,
+    monitor_nodes_task: Option<JoinHandle<()>>,
     modelardb_remote_object_store: AmazonS3,
     parquet_remote_object_store: AmazonS3,
 }
@@ -45,6 +47,7 @@ impl AppState {
         Self {
             ingestion_task: None,
             flush_task: None,
+            monitor_nodes_task: None,
             modelardb_remote_object_store,
             parquet_remote_object_store,
         }
@@ -393,6 +396,43 @@ async fn emit_remote_object_store_table_size(
     .unwrap();
 }
 
+#[tauri::command]
+async fn monitor_nodes(
+    app: AppHandle,
+    state: State<'_, Mutex<AppState>>,
+    interval_seconds: u64,
+) -> Result<(), String> {
+    let mut state = state.lock().await;
+
+    if let Some(handle) = &state.monitor_nodes_task {
+        handle.abort();
+    }
+
+    let join_handle = tokio::spawn(monitor_nodes_task(app, interval_seconds));
+    state.monitor_nodes_task = Some(join_handle);
+
+    Ok(())
+}
+
+async fn monitor_nodes_task(app: AppHandle, interval_seconds: u64) {
+    let docker = Docker::connect_with_local_defaults().unwrap();
+
+    loop {
+        let data_usage = docker.df(None).await.unwrap();
+        let volumes = data_usage.volumes.unwrap();
+
+        for volume in volumes {
+            if volume.name.starts_with("modelardb-cluster") {
+                let size = volume.usage_data.unwrap().size;
+                let node_name = volume.name.replace("modelardb-cluster_", "");
+
+                app.emit(&format!("{node_name}-node-size"), size).unwrap();
+            }
+        }
+        time::sleep(Duration::from_secs(interval_seconds)).await;
+    }
+}
+
 async fn table_size(object_store: &AmazonS3, table_name: &str) -> u64 {
     let table_path = Path::from(format!("tables/{}", table_name));
     let table_files = object_store
@@ -525,6 +565,7 @@ pub fn run() {
             create_tables,
             ingest_into_table,
             flush_nodes,
+            monitor_nodes,
             client_tables,
             client_query
         ])
