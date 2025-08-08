@@ -25,10 +25,16 @@ export default function App() {
     configurationModalOpened,
     { open: openConfigurationModal, close: closeConfigurationModal },
   ] = useDisclosure(false);
+
   const [nodes, setNodes] = useState<ModelardbNode[]>([]);
+
   const [ingestedBytes, setIngestedBytes] = useState(0);
   const [modelarDbBytes, setModelarDbBytes] = useState(0);
   const [parquetBytes, setParquetBytes] = useState(0);
+
+  const [errorBound, setErrorBound] = useState(5);
+  const [samplingRate, setSamplingRate] = useState(1000);
+  const [comparisonSystem, setComparisonSystem] = useState("tsfile");
 
   useHotkeys([
     [
@@ -85,7 +91,15 @@ export default function App() {
             size={"30%"}
             centered={true}
           >
-            <ConfigurationModal close={closeConfigurationModal} />
+            <ConfigurationModal
+              errorBound={errorBound}
+              setErrorBound={setErrorBound}
+              samplingRate={samplingRate}
+              setSamplingRate={setSamplingRate}
+              comparisonSystem={comparisonSystem}
+              setComparisonSystem={setComparisonSystem}
+              close={closeConfigurationModal}
+            />
           </Modal>
 
           <Container fluid>

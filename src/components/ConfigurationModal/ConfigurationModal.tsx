@@ -8,25 +8,45 @@ import {
 import { useForm } from "@mantine/form";
 
 type ConfigurationModalProps = {
+  errorBound: number;
+  setErrorBound: (value: number) => void;
+  samplingRate: number;
+  setSamplingRate: (value: number) => void;
+  comparisonSystem: string;
+  setComparisonSystem: (value: string) => void;
   close: () => void;
 };
 
-export function ConfigurationModal({ close }: ConfigurationModalProps) {
+export function ConfigurationModal({
+  errorBound,
+  setErrorBound,
+  samplingRate,
+  setSamplingRate,
+  comparisonSystem,
+  setComparisonSystem,
+  close,
+}: ConfigurationModalProps) {
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
-      error_bound: 5,
-      sampling_rate: 1000,
-      comparison_system: "tsfile",
+      errorBound: errorBound,
+      samplingRate: samplingRate,
+      comparisonSystem: comparisonSystem,
     },
   });
+
+  function handleSubmit(values: typeof form.values) {
+    setErrorBound(values.errorBound);
+    setSamplingRate(values.samplingRate);
+    setComparisonSystem(values.comparisonSystem);
+    close();
+  }
 
   return (
     <Container fluid p={0} mt={20}>
       <form
         onSubmit={form.onSubmit((values) => {
-          console.log(values);
-          close();
+          handleSubmit(values);
         })}
       >
         <NativeSelect
@@ -37,8 +57,8 @@ export function ConfigurationModal({ close }: ConfigurationModalProps) {
             { value: "tsfile", label: "Apache TsFile" },
             { value: "parquet", label: "Apache Parquet" },
           ]}
-          key={form.key("comparison_system")}
-          {...form.getInputProps("comparison_system")}
+          key={form.key("comparisonSystem")}
+          {...form.getInputProps("comparisonSystem")}
         />
 
         <NumberInput
@@ -49,8 +69,8 @@ export function ConfigurationModal({ close }: ConfigurationModalProps) {
           max={100}
           suffix="%"
           allowDecimal={false}
-          key={form.key("error_bound")}
-          {...form.getInputProps("error_bound")}
+          key={form.key("errorBound")}
+          {...form.getInputProps("errorBound")}
         />
 
         <NumberInput
@@ -62,8 +82,8 @@ export function ConfigurationModal({ close }: ConfigurationModalProps) {
           step={100}
           suffix=" Hz"
           allowDecimal={false}
-          key={form.key("sampling_rate")}
-          {...form.getInputProps("sampling_rate")}
+          key={form.key("samplingRate")}
+          {...form.getInputProps("samplingRate")}
         />
 
         <Group justify="flex-end" mt={40} me={20}>
