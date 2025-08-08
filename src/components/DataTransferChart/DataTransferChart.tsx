@@ -15,8 +15,8 @@ type DataTransferChartProps = {
   setIngestedBytes: React.Dispatch<React.SetStateAction<number>>;
   modelarDbBytes: number;
   setModelarDbBytes: React.Dispatch<React.SetStateAction<number>>;
-  parquetBytes: number;
-  setParquetBytes: React.Dispatch<React.SetStateAction<number>>;
+  comparisonSystemBytes: number;
+  setComparisonSystemBytes: React.Dispatch<React.SetStateAction<number>>;
   comparisonSystem: ComparisonSystem;
 };
 
@@ -24,7 +24,7 @@ interface DataBucket {
   timestamp: number;
   ingestedSize: number;
   modelarDbSize: number;
-  parquetSize: number;
+  comparisonSystemSize: number;
 }
 
 export function DataTransferChart({
@@ -32,8 +32,8 @@ export function DataTransferChart({
   setIngestedBytes,
   modelarDbBytes,
   setModelarDbBytes,
-  parquetBytes,
-  setParquetBytes,
+  comparisonSystemBytes,
+  setComparisonSystemBytes,
   comparisonSystem,
 }: DataTransferChartProps) {
   const [bucketedData, setBucketedData] = useState<DataBucket[]>([
@@ -41,7 +41,7 @@ export function DataTransferChart({
       timestamp: Date.now(),
       ingestedSize: 0,
       modelarDbSize: 0,
-      parquetSize: 0,
+      comparisonSystemSize: 0,
     },
   ]);
 
@@ -61,7 +61,7 @@ export function DataTransferChart({
         timestamp: bucketTime,
         ingestedSize: ingestedBytes,
         modelarDbSize: modelarDbBytes,
-        parquetSize: parquetBytes,
+        comparisonSystemSize: comparisonSystemBytes,
       });
     }
 
@@ -71,14 +71,14 @@ export function DataTransferChart({
     );
 
     setBucketedData(filteredBuckets);
-  }, [ingestedBytes, modelarDbBytes, parquetBytes]);
+  }, [ingestedBytes, modelarDbBytes, comparisonSystemBytes]);
 
   useEffect(() => {
     listen<RemoteObjectStoreTableSize>("remote-object-store-size", (event) => {
       if (event.payload.node_type === "modelardb") {
         setModelarDbBytes(event.payload.table_size);
       } else {
-        setParquetBytes(event.payload.table_size);
+        setComparisonSystemBytes(event.payload.table_size);
       }
     });
 
@@ -93,7 +93,9 @@ export function DataTransferChart({
     timestamp: formatDate(bucket.timestamp, false),
     ingested_bytes: (bucket.ingestedSize / 1048576).toFixed(2),
     transferred_modelardb_bytes: (bucket.modelarDbSize / 1048576).toFixed(2),
-    transferred_parquet_bytes: (bucket.parquetSize / 1048576).toFixed(2),
+    transferred_comparison_system_bytes: (
+      bucket.comparisonSystemSize / 1048576
+    ).toFixed(2),
   }));
 
   return (
@@ -119,7 +121,7 @@ export function DataTransferChart({
               label: `ModelarDB`,
             },
             {
-              name: "transferred_parquet_bytes",
+              name: "transferred_comparison_system_bytes",
               color: COMPARISON_SYSTEM_COLOR,
               label: comparisonSystem.label,
             },

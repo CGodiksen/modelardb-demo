@@ -31,7 +31,7 @@ export default function App() {
 
   const [ingestedBytes, setIngestedBytes] = useState(0);
   const [modelarDbBytes, setModelarDbBytes] = useState(0);
-  const [parquetBytes, setParquetBytes] = useState(0);
+  const [comparisonSystemBytes, setComparisonSystemBytes] = useState(0);
 
   const [errorBound, setErrorBound] = useState(5);
   const [samplingRate, setSamplingRate] = useState(1000);
@@ -121,8 +121,8 @@ export default function App() {
                   setIngestedBytes={setIngestedBytes}
                   modelarDbBytes={modelarDbBytes}
                   setModelarDbBytes={setModelarDbBytes}
-                  parquetBytes={parquetBytes}
-                  setParquetBytes={setParquetBytes}
+                  comparisonSystemBytes={comparisonSystemBytes}
+                  setComparisonSystemBytes={setComparisonSystemBytes}
                   comparisonSystem={comparisonSystem}
                 ></DataTransferChart>
               </Grid.Col>
@@ -136,7 +136,7 @@ export default function App() {
                   </Grid.Col>
                   <Grid.Col span={12}>
                     <CompressionRatio
-                      ratio={ingestedBytes / parquetBytes}
+                      ratio={ingestedBytes / comparisonSystemBytes}
                       type={comparisonSystem.label}
                     ></CompressionRatio>
                   </Grid.Col>
