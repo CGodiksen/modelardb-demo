@@ -63,6 +63,8 @@ services:
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9981
+    volumes:
+      - modelardb-edge-1:/usr/src/app/data/edge
     restart: on-failure:10
     depends_on:
       modelardb-manager:
@@ -79,6 +81,8 @@ services:
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9982
+    volumes:
+      - modelardb-edge-2:/usr/src/app/data/edge
     depends_on:
       modelardb-edge-1:
         condition: service_healthy
@@ -91,6 +95,8 @@ services:
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9983
+    volumes:
+      - modelardb-edge-3:/usr/src/app/data/edge
     depends_on:
       modelardb-edge-2:
         condition: service_healthy
@@ -103,6 +109,8 @@ services:
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9984
+    volumes:
+      - modelardb-edge-4:/usr/src/app/data/edge
     depends_on:
       modelardb-edge-3:
         condition: service_healthy
@@ -146,6 +154,8 @@ services:
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9881
+    volumes:
+      - comparison-edge-1:/usr/src/app/data/edge
     restart: on-failure:10
     depends_on:
       parquet-manager:
@@ -162,6 +172,8 @@ services:
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9882
+    volumes:
+      - comparison-edge-2:/usr/src/app/data/edge
     depends_on:
       parquet-edge-1:
         condition: service_healthy
@@ -174,6 +186,8 @@ services:
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9883
+    volumes:
+      - comparison-edge-3:/usr/src/app/data/edge
     depends_on:
       parquet-edge-2:
         condition: service_healthy
@@ -186,6 +200,8 @@ services:
     environment:
       <<: *modelardb-variables
       MODELARDBD_PORT: 9884
+    volumes:
+      - comparison-edge-4:/usr/src/app/data/edge
     depends_on:
       parquet-edge-3:
         condition: service_healthy
@@ -202,3 +218,13 @@ services:
     depends_on:
       parquet-edge-4:
         condition: service_healthy
+
+volumes:
+    modelardb-edge-1:
+    modelardb-edge-2:
+    modelardb-edge-3:
+    modelardb-edge-4:
+    comparison-edge-1:
+    comparison-edge-2:
+    comparison-edge-3:
+    comparison-edge-4:
