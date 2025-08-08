@@ -84,7 +84,7 @@ fn build_s3_object_store(bucket_name: String) -> AmazonS3 {
 }
 
 #[tauri::command]
-async fn create_tables() {
+async fn create_tables(error_bound: usize) {
     let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9980".to_owned());
     let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
 
@@ -103,17 +103,22 @@ async fn create_tables() {
         "cor_wind_direction",
     ];
 
-    let five_error_bounds: HashMap<String, ErrorBound> = field_column_names
+    let error_bounds: HashMap<String, ErrorBound> = field_column_names
         .clone()
         .into_iter()
-        .map(|name| (name.to_owned(), ErrorBound::try_new_absolute(5.0).unwrap()))
+        .map(|name| {
+            (
+                name.to_owned(),
+                ErrorBound::try_new_absolute(error_bound as f32).unwrap(),
+            )
+        })
         .collect();
 
-    let five_error_bound_table_type =
-        TableType::TimeSeriesTable(table_schema.clone(), five_error_bounds, HashMap::new());
+    let error_bound_table_type =
+        TableType::TimeSeriesTable(table_schema.clone(), error_bounds, HashMap::new());
 
     modelardb_client
-        .create(TABLE_NAME, five_error_bound_table_type)
+        .create(TABLE_NAME, error_bound_table_type)
         .await
         .unwrap();
 

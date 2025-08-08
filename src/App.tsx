@@ -44,34 +44,20 @@ export default function App() {
     [
       "ctrl+r",
       () => {
-        invoke("ingest_into_table", {
-          count: 1000,
-        }).then(() => {
-          console.log(`Started ingesting data into the table.`);
-        });
-      },
-    ],
-  ]);
-
-  useHotkeys([
-    [
-      "ctrl+t",
-      () => {
-        invoke("create_tables", {}).then(() => {
+        invoke("create_tables", { errorBound: errorBound }).then(() => {
           console.log("Tables created successfully.");
-        });
-      },
-    ],
-  ]);
 
-  useHotkeys([
-    [
-      "ctrl+f",
-      () => {
-        invoke("flush_nodes", {
-          intervalSeconds: 20,
-        }).then(() => {
-          console.log("Started flushing data from nodes.");
+          invoke("ingest_into_table", {
+            count: samplingRate,
+          }).then(() => {
+            console.log(`Started ingesting data into the table.`);
+
+            invoke("flush_nodes", {
+              intervalSeconds: 20,
+            }).then(() => {
+              console.log("Started flushing data from nodes.");
+            });
+          });
         });
       },
     ],
