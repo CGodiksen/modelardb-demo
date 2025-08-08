@@ -4,7 +4,7 @@ import { SystemTypeIcon } from "../SystemTypeIcon/SystemTypeIcon";
 type ConfigurationSettingProps = {
   title: string;
   value: string;
-  type: "ModelarDB" | "Apache Parquet" | "All";
+  type: "ModelarDB" | "Apache Parquet" | "Apache TsFile" | "All";
 };
 
 export function ConfigurationSetting({

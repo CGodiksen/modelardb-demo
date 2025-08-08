@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { ModelardbNode } from "./interfaces/node.ts";
 import { CompressionRatio } from "./components/CompressionRatio/CompressionRatio.tsx";
 import { ConfigurationModal } from "./components/ConfigurationModal/ConfigurationModal.tsx";
+import { ComparisonSystem } from "./interfaces/system.ts";
 import "@mantine/core/styles.css";
 import "./App.css";
 
@@ -34,7 +35,10 @@ export default function App() {
 
   const [errorBound, setErrorBound] = useState(5);
   const [samplingRate, setSamplingRate] = useState(1000);
-  const [comparisonSystem, setComparisonSystem] = useState("tsfile");
+  const [comparisonSystem, setComparisonSystem] = useState<ComparisonSystem>({
+    value: "tsfile",
+    label: "Apache TsFile",
+  });
 
   useHotkeys([
     [
@@ -105,7 +109,11 @@ export default function App() {
           <Container fluid>
             <Grid columns={24} grow>
               <Grid.Col span={7}>
-                <Configuration></Configuration>
+                <Configuration
+                  errorBound={errorBound}
+                  samplingRate={samplingRate}
+                  comparisonSystem={comparisonSystem}
+                ></Configuration>
               </Grid.Col>
               <Grid.Col span={14} pe={0}>
                 <DataTransferChart
@@ -115,6 +123,7 @@ export default function App() {
                   setModelarDbBytes={setModelarDbBytes}
                   parquetBytes={parquetBytes}
                   setParquetBytes={setParquetBytes}
+                  comparisonSystem={comparisonSystem}
                 ></DataTransferChart>
               </Grid.Col>
               <Grid.Col span={3} pe={0} pt={15} ps={0}>
@@ -128,7 +137,7 @@ export default function App() {
                   <Grid.Col span={12}>
                     <CompressionRatio
                       ratio={ingestedBytes / parquetBytes}
-                      type="Apache Parquet"
+                      type={comparisonSystem.label}
                     ></CompressionRatio>
                   </Grid.Col>
                 </Grid>
@@ -148,7 +157,7 @@ export default function App() {
                   </Grid.Col>
                   <Grid.Col span={12} h={"35vh"} pt={15}>
                     <NodeGroup
-                      type="Apache Parquet"
+                      type={comparisonSystem.label}
                       nodes={nodes.filter(
                         (node) =>
                           node.type === "parquet" && node.server_mode === "edge"

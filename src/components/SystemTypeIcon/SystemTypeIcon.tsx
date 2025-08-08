@@ -3,7 +3,7 @@ import { IconWindmill } from "@tabler/icons-react";
 import { MODELARDB_COLOR, COMPARISON_SYSTEM_COLOR } from "../../constants";
 
 type SystemTypeIconProps = {
-  type: "ModelarDB" | "Apache Parquet" | "All";
+  type: "ModelarDB" | "Apache Parquet" | "Apache TsFile" | "All";
   marginTop: number;
 };
 

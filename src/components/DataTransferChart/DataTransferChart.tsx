@@ -8,6 +8,7 @@ import {
 import { formatDate } from "../../util";
 import { LineChart } from "@mantine/charts";
 import { COMPARISON_SYSTEM_COLOR, MODELARDB_COLOR } from "../../constants";
+import { ComparisonSystem } from "../../interfaces/system";
 
 type DataTransferChartProps = {
   ingestedBytes: number;
@@ -16,6 +17,7 @@ type DataTransferChartProps = {
   setModelarDbBytes: React.Dispatch<React.SetStateAction<number>>;
   parquetBytes: number;
   setParquetBytes: React.Dispatch<React.SetStateAction<number>>;
+  comparisonSystem: ComparisonSystem;
 };
 
 interface DataBucket {
@@ -32,6 +34,7 @@ export function DataTransferChart({
   setModelarDbBytes,
   parquetBytes,
   setParquetBytes,
+  comparisonSystem,
 }: DataTransferChartProps) {
   const [bucketedData, setBucketedData] = useState<DataBucket[]>([
     {
@@ -118,7 +121,7 @@ export function DataTransferChart({
             {
               name: "transferred_parquet_bytes",
               color: COMPARISON_SYSTEM_COLOR,
-              label: `Apache Parquet`,
+              label: comparisonSystem.label,
             },
           ]}
           curveType="linear"

@@ -5,7 +5,7 @@ import { IconSettings } from "@tabler/icons-react";
 import { COMPARISON_SYSTEM_COLOR, MODELARDB_COLOR } from "../../constants";
 
 type NodeGroupProps = {
-  type: "ModelarDB" | "Apache Parquet";
+  type: "ModelarDB" | "Apache Parquet" | "Apache TsFile";
   nodes: ModelardbNode[];
   openConfigurationModal: () => void;
 };

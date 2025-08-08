@@ -6,14 +6,15 @@ import {
   NumberInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { ComparisonSystem } from "../../interfaces/system";
 
 type ConfigurationModalProps = {
   errorBound: number;
   setErrorBound: (value: number) => void;
   samplingRate: number;
   setSamplingRate: (value: number) => void;
-  comparisonSystem: string;
-  setComparisonSystem: (value: string) => void;
+  comparisonSystem: ComparisonSystem;
+  setComparisonSystem: (value: ComparisonSystem) => void;
   close: () => void;
 };
 
@@ -31,14 +32,22 @@ export function ConfigurationModal({
     initialValues: {
       errorBound: errorBound,
       samplingRate: samplingRate,
-      comparisonSystem: comparisonSystem,
+      comparisonSystem: comparisonSystem.value,
     },
   });
 
   function handleSubmit(values: typeof form.values) {
     setErrorBound(values.errorBound);
     setSamplingRate(values.samplingRate);
-    setComparisonSystem(values.comparisonSystem);
+
+    setComparisonSystem({
+      value: values.comparisonSystem,
+      label:
+        values.comparisonSystem === "tsfile"
+          ? "Apache TsFile"
+          : "Apache Parquet",
+    });
+
     close();
   }
 
