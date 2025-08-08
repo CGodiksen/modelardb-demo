@@ -116,13 +116,21 @@ export default function App() {
                 <Grid grow>
                   <Grid.Col span={12}>
                     <CompressionRatio
-                      ratio={ingestedBytes / modelarDbBytes}
+                      ratio={
+                        modelarDbBytes !== 0
+                          ? ingestedBytes / modelarDbBytes
+                          : 0
+                      }
                       type="ModelarDB"
                     ></CompressionRatio>
                   </Grid.Col>
                   <Grid.Col span={12}>
                     <CompressionRatio
-                      ratio={ingestedBytes / comparisonSystemBytes}
+                      ratio={
+                        comparisonSystemBytes !== 0
+                          ? ingestedBytes / comparisonSystemBytes
+                          : 0
+                      }
                       type={comparisonSystem.label}
                     ></CompressionRatio>
                   </Grid.Col>
