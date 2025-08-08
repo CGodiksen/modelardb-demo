@@ -24,12 +24,6 @@ export function QueryResult({ queryData }: { queryData: any[] }) {
             <Tabs.Tab value="graph" leftSection={<IconGraph size={20} />}>
               Graph
             </Tabs.Tab>
-            <Tabs.Tab
-              value="analytics"
-              leftSection={<IconFileAnalytics size={20} />}
-            >
-              Analytics
-            </Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="table">
@@ -37,9 +31,6 @@ export function QueryResult({ queryData }: { queryData: any[] }) {
           </Tabs.Panel>
           <Tabs.Panel value="graph">
             <QueryResultGraph queryData={queryData}></QueryResultGraph>
-          </Tabs.Panel>
-          <Tabs.Panel value="analytics">
-            <Text p={10}>Query result analytics</Text>
           </Tabs.Panel>
         </Tabs>
       </Card>
