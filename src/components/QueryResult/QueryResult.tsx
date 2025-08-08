@@ -1,5 +1,5 @@
 import { Card, Tabs, Text } from "@mantine/core";
-import { IconFileAnalytics, IconGraph, IconTable } from "@tabler/icons-react";
+import { IconGraph, IconTable } from "@tabler/icons-react";
 
 import { QueryResultTable } from "../QueryResultTable/QueryResultTable.tsx";
 import { QueryResultGraph } from "../QueryResultGraph/QueryResultGraph.tsx";

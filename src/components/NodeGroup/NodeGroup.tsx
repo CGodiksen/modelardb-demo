@@ -29,7 +29,7 @@ export function NodeGroup({
           color={color}
           onClick={openConfigurationModal}
         >
-          <IconSettings style={{ width: "70%", height: "70%" }} stroke={1.5} />
+          <IconSettings style={{ width: "100%", height: "70%" }} stroke={1.5} />
         </ActionIcon>
       </Group>
 

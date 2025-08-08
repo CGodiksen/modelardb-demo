@@ -31,7 +31,7 @@ export function QueryEditor({
             let json_data = JSON.parse(json_string);
 
             setQueryData(json_data);
-          },
+          }
         );
       },
     ],
@@ -42,6 +42,7 @@ export function QueryEditor({
       <CodeMirror
         value={editorText}
         height="340px"
+        width="894px"
         extensions={[sql()]}
         onChange={setEditorText}
         theme={darcula}
