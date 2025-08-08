@@ -1,6 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
-import { useHotkeys } from "@mantine/hooks";
-import { AppShell, Container, Grid, MantineProvider } from "@mantine/core";
+import { useDisclosure, useHotkeys } from "@mantine/hooks";
+import {
+  AppShell,
+  Container,
+  Grid,
+  MantineProvider,
+  Modal,
+  Title,
+} from "@mantine/core";
 import { NodeMap } from "./components/NodeMap/NodeMap.tsx";
 import { theme } from "./theme";
 import { NodeGroup } from "./components/NodeGroup/NodeGroup.tsx";
@@ -9,10 +16,15 @@ import { DataTransferChart } from "./components/DataTransferChart/DataTransferCh
 import { useEffect, useState } from "react";
 import { ModelardbNode } from "./interfaces/node.ts";
 import { CompressionRatio } from "./components/CompressionRatio/CompressionRatio.tsx";
+import { ConfigurationModal } from "./components/ConfigurationModal/ConfigurationModal.tsx";
 import "@mantine/core/styles.css";
 import "./App.css";
 
 export default function App() {
+  const [
+    configurationModalOpened,
+    { open: openConfigurationModal, close: closeConfigurationModal },
+  ] = useDisclosure(false);
   const [nodes, setNodes] = useState<ModelardbNode[]>([]);
   const [ingestedBytes, setIngestedBytes] = useState(0);
   const [modelarDbBytes, setModelarDbBytes] = useState(0);
@@ -64,11 +76,21 @@ export default function App() {
 
   return (
     <MantineProvider defaultColorScheme="dark" theme={theme}>
-      <AppShell padding="sm">
-        <AppShell.Main pb={0} pe={5}>
-          <Container m={5} p={5} fluid>
+      <AppShell>
+        <AppShell.Main p={10} pt={20}>
+          <Modal
+            opened={configurationModalOpened}
+            onClose={closeConfigurationModal}
+            title={<Title order={3}>Simulation Configuration</Title>}
+            size={"30%"}
+            centered={true}
+          >
+            <ConfigurationModal close={closeConfigurationModal} />
+          </Modal>
+
+          <Container fluid>
             <Grid columns={24} grow>
-              <Grid.Col span={7} h={"25vh"}>
+              <Grid.Col span={7}>
                 <Configuration></Configuration>
               </Grid.Col>
               <Grid.Col span={14} pe={0}>
@@ -97,7 +119,7 @@ export default function App() {
                   </Grid.Col>
                 </Grid>
               </Grid.Col>
-              <Grid.Col span={7} h={"72vh"}>
+              <Grid.Col span={7}>
                 <Grid grow>
                   <Grid.Col span={12} h={"35vh"}>
                     <NodeGroup
@@ -107,6 +129,7 @@ export default function App() {
                           node.type === "modelardb" &&
                           node.server_mode === "edge"
                       )}
+                      openConfigurationModal={openConfigurationModal}
                     ></NodeGroup>
                   </Grid.Col>
                   <Grid.Col span={12} h={"35vh"} pt={15}>
@@ -116,6 +139,7 @@ export default function App() {
                         (node) =>
                           node.type === "parquet" && node.server_mode === "edge"
                       )}
+                      openConfigurationModal={openConfigurationModal}
                     ></NodeGroup>
                   </Grid.Col>
                 </Grid>

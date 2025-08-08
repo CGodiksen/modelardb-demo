@@ -3,7 +3,7 @@ import { ConfigurationSetting } from "../ConfigurationSetting/ConfigurationSetti
 
 export function Configuration() {
   return (
-    <Container fluid ps={5} pe={5} mt={20}>
+    <Container fluid ps={5} pe={5} mt={15}>
       <Grid grow>
         <Grid.Col span={6}>
           <ConfigurationSetting
