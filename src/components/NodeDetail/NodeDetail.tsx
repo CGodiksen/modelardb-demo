@@ -2,6 +2,8 @@ import { Paper, ThemeIcon, Text, Group } from "@mantine/core";
 import { IconDeviceAnalytics, IconWindmill } from "@tabler/icons-react";
 import { ModelardbNode } from "../../interfaces/node";
 import { Sparkline } from "@mantine/charts";
+import { listen } from "@tauri-apps/api/event";
+import { useEffect, useState } from "react";
 import classes from "./NodeDetail.module.css";
 
 type NodeDetailProps = {
@@ -10,6 +12,21 @@ type NodeDetailProps = {
 };
 
 export function NodeDetail({ node, color }: NodeDetailProps) {
+  const [currentSize, setCurrentSize] = useState<number>(0);
+  const [nodeSizes, setNodeSizes] = useState<number[]>([0, 0, 0, 0, 0, 0]);
+
+  useEffect(() => {
+    const nodePort = node.url!.split(":").pop();
+    const nodeType = node.type === "modelardb" ? "modelardb" : "comparison";
+
+    listen<number>(`${nodeType}-${nodePort}-node-size`, (event) => {
+      let size_mb = Math.round((event.payload / 1048576) * 10) / 10;
+
+      setCurrentSize(size_mb);
+      setNodeSizes((prev) => [...prev.slice(1), event.payload]);
+    });
+  }, []);
+
   return (
     <Paper
       radius="md"
@@ -35,14 +52,14 @@ export function NodeDetail({ node, color }: NodeDetailProps) {
       </Group>
 
       <Group align="flex-end" gap="xs" mt={20} me={0} pe={0}>
-        <Text w={90} fz={24} fw={700}>
-          {Math.floor(Math.random() * 200) + 1} MB
+        <Text w={90} fz={22} fw={700}>
+          {currentSize} MB
         </Text>
 
         <Sparkline
           w={130}
           h={40}
-          data={Array.from({ length: 7 }, () => Math.floor(Math.random() * 51))}
+          data={nodeSizes}
           curveType="linear"
           color={color}
           fillOpacity={0.6}

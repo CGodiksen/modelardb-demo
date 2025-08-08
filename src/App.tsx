@@ -56,6 +56,12 @@ export default function App() {
               intervalSeconds: 20,
             }).then(() => {
               console.log("Started flushing data from nodes.");
+
+              invoke("monitor_nodes", {
+                intervalSeconds: 2,
+              }).then(() => {
+                console.log("Started monitoring nodes.");
+              });
             });
           });
         });
