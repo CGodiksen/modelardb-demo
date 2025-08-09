@@ -87,6 +87,35 @@ fn build_s3_object_store(bucket_name: String) -> AmazonS3 {
 }
 
 #[tauri::command]
+async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
+    let state = state.lock().await;
+
+    // Abort any running tasks.
+    if let Some(handle) = &state.ingestion_task {
+        handle.abort();
+    }
+
+    if let Some(handle) = &state.flush_task {
+        handle.abort();
+    }
+
+    if let Some(handle) = &state.monitor_nodes_task {
+        handle.abort();
+    }
+
+    // Drop the tables.
+    let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9980".to_owned());
+    let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
+    modelardb_client.drop(TABLE_NAME).await.unwrap();
+
+    let parquet_manager_node = Node::Manager("grpc://127.0.0.1:9880".to_owned());
+    let mut parquet_client = Client::connect(parquet_manager_node).await.unwrap();
+    parquet_client.drop(TABLE_NAME).await.unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
 async fn create_tables(error_bound: usize) {
     let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9980".to_owned());
     let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
@@ -562,6 +591,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            reset_state,
             create_tables,
             ingest_into_table,
             flush_nodes,

@@ -59,7 +59,7 @@ export default function App() {
               console.log("Started flushing data from nodes.");
 
               invoke("monitor_nodes", {
-                intervalSeconds: 2,
+                intervalSeconds: 1,
               }).then(() => {
                 console.log("Started monitoring nodes.");
               });
@@ -78,6 +78,10 @@ export default function App() {
   }, []);
 
   function handleReset() {
+    invoke("reset_state").then(() => {
+      console.log("State reset successfully.");
+    });
+
     setIngestedBytes(0);
     setModelarDbBytes(0);
     setComparisonSystemBytes(0);

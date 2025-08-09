@@ -14,7 +14,7 @@ type NodeDetailProps = {
 
 export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
   const [currentSize, setCurrentSize] = useState<number>(0);
-  const [nodeSizes, setNodeSizes] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+  const [nodeSizes, setNodeSizes] = useState<number[]>(Array(20).fill(0));
 
   useEffect(() => {
     const nodePort = node.url!.split(":").pop();
@@ -30,7 +30,7 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
 
   useEffect(() => {
     setCurrentSize(0);
-    setNodeSizes([0, 0, 0, 0, 0, 0, 0]);
+    setNodeSizes(Array(20).fill(0));
   }, [resetKey]);
 
   return (
