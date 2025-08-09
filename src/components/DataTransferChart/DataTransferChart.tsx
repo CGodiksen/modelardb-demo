@@ -18,6 +18,7 @@ type DataTransferChartProps = {
   comparisonSystemBytes: number;
   setComparisonSystemBytes: React.Dispatch<React.SetStateAction<number>>;
   comparisonSystem: ComparisonSystem;
+  resetKey: number;
 };
 
 interface DataBucket {
@@ -35,6 +36,7 @@ export function DataTransferChart({
   comparisonSystemBytes,
   setComparisonSystemBytes,
   comparisonSystem,
+  resetKey,
 }: DataTransferChartProps) {
   const [bucketedData, setBucketedData] = useState<DataBucket[]>([
     {
@@ -86,6 +88,17 @@ export function DataTransferChart({
       setIngestedBytes((prev) => prev + event.payload.size);
     });
   }, []);
+
+  useEffect(() => {
+    setBucketedData([
+      {
+        timestamp: Date.now(),
+        ingestedSize: 0,
+        modelarDbSize: 0,
+        comparisonSystemSize: 0,
+      },
+    ]);
+  }, [resetKey]);
 
   // When the data is fetched, we format it for the chart.
   const formattedBucketedData = bucketedData.map((bucket) => ({

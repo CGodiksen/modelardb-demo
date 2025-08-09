@@ -16,6 +16,7 @@ type ConfigurationModalProps = {
   comparisonSystem: ComparisonSystem;
   setComparisonSystem: (value: ComparisonSystem) => void;
   close: () => void;
+  handleReset: () => void;
 };
 
 export function ConfigurationModal({
@@ -26,6 +27,7 @@ export function ConfigurationModal({
   comparisonSystem,
   setComparisonSystem,
   close,
+  handleReset,
 }: ConfigurationModalProps) {
   const form = useForm({
     mode: "uncontrolled",
@@ -48,6 +50,7 @@ export function ConfigurationModal({
           : "Apache Parquet",
     });
 
+    handleReset();
     close();
   }
 

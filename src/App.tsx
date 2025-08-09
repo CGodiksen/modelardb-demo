@@ -22,6 +22,7 @@ import "@mantine/core/styles.css";
 import "./App.css";
 
 export default function App() {
+  const [resetKey, setResetKey] = useState(0);
   const [
     configurationModalOpened,
     { open: openConfigurationModal, close: closeConfigurationModal },
@@ -76,6 +77,14 @@ export default function App() {
       .catch((error) => console.error("Error fetching nodes:", error));
   }, []);
 
+  function handleReset() {
+    setIngestedBytes(0);
+    setModelarDbBytes(0);
+    setComparisonSystemBytes(0);
+
+    setResetKey((prev) => prev + 1);
+  }
+
   return (
     <MantineProvider defaultColorScheme="dark" theme={theme}>
       <AppShell>
@@ -95,6 +104,7 @@ export default function App() {
               comparisonSystem={comparisonSystem}
               setComparisonSystem={setComparisonSystem}
               close={closeConfigurationModal}
+              handleReset={handleReset}
             />
           </Modal>
 
@@ -116,6 +126,7 @@ export default function App() {
                   comparisonSystemBytes={comparisonSystemBytes}
                   setComparisonSystemBytes={setComparisonSystemBytes}
                   comparisonSystem={comparisonSystem}
+                  resetKey={resetKey}
                 ></DataTransferChart>
               </Grid.Col>
               <Grid.Col span={3} pe={0} pt={15} ps={0}>
@@ -153,6 +164,7 @@ export default function App() {
                           node.server_mode === "edge"
                       )}
                       openConfigurationModal={openConfigurationModal}
+                      resetKey={resetKey}
                     ></NodeGroup>
                   </Grid.Col>
                   <Grid.Col span={12} h={"35vh"} pt={15}>
@@ -163,6 +175,7 @@ export default function App() {
                           node.type === "parquet" && node.server_mode === "edge"
                       )}
                       openConfigurationModal={openConfigurationModal}
+                      resetKey={resetKey}
                     ></NodeGroup>
                   </Grid.Col>
                 </Grid>

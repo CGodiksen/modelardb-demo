@@ -9,11 +9,12 @@ import classes from "./NodeDetail.module.css";
 type NodeDetailProps = {
   node: ModelardbNode;
   color: string;
+  resetKey: number;
 };
 
-export function NodeDetail({ node, color }: NodeDetailProps) {
+export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
   const [currentSize, setCurrentSize] = useState<number>(0);
-  const [nodeSizes, setNodeSizes] = useState<number[]>([0, 0, 0, 0, 0, 0]);
+  const [nodeSizes, setNodeSizes] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
 
   useEffect(() => {
     const nodePort = node.url!.split(":").pop();
@@ -26,6 +27,11 @@ export function NodeDetail({ node, color }: NodeDetailProps) {
       setNodeSizes((prev) => [...prev.slice(1), event.payload]);
     });
   }, []);
+
+  useEffect(() => {
+    setCurrentSize(0);
+    setNodeSizes([0, 0, 0, 0, 0, 0, 0]);
+  }, [resetKey]);
 
   return (
     <Paper

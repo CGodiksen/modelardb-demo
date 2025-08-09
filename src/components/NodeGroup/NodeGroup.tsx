@@ -8,12 +8,14 @@ type NodeGroupProps = {
   type: "ModelarDB" | "Apache Parquet" | "Apache TsFile";
   nodes: ModelardbNode[];
   openConfigurationModal: () => void;
+  resetKey: number;
 };
 
 export function NodeGroup({
   type,
   nodes,
   openConfigurationModal,
+  resetKey,
 }: NodeGroupProps) {
   const color = type == "ModelarDB" ? MODELARDB_COLOR : COMPARISON_SYSTEM_COLOR;
 
@@ -36,7 +38,7 @@ export function NodeGroup({
       <Grid>
         {nodes.map((node, idx) => (
           <Grid.Col key={idx} span={6}>
-            <NodeDetail node={node} color={color} />
+            <NodeDetail node={node} color={color} resetKey={resetKey} />
           </Grid.Col>
         ))}
       </Grid>

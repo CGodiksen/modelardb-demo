@@ -24,8 +24,8 @@ export function QueryBrowser({ queries, setEditorText }: QueryBrowserProps) {
           setActive(index);
           setEditorText(item);
         }}
-        pt={10}
-        pb={10}
+        pt={15}
+        pb={15}
       />
     );
   });
