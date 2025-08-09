@@ -26,9 +26,9 @@ const pythonScripts = [
       "This script lists all tables and retrieves the schema of a table.",
   },
   {
-    filename: "copy_edge_to_local.py",
-    name: "Copy From Edge to Local",
-    description: "This script copies data from an edge node to a local folder.",
+    filename: "copy_cloud_to_local.py",
+    name: "Copy From Cloud to Local",
+    description: "This script copies data from a cloud node to a local folder.",
   },
   {
     filename: "create_write_read_drop.py",
@@ -61,7 +61,9 @@ export function ClientModal() {
   ));
 
   useEffect(() => {
-    fetch(`/data/python/${pythonScripts[active].filename}`)
+    fetch(
+      `/ModelarDB-RS/crates/modelardb_embedded/bindings/python/${pythonScripts[active].filename}`
+    )
       .then((res) => res.text())
       .then((text) => setEditorText(text))
       .catch(() => setEditorText("# Failed to load script."));
