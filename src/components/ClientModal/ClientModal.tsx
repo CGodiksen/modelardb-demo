@@ -1,45 +1,85 @@
-import { Card, Container, Grid, Code } from "@mantine/core";
+import {
+  Card,
+  Container,
+  Grid,
+  Code,
+  ScrollArea,
+  NavLink,
+} from "@mantine/core";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { darcula } from "@uiw/codemirror-theme-darcula";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { IconBrandPython } from "@tabler/icons-react";
+
+const pythonScripts = [
+  {
+    filename: "query_edge_and_cloud.py",
+    name: "Query Edge and Cloud",
+    description:
+      "This script demonstrates querying data from both edge and cloud nodes.",
+  },
+  {
+    filename: "list_tables_and_get_schema.py",
+    name: "List Tables and Get Schema",
+    description:
+      "This script lists all tables and retrieves the schema of a table.",
+  },
+  {
+    filename: "copy_edge_to_local.py",
+    name: "Copy From Edge to Local",
+    description: "This script copies data from an edge node to a local folder.",
+  },
+  {
+    filename: "create_write_read_drop.py",
+    name: "Create, Write, Read, and Drop",
+    description:
+      "This script demonstrates creating a table, writing data, reading it back, and dropping the table.",
+  },
+];
 
 export function ClientModal() {
-  const [editorText, setEditorText] = useState(
-    "import modelardb\n" +
-      "\n" +
-      "# Connect to an edge node and a local folder.\n" +
-      'modelardbd = modelardb.connect(modelardb.Server("grpc://127.0.0.1:9981"))\n' +
-      "local = modelardb.open_local()\n" +
-      "\n" +
-      "# Copy data from the edge to the local folder.\n" +
-      'copy_sql = "SELECT * FROM wind"\n' +
-      "modelardbd.copy(copy_sql, local, 'wind')\n" +
-      "\n" +
-      "# Execute a query in the local folder and print the result.\n" +
-      'read_sql = "SELECT timestamp, active_power FROM wind LIMIT 5"\n' +
-      "print(local.read(read_sql))",
+  const [active, setActive] = useState(0);
+
+  const [editorText, setEditorText] = useState("");
+  const [consoleOutput, setConsoleOutput] = useState(
+    "Run the code to see the result."
   );
 
-  const [consoleOutput, _setConsoleOutput] = useState(
-    "{'active_power': [377.95465087890625,\n" +
-      "                  380.32586669921875,\n" +
-      "                  382.20159912109375,\n" +
-      "                  384.2398681640625,\n" +
-      "                  384.2398681640625],\n" +
-      " 'timestamp': [datetime.datetime(2025, 3, 29, 13, 57, 29, 944464),\n" +
-      "               datetime.datetime(2025, 3, 29, 13, 57, 29, 954464),\n" +
-      "               datetime.datetime(2025, 3, 29, 13, 57, 29, 964464),\n" +
-      "               datetime.datetime(2025, 3, 29, 13, 57, 29, 974464),\n" +
-      "               datetime.datetime(2025, 3, 29, 13, 57, 29, 984464)]}\n" +
-      "\n" +
-      "Process finished with exit code 0",
-  );
+  function retrieveEditorText(filename: string) {
+    fetch(`/data/python/${filename}`)
+      .then((res) => res.text())
+      .then((text) => setEditorText(text))
+      .catch(() => setEditorText("# Failed to load script."));
+  }
+
+  const items = pythonScripts.map((item, index) => (
+    <NavLink
+      href="#required-for-focus"
+      key={item.name}
+      active={index === active}
+      label={item.name}
+      description={item.description}
+      leftSection={<IconBrandPython size={23} stroke={1.5} />}
+      onClick={() => setActive(index)}
+      pt={15}
+      pb={15}
+    />
+  ));
+
+  useEffect(() => {
+    retrieveEditorText(pythonScripts[active].filename);
+  }, [active]);
 
   return (
     <Container fluid p={0} mt={0}>
       <Grid grow>
-        <Grid.Col span={12} h={"35vh"}>
+        <Grid.Col span={4}>
+          <Card shadow="sm" padding={2} radius="md" withBorder h={"100%"}>
+            <ScrollArea h={"100%"}>{items}</ScrollArea>
+          </Card>
+        </Grid.Col>
+        <Grid.Col span={8} h={"35vh"}>
           <Card shadow="sm" padding={2} radius="md" withBorder h={"100%"}>
             <CodeMirror
               value={editorText}
@@ -48,6 +88,7 @@ export function ClientModal() {
               onChange={setEditorText}
               theme={darcula}
               placeholder={"Enter your Python here..."}
+              readOnly={true}
             />
           </Card>
         </Grid.Col>
