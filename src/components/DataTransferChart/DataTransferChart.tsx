@@ -1,4 +1,4 @@
-import { Container, Paper } from "@mantine/core";
+import { Container, Paper, Text } from "@mantine/core";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import {
@@ -114,6 +114,10 @@ export function DataTransferChart({
   return (
     <Container fluid ps={5} pe={5}>
       <Paper withBorder radius="md" p={5} pb={15} ms={0} pt={5}>
+        <Text pos={"relative"} top={35} left={30} fz={20} fw={700} mt={-30}>
+          Data Transfer
+        </Text>
+
         <LineChart
           h={210}
           ps={10}
