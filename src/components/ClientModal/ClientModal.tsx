@@ -46,13 +46,6 @@ export function ClientModal() {
     "Run the code to see the result."
   );
 
-  function retrieveEditorText(filename: string) {
-    fetch(`/data/python/${filename}`)
-      .then((res) => res.text())
-      .then((text) => setEditorText(text))
-      .catch(() => setEditorText("# Failed to load script."));
-  }
-
   const items = pythonScripts.map((item, index) => (
     <NavLink
       href="#required-for-focus"
@@ -68,7 +61,10 @@ export function ClientModal() {
   ));
 
   useEffect(() => {
-    retrieveEditorText(pythonScripts[active].filename);
+    fetch(`/data/python/${pythonScripts[active].filename}`)
+      .then((res) => res.text())
+      .then((text) => setEditorText(text))
+      .catch(() => setEditorText("# Failed to load script."));
   }, [active]);
 
   return (
