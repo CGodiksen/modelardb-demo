@@ -1,7 +1,8 @@
 use std::collections::HashMap;
-use std::iter;
+use std::process::Command;
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::{fs, iter};
 
 use arrow::array::{RecordBatch, StringArray};
 use arrow::compute;
@@ -582,6 +583,20 @@ async fn client_query(url: String, query: String) -> Vec<u8> {
     writer.into_inner()
 }
 
+#[tauri::command]
+async fn run_python_script(filename: String) -> (Vec<u8>, Vec<u8>, i32) {
+    let script_dir =
+        fs::canonicalize("../ModelarDB-RS-Demo/crates/modelardb_embedded/bindings/python").unwrap();
+
+    let output = Command::new("python")
+        .current_dir(script_dir)
+        .arg(filename)
+        .output()
+        .unwrap();
+
+    (output.stdout, output.stderr, output.status.code().unwrap_or(1))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -597,7 +612,8 @@ pub fn run() {
             flush_nodes,
             monitor_nodes,
             client_tables,
-            client_query
+            client_query,
+            run_python_script,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

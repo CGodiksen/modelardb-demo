@@ -11,6 +11,8 @@ import { python } from "@codemirror/lang-python";
 import { darcula } from "@uiw/codemirror-theme-darcula";
 import { useEffect, useState } from "react";
 import { IconBrandPython } from "@tabler/icons-react";
+import { useHotkeys } from "@mantine/hooks";
+import { invoke } from "@tauri-apps/api/core";
 
 const pythonScripts = [
   {
@@ -59,6 +61,35 @@ export function ClientModal() {
       pb={15}
     />
   ));
+
+  useHotkeys([
+    [
+      "ctrl+enter",
+      () => {
+        setConsoleOutput("Running script...");
+
+        invoke("run_python_script", {
+          filename: pythonScripts[active].filename,
+        }).then(
+          // @ts-ignore
+          (message: any[]) => {
+            const [stdout, stderr, exitCode] = message;
+
+            const stdoutStr = new TextDecoder().decode(
+              new Uint8Array(stdout).buffer
+            );
+            const stderrStr = new TextDecoder().decode(
+              new Uint8Array(stderr).buffer
+            );
+
+            let output = exitCode === 0 ? stdoutStr : stderrStr;
+            output += `\n\nProcess finished with exit code ${exitCode}`;
+            setConsoleOutput(output);
+          }
+        );
+      },
+    ],
+  ]);
 
   useEffect(() => {
     fetch(

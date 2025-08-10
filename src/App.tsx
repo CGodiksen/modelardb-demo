@@ -37,8 +37,8 @@ export default function App() {
   const [errorBound, setErrorBound] = useState(5);
   const [samplingRate, setSamplingRate] = useState(1000);
   const [comparisonSystem, setComparisonSystem] = useState<ComparisonSystem>({
-    value: "tsfile",
-    label: "Apache TsFile",
+    value: "parquet",
+    label: "Apache Parquet",
   });
 
   useHotkeys([
