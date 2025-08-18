@@ -39,8 +39,7 @@ services:
 
   # ModelarDB services.
   modelardb-manager:
-    build: ModelarDB-RS-Demo/.
-    image: modelardb
+    image: cgodiksen/modelardb
     container_name: modelardb-manager
     command: [ "target/release/modelardbm", "s3://modelardb" ]
     ports:
@@ -56,8 +55,7 @@ services:
       interval: 2s
 
   modelardb-edge-1: &modelardb-base
-    build: ModelarDB-RS-Demo/.
-    image: modelardb
+    image: cgodiksen/modelardb
     container_name: modelardb-edge-1
     command: [ "target/release/modelardbd", "edge", "data/edge", "grpc://modelardb-manager:9980" ]
     ports:
@@ -132,8 +130,7 @@ services:
 
   # Simple Parquet services.
   parquet-manager:
-    build: ModelarDB-RS-Demo/.
-    image: modelardb
+    image: cgodiksen/modelardb
     container_name: parquet-manager
     command: [ "target/release/modelardbm", "s3://parquet" ]
     ports:
@@ -149,8 +146,7 @@ services:
       interval: 2s
 
   parquet-edge-1: &parquet-base
-    build: ModelarDB-RS-Demo/.
-    image: modelardb
+    image: cgodiksen/modelardb
     container_name: parquet-edge-1
     command: [ "target/release/modelardbd", "edge", "data/edge", "grpc://parquet-manager:9880" ]
     ports:
