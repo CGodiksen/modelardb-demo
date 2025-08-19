@@ -586,13 +586,17 @@ async fn client_query(url: String, query: String) -> Vec<u8> {
 #[tauri::command]
 async fn run_python_script(filename: String) -> (Vec<u8>, Vec<u8>, i32) {
     let script_dir =
-        fs::canonicalize("../ModelarDB-RS-Demo/crates/modelardb_embedded/bindings/python").unwrap();
+        fs::canonicalize("../ModelarDB-RS/crates/modelardb_embedded/bindings/python").unwrap();
+
+    fs::copy(format!("../scripts/{}", filename), script_dir.join(&filename)).unwrap();
 
     let output = Command::new("python")
-        .current_dir(script_dir)
-        .arg(filename)
+        .current_dir(&script_dir)
+        .arg(&filename)
         .output()
         .unwrap();
+
+    fs::remove_file(script_dir.join(&filename)).unwrap();
 
     (output.stdout, output.stderr, output.status.code().unwrap_or(1))
 }
