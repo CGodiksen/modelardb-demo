@@ -8,7 +8,7 @@ use arrow::array::{RecordBatch, StringArray};
 use arrow::compute;
 use arrow::datatypes::{ArrowPrimitiveType, DataType, Field, Schema};
 use arrow_flight::flight_service_client::FlightServiceClient;
-use arrow_flight::Action;
+use arrow_flight::{Action, Ticket};
 use arrow_json::ArrayWriter;
 use bollard::Docker;
 use datafusion::parquet::arrow::ParquetRecordBatchStreamBuilder;
@@ -400,6 +400,12 @@ async fn flush_node_and_emit_remote_object_store_table_size(
 
     flight_client.do_action(action).await.unwrap();
 
+    // Vacuum the node to remove any deleted data.
+    flight_client
+        .do_get(Ticket::new("VACUUM".to_owned()))
+        .await
+        .unwrap();
+
     emit_remote_object_store_table_size(app, object_store, node_type).await;
 }
 
@@ -588,7 +594,11 @@ async fn run_python_script(filename: String) -> (Vec<u8>, Vec<u8>, i32) {
     let script_dir =
         fs::canonicalize("../ModelarDB-RS/crates/modelardb_embedded/bindings/python").unwrap();
 
-    fs::copy(format!("../scripts/{}", filename), script_dir.join(&filename)).unwrap();
+    fs::copy(
+        format!("../scripts/{}", filename),
+        script_dir.join(&filename),
+    )
+    .unwrap();
 
     let output = Command::new("python")
         .current_dir(&script_dir)
@@ -598,7 +608,11 @@ async fn run_python_script(filename: String) -> (Vec<u8>, Vec<u8>, i32) {
 
     fs::remove_file(script_dir.join(&filename)).unwrap();
 
-    (output.stdout, output.stderr, output.status.code().unwrap_or(1))
+    (
+        output.stdout,
+        output.stderr,
+        output.status.code().unwrap_or(1),
+    )
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
