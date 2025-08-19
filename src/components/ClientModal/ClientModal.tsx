@@ -92,9 +92,7 @@ export function ClientModal() {
   ]);
 
   useEffect(() => {
-    fetch(
-      `/ModelarDB-RS-Demo/crates/modelardb_embedded/bindings/python/${pythonScripts[active].filename}`
-    )
+    fetch(`/scripts/${pythonScripts[active].filename}`)
       .then((res) => res.text())
       .then((text) => setEditorText(text))
       .catch(() => setEditorText("# Failed to load script."));
