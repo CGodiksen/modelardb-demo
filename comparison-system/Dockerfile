@@ -1,11 +1,11 @@
 FROM python:3.13
 
-WORKDIR /code
+WORKDIR /usr/src/app
 
-COPY ./requirements.txt /code/requirements.txt
+COPY ./requirements.txt /usr/src/app/requirements.txt
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /usr/src/app/requirements.txt
 
-COPY ./app /code/app
+COPY ./app /usr/src/app
 
-CMD ["fastapi", "run", "app/main.py", "--port", "80"]
+CMD ["python", "-u", "main.py"]

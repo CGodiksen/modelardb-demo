@@ -222,9 +222,12 @@ services:
 
   comparison-1:
     build: comparison-system/.
+    image: comparison-system
     container_name: comparison-1
     ports:
-      - "8000:80"
+      - "8000:8000"
+    environment:
+      FLIGHT_PORT: 8000
     volumes:
       - comparison-1:/code/data
 
