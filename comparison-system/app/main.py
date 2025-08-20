@@ -47,7 +47,12 @@ class FlightServer(pa.flight.FlightServerBase):
                 ("ingest_data", "Ingest data into the node")]
 
     def do_reset_node(self):
-        print("Resetting node...")
+        for file in os.listdir("data"):
+            file_path = os.path.join("data", file)
+            os.remove(file_path)
+
+            for minio_object in self.minio_client.list_objects("comparison"):
+                self.minio_client.remove_object("comparison", minio_object.object_name)
 
     def do_flush_node(self):
         for file in os.listdir("data"):
