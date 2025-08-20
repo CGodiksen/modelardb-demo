@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use arrow::datatypes::{ArrowPrimitiveType, DataType, Field, Schema};
 use futures_util::StreamExt;
 use modelardb_embedded::operations::client::{Client, Node};
@@ -5,7 +7,8 @@ use modelardb_types::types::{ArrowTimestamp, ArrowValue};
 use object_store::aws::{AmazonS3, AmazonS3Builder};
 use object_store::path::Path;
 use object_store::ObjectStore;
-use std::collections::HashMap;
+use arrow::ipc::writer::{IpcWriteOptions, StreamWriter};
+use arrow::record_batch::RecordBatch;
 use url::Url;
 
 pub(super) fn build_s3_object_store(bucket_name: String) -> AmazonS3 {
@@ -103,4 +106,13 @@ pub(super) async fn connect_to_nodes(nodes: Vec<(Node, Node)>) -> Vec<(Client, C
     }
 
     clients
+}
+
+/// Convert a [`RecordBatch`] to a [`Vec<u8>`].
+pub(super) fn try_convert_record_batch_to_bytes(record_batch: &RecordBatch) -> Vec<u8> {
+    let options = IpcWriteOptions::default();
+    let mut writer = StreamWriter::try_new_with_options(vec![], &record_batch.schema(), options).unwrap();
+
+    writer.write(record_batch).unwrap();
+    writer.into_inner().unwrap()
 }

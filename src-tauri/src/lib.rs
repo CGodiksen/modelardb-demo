@@ -24,8 +24,6 @@ use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
 use tokio::time;
 
-use crate::util::{build_s3_object_store, connect_to_nodes, edge_nodes, table_schema, table_size};
-
 mod util;
 
 const TABLE_NAME: &str = "wind";
@@ -42,8 +40,8 @@ struct AppState {
 
 impl AppState {
     fn new() -> Self {
-        let modelardb_remote_object_store = build_s3_object_store("modelardb".to_owned());
-        let parquet_remote_object_store = build_s3_object_store("parquet".to_owned());
+        let modelardb_remote_object_store = util::build_s3_object_store("modelardb".to_owned());
+        let parquet_remote_object_store = util::build_s3_object_store("parquet".to_owned());
 
         Self {
             ingestion_task: None,
@@ -89,7 +87,7 @@ async fn create_tables(error_bound: usize) {
     let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9980".to_owned());
     let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
 
-    let table_schema = table_schema();
+    let table_schema = util::table_schema();
 
     let field_column_names = vec![
         "wind_speed",
@@ -163,8 +161,8 @@ async fn ingest_into_table_task(app: AppHandle, count: usize) {
     let record_batch =
         compute::concat_batches(&record_batches[0].schema(), &record_batches).unwrap();
 
-    let edge_nodes = edge_nodes();
-    let edge_clients = connect_to_nodes(edge_nodes).await;
+    let edge_nodes = util::edge_nodes();
+    let edge_clients = util::connect_to_nodes(edge_nodes).await;
 
     let mut offset = 0;
 
@@ -233,7 +231,7 @@ async fn ingest_data_points_into_nodes(
         .collect();
 
     let record_batch = RecordBatch::try_new(
-        Arc::new(table_schema()),
+        Arc::new(util::table_schema()),
         vec![
             Arc::new(timestamps.finish()),
             Arc::new(park_id_array),
@@ -269,10 +267,21 @@ async fn ingest_data_points_into_nodes(
         .await
         .unwrap();
     parquet_client
-        .write(TABLE_NAME, record_batch)
+        .write(TABLE_NAME, record_batch.clone())
         .await
         .unwrap();
 
+    let mut test_client = FlightServiceClient::connect("http://127.0.0.1:8000".to_owned())
+        .await
+        .unwrap();
+
+    let record_batch_bytes = util::try_convert_record_batch_to_bytes(&record_batch);
+    let action = Action {
+        r#type: "ingest_data".to_owned(),
+        body: record_batch_bytes.into(),
+    };
+
+    test_client.do_action(action).await.unwrap();
 }
 
 #[tauri::command]
@@ -305,7 +314,7 @@ async fn flush_nodes_task(
     parquet_remote_object_store: AmazonS3,
     interval_seconds: u64,
 ) {
-    let edge_nodes = edge_nodes();
+    let edge_nodes = util::edge_nodes();
 
     loop {
         for (modelardb_node, parquet_node) in &edge_nodes {
@@ -371,7 +380,7 @@ async fn emit_remote_object_store_table_size(
     object_store: AmazonS3,
     node_type: String,
 ) {
-    let table_size = table_size(&object_store, TABLE_NAME).await;
+    let table_size = util::table_size(&object_store, TABLE_NAME).await;
 
     app.emit(
         "remote-object-store-size",
