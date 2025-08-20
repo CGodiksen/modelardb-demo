@@ -29,17 +29,29 @@ class FlightServer(pa.flight.FlightServerBase):
             self.do_reset_node()
         elif action.type == "flush_node":
             self.do_flush_node()
+        elif action.type == "ingest_data":
+            self.do_ingest_data(action)
         else:
             raise NotImplementedError(f"Action '{action.type}' is not implemented.")
 
     def list_actions(self, context: ServerCallContext):
-        return [("reset_node", "Reset the node"), ("flush_node", "Flush the node")]
+        return [("reset_node", "Reset the node"), ("flush_node", "Flush the node"),
+                ("ingest_data", "Ingest data into the node")]
 
     def do_reset_node(self):
         print("Resetting node...")
 
     def do_flush_node(self):
         print("Flushing node...")
+
+    def do_ingest_data(self, action: Action):
+        with pa.ipc.open_stream(action.body) as reader:
+            schema = reader.schema
+            batches = [b for b in reader]
+            print(f"Ingested {len(batches)} batches with schema: {schema}")
+
+            for batch in batches:
+                print(f"Batch: {batch}")
 
 
 if __name__ == '__main__':
