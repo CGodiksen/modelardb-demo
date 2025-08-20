@@ -220,6 +220,14 @@ services:
       parquet-edge-4:
         condition: service_healthy
 
+  comparison-1:
+    build: comparison-system/.
+    container_name: comparison-1
+    ports:
+      - "8000:80"
+    volumes:
+      - comparison-1:/code/data
+
 volumes:
   modelardb-9981:
   modelardb-9982:
@@ -229,3 +237,4 @@ volumes:
   comparison-9882:
   comparison-9883:
   comparison-9884:
+  comparison-1:
