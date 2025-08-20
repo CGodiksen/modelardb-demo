@@ -1,15 +1,23 @@
 import os
+import time
 
 import pyarrow as pa
+import pyarrow.parquet as pq
 import pyarrow.flight
+from pyarrow import RecordBatch
 from pyarrow._flight import (ServerCallContext, FlightDescriptor, MetadataRecordBatchReader, FlightMetadataWriter,
                              Ticket, Action)
+
+from minio import Minio
 
 
 class FlightServer(pa.flight.FlightServerBase):
     def __init__(self, location: str, **kwargs):
         super(FlightServer, self).__init__(location, **kwargs)
         self._location = location
+
+        self.minio_client = Minio("minio-server:9000", access_key="minioadmin", secret_key="minioadmin",
+                                  secure=False, region="eu-central-1")
 
     def list_flights(self, context: ServerCallContext, criteria: bytes):
         raise NotImplementedError("list_flights is not implemented.")
@@ -42,16 +50,18 @@ class FlightServer(pa.flight.FlightServerBase):
         print("Resetting node...")
 
     def do_flush_node(self):
-        print("Flushing node...")
+        for file in os.listdir("data"):
+            file_path = os.path.join("data", file)
+            self.minio_client.fput_object("comparison", file, file_path)
+
+            os.remove(file_path)
 
     def do_ingest_data(self, action: Action):
         with pa.ipc.open_stream(action.body) as reader:
-            schema = reader.schema
-            batches = [b for b in reader]
-            print(f"Ingested {len(batches)} batches with schema: {schema}")
+            batches: list[RecordBatch] = [batch for batch in reader]
 
-            for batch in batches:
-                print(f"Batch: {batch}")
+            table = pa.Table.from_batches(batches)
+            pq.write_table(table, f"data/{time.time_ns() // 1_000_000}.parquet")
 
 
 if __name__ == '__main__':

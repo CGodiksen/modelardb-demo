@@ -35,6 +35,7 @@ services:
       /usr/bin/mc alias set modelardb-minio http://minio-server:9000 minioadmin minioadmin;
       /usr/bin/mc mb modelardb-minio/modelardb;
       /usr/bin/mc mb modelardb-minio/parquet;
+      /usr/bin/mc mb modelardb-minio/comparison;
       exit 0;
       "
 
@@ -229,7 +230,7 @@ services:
     environment:
       FLIGHT_PORT: 8000
     volumes:
-      - comparison-1:/code/data
+      - comparison-1:/usr/src/app/data
 
 volumes:
   modelardb-9981:
