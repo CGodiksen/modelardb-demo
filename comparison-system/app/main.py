@@ -55,7 +55,7 @@ class FlightServer(pa.flight.FlightServerBase):
             file_path = os.path.join("data", file)
             os.remove(file_path)
 
-            for minio_object in self.minio_client.list_objects("comparison"):
+            for minio_object in self.minio_client.list_objects("comparison", recursive=True):
                 self.minio_client.remove_object("comparison", minio_object.object_name)
 
     def do_flush_node(self):

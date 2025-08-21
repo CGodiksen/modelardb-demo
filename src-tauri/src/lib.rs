@@ -137,6 +137,7 @@ async fn ingest_into_table(
     app: AppHandle,
     state: State<'_, Mutex<AppState>>,
     count: usize,
+    comparison: String,
 ) -> Result<(), String> {
     let mut state = state.lock().await;
 
@@ -144,13 +145,13 @@ async fn ingest_into_table(
         handle.abort();
     }
 
-    let join_handle = tokio::spawn(ingest_into_table_task(app, count));
+    let join_handle = tokio::spawn(ingest_into_table_task(app, count, comparison));
     state.ingestion_task = Some(join_handle);
 
     Ok(())
 }
 
-async fn ingest_into_table_task(app: AppHandle, count: usize) {
+async fn ingest_into_table_task(app: AppHandle, count: usize, comparison: String) {
     let file = tokio::fs::File::open("../data/wind_cleaned.parquet")
         .await
         .unwrap();
@@ -180,6 +181,7 @@ async fn ingest_into_table_task(app: AppHandle, count: usize) {
                 parquet_client.clone(),
                 index,
                 node_record_batches[index].slice(offset, count),
+                comparison.clone(),
             ));
         }
 
@@ -205,6 +207,7 @@ async fn ingest_data_points_into_nodes(
     mut parquet_client: Client,
     node_id: usize,
     data_points: RecordBatch,
+    comparison: String,
 ) {
     let mut timestamps = TimestampBuilder::with_capacity(data_points.num_rows());
 
@@ -277,7 +280,7 @@ async fn ingest_data_points_into_nodes(
 
     let record_batch_bytes = util::try_convert_record_batch_to_bytes(&record_batch);
     let action = Action {
-        r#type: "ingest_data".to_owned(),
+        r#type: format!("ingest_data_{comparison}"),
         body: record_batch_bytes.into(),
     };
 

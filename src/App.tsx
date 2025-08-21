@@ -50,6 +50,7 @@ export default function App() {
 
           invoke("ingest_into_table", {
             count: samplingRate,
+            comparison: comparisonSystem.value,
           }).then(() => {
             console.log(`Started ingesting data into the table.`);
 
