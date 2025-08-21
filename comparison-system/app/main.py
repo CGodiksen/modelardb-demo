@@ -37,14 +37,17 @@ class FlightServer(pa.flight.FlightServerBase):
             self.do_reset_node()
         elif action.type == "flush_node":
             self.do_flush_node()
-        elif action.type == "ingest_data":
-            self.do_ingest_data(action)
+        elif action.type == "ingest_data_parquet":
+            self.do_ingest_data_parquet(action)
+        elif action.type == "ingest_data_tsfile":
+            self.do_ingest_data_tsfile(action)
         else:
             raise NotImplementedError(f"Action '{action.type}' is not implemented.")
 
     def list_actions(self, context: ServerCallContext):
         return [("reset_node", "Reset the node"), ("flush_node", "Flush the node"),
-                ("ingest_data", "Ingest data into the node")]
+                ("ingest_data_parquet", "Ingest data into Apache Parquet"),
+                ("ingest_data_tsfile", "Ingest data into Apache TsFile")]
 
     def do_reset_node(self):
         for file in os.listdir("data"):
@@ -61,12 +64,15 @@ class FlightServer(pa.flight.FlightServerBase):
 
             os.remove(file_path)
 
-    def do_ingest_data(self, action: Action):
+    def do_ingest_data_parquet(self, action: Action):
         with pa.ipc.open_stream(action.body) as reader:
             batches: list[RecordBatch] = [batch for batch in reader]
 
             table = pa.Table.from_batches(batches)
             pq.write_table(table, f"data/{time.time_ns() // 1_000_000}.parquet")
+
+    def do_ingest_data_tsfile(self, action: Action):
+        raise NotImplementedError("TSFile ingestion is not implemented.")
 
 
 if __name__ == '__main__':
