@@ -57,7 +57,7 @@ class FlightServer(pa.flight.FlightServerBase):
     def do_flush_node(self):
         for file in os.listdir("data"):
             file_path = os.path.join("data", file)
-            self.minio_client.fput_object("comparison", file, file_path)
+            self.minio_client.fput_object("comparison", f"tables/{file}", file_path)
 
             os.remove(file_path)
 

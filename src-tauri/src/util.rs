@@ -61,10 +61,10 @@ pub(super) fn table_schema() -> Schema {
     ])
 }
 
-pub(super) async fn table_size(object_store: &AmazonS3, table_name: &str) -> u64 {
-    let table_path = Path::from(format!("tables/{}", table_name));
+pub(super) async fn tables_size(object_store: &AmazonS3) -> u64 {
+    let tables_path = Path::from("tables".to_owned());
     let table_files = object_store
-        .list(Some(&table_path))
+        .list(Some(&tables_path))
         .collect::<Vec<_>>()
         .await;
 

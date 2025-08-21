@@ -380,7 +380,7 @@ async fn emit_remote_object_store_table_size(
     object_store: AmazonS3,
     node_type: String,
 ) {
-    let table_size = util::table_size(&object_store, TABLE_NAME).await;
+    let table_size = util::tables_size(&object_store).await;
 
     app.emit(
         "remote-object-store-size",
