@@ -23,6 +23,7 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
 use tokio::time;
+use tonic::transport::Channel;
 
 mod util;
 
@@ -174,11 +175,11 @@ async fn ingest_into_table_task(app: AppHandle, count: usize, comparison: String
     }
 
     loop {
-        for (index, (modelardb_client, parquet_client)) in edge_clients.iter().enumerate() {
+        for (index, (modelardb_client, comparison_client)) in edge_clients.iter().enumerate() {
             tokio::spawn(ingest_data_points_into_nodes(
                 app.clone(),
                 modelardb_client.clone(),
-                parquet_client.clone(),
+                comparison_client.clone(),
                 index,
                 node_record_batches[index].slice(offset, count),
                 comparison.clone(),
@@ -204,7 +205,7 @@ struct IngestedSize {
 async fn ingest_data_points_into_nodes(
     app: AppHandle,
     mut modelardb_client: Client,
-    mut parquet_client: Client,
+    mut comparison_client: FlightServiceClient<Channel>,
     node_id: usize,
     data_points: RecordBatch,
     comparison: String,
@@ -269,14 +270,6 @@ async fn ingest_data_points_into_nodes(
         .write(TABLE_NAME, record_batch.clone())
         .await
         .unwrap();
-    parquet_client
-        .write(TABLE_NAME, record_batch.clone())
-        .await
-        .unwrap();
-
-    let mut test_client = FlightServiceClient::connect("http://127.0.0.1:8000".to_owned())
-        .await
-        .unwrap();
 
     let record_batch_bytes = util::try_convert_record_batch_to_bytes(&record_batch);
     let action = Action {
@@ -284,7 +277,7 @@ async fn ingest_data_points_into_nodes(
         body: record_batch_bytes.into(),
     };
 
-    test_client.do_action(action).await.unwrap();
+    comparison_client.do_action(action).await.unwrap();
 }
 
 #[tauri::command]

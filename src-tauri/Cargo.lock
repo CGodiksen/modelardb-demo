@@ -4291,6 +4291,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-opener",
  "tokio",
+ "tonic",
  "url",
 ]
 

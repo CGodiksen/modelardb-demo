@@ -1,14 +1,16 @@
 use std::collections::HashMap;
 
 use arrow::datatypes::{ArrowPrimitiveType, DataType, Field, Schema};
+use arrow::ipc::writer::{IpcWriteOptions, StreamWriter};
+use arrow::record_batch::RecordBatch;
+use arrow_flight::flight_service_client::FlightServiceClient;
 use futures_util::StreamExt;
 use modelardb_embedded::operations::client::{Client, Node};
 use modelardb_types::types::{ArrowTimestamp, ArrowValue};
 use object_store::aws::{AmazonS3, AmazonS3Builder};
 use object_store::path::Path;
 use object_store::ObjectStore;
-use arrow::ipc::writer::{IpcWriteOptions, StreamWriter};
-use arrow::record_batch::RecordBatch;
+use tonic::transport::Channel;
 use url::Url;
 
 pub(super) fn build_s3_object_store(bucket_name: String) -> AmazonS3 {
@@ -78,31 +80,36 @@ pub(super) fn edge_nodes() -> Vec<(Node, Node)> {
     vec![
         (
             Node::Server("grpc://127.0.0.1:9981".to_owned()),
-            Node::Server("grpc://127.0.0.1:9881".to_owned()),
+            Node::Server("http://127.0.0.1:9881".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9982".to_owned()),
-            Node::Server("grpc://127.0.0.1:9882".to_owned()),
+            Node::Server("http://127.0.0.1:9882".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9983".to_owned()),
-            Node::Server("grpc://127.0.0.1:9883".to_owned()),
+            Node::Server("http://127.0.0.1:9883".to_owned()),
         ),
         (
             Node::Server("grpc://127.0.0.1:9984".to_owned()),
-            Node::Server("grpc://127.0.0.1:9884".to_owned()),
+            Node::Server("http://127.0.0.1:9884".to_owned()),
         ),
     ]
 }
 
-pub(super) async fn connect_to_nodes(nodes: Vec<(Node, Node)>) -> Vec<(Client, Client)> {
+pub(super) async fn connect_to_nodes(
+    nodes: Vec<(Node, Node)>,
+) -> Vec<(Client, FlightServiceClient<Channel>)> {
     let mut clients = vec![];
 
-    for (modelardb_node, parquet_node) in nodes {
+    for (modelardb_node, comparison_node) in nodes {
         let modelardb_client = Client::connect(modelardb_node).await.unwrap();
-        let parquet_client = Client::connect(parquet_node).await.unwrap();
 
-        clients.push((modelardb_client, parquet_client));
+        let comparison_client = FlightServiceClient::connect(comparison_node.url().to_owned())
+            .await
+            .unwrap();
+
+        clients.push((modelardb_client, comparison_client));
     }
 
     clients
@@ -111,7 +118,8 @@ pub(super) async fn connect_to_nodes(nodes: Vec<(Node, Node)>) -> Vec<(Client, C
 /// Convert a [`RecordBatch`] to a [`Vec<u8>`].
 pub(super) fn try_convert_record_batch_to_bytes(record_batch: &RecordBatch) -> Vec<u8> {
     let options = IpcWriteOptions::default();
-    let mut writer = StreamWriter::try_new_with_options(vec![], &record_batch.schema(), options).unwrap();
+    let mut writer =
+        StreamWriter::try_new_with_options(vec![], &record_batch.schema(), options).unwrap();
 
     writer.write(record_batch).unwrap();
     writer.into_inner().unwrap()
