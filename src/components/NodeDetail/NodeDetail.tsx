@@ -48,7 +48,7 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
 
       <Group justify="space-between" mt={-45} mb={10}>
         <Text size="xs" c="dimmed" fw={700}>
-          {node.url!.replace(/^grpc:\/\//, "")}
+          {node.url!.replace(/^grpc:\/\/|^http:\/\//, "")}
         </Text>
         <IconDeviceAnalytics
           className={classes.node_icon}

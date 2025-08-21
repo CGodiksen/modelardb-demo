@@ -71,7 +71,7 @@ class FlightServer(pa.flight.FlightServerBase):
             batches: list[RecordBatch] = [batch for batch in reader]
 
             table = pa.Table.from_batches(batches)
-            parquet.write_table(table, f"data/{time.time_ns() // 1_000_000}.parquet")
+            parquet.write_table(table, f"data/{time.time_ns()}.parquet")
 
     @staticmethod
     def do_ingest_data_orc(action: Action):

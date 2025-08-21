@@ -130,7 +130,7 @@ services:
         condition: service_healthy
 
   # Comparison services.
-  comparison-1: &comparison-base
+  comparison-1:
     build: comparison-system/.
     image: comparison-system
     container_name: comparison-1
@@ -142,7 +142,7 @@ services:
       - comparison-9881:/usr/src/app/data
 
   comparison-2:
-    <<: *comparison-base
+    image: comparison-system
     container_name: comparison-2
     ports:
       - "9882:9882"
@@ -152,7 +152,7 @@ services:
       - comparison-9882:/usr/src/app/data
 
   comparison-3:
-    <<: *comparison-base
+    image: comparison-system
     container_name: comparison-3
     ports:
       - "9883:9883"
@@ -162,7 +162,7 @@ services:
       - comparison-9883:/usr/src/app/data
 
   comparison-4:
-    <<: *comparison-base
+    image: comparison-system
     container_name: comparison-4
     ports:
       - "9884:9884"
