@@ -34,21 +34,21 @@ class FlightServer(pa.flight.FlightServerBase):
         raise NotImplementedError("do_get is not implemented.")
 
     def do_action(self, context: ServerCallContext, action: Action):
-        if action.type == "reset_node":
+        if action.type == "ResetNode":
             self.do_reset_node()
-        elif action.type == "flush_node":
+        elif action.type == "FlushNode":
             self.do_flush_node()
-        elif action.type == "ingest_data_parquet":
+        elif action.type == "IngestDataParquet":
             self.do_ingest_data_parquet(action)
-        elif action.type == "ingest_data_orc":
+        elif action.type == "IngestDataOrc":
             self.do_ingest_data_orc(action)
         else:
             raise NotImplementedError(f"Action '{action.type}' is not implemented.")
 
     def list_actions(self, context: ServerCallContext):
-        return [("reset_node", "Reset the node"), ("flush_node", "Flush the node"),
-                ("ingest_data_parquet", "Ingest data into Apache Parquet"),
-                ("ingest_data_orc", "Ingest data into Apache ORC")]
+        return [("ResetNode", "Reset the node"), ("FlushNode", "Flush the node"),
+                ("IngestDataParquet", "Ingest data into Apache Parquet"),
+                ("IngestDataOrc", "Ingest data into Apache ORC")]
 
     def do_reset_node(self):
         for file in os.listdir("data"):

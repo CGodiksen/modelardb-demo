@@ -82,7 +82,7 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
             .unwrap();
 
         let action = Action {
-            r#type: "reset_node".to_owned(),
+            r#type: "ResetNode".to_owned(),
             body: vec![].into(),
         };
 
@@ -272,7 +272,10 @@ async fn ingest_data_points_into_nodes(
 
     let record_batch_bytes = util::try_convert_record_batch_to_bytes(&record_batch);
     let action = Action {
-        r#type: format!("ingest_data_{comparison}"),
+        r#type: format!(
+            "IngestData{}",
+            comparison[..1].to_uppercase() + &comparison[1..]
+        ),
         body: record_batch_bytes.into(),
     };
 
@@ -356,10 +359,12 @@ async fn flush_node_and_emit_remote_object_store_table_size(
     flight_client.do_action(action).await.unwrap();
 
     // Vacuum the node to remove any deleted data.
-    flight_client
-        .do_get(Ticket::new("VACUUM".to_owned()))
-        .await
-        .unwrap();
+    if node_type == "modelardb" {
+        flight_client
+            .do_get(Ticket::new("VACUUM".to_owned()))
+            .await
+            .unwrap();
+    }
 
     emit_remote_object_store_table_size(app, object_store, node_type).await;
 }
