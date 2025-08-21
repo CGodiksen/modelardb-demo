@@ -41,36 +41,36 @@
     "longitude": 0.123856
   },
   {
-    "type": "parquet",
-    "url": "grpc://127.0.0.1:9881",
+    "type": "comparison",
+    "url": "http://127.0.0.1:9881",
     "server_mode": "edge",
     "latitude": 50.5670948,
     "longitude": 0.4214118
   },
   {
-    "type": "parquet",
-    "url": "grpc://127.0.0.1:9882",
+    "type": "comparison",
+    "url": "http://127.0.0.1:9882",
     "server_mode": "edge",
     "latitude": 50.5670948,
     "longitude": 0.6214118
   },
   {
-    "type": "parquet",
-    "url": "grpc://127.0.0.1:9883",
+    "type": "comparison",
+    "url": "http://127.0.0.1:9883",
     "server_mode": "edge",
     "latitude": 50.4670948,
     "longitude": 0.6214118
   },
   {
-    "type": "parquet",
-    "url": "grpc://127.0.0.1:9884",
+    "type": "comparison",
+    "url": "http://127.0.0.1:9884",
     "server_mode": "edge",
     "latitude": 50.4670948,
     "longitude": 0.4214118
   },
   {
-    "type": "parquet",
-    "url": "grpc://127.0.0.1:9899",
+    "type": "comparison",
+    "url": "http://127.0.0.1:9899",
     "server_mode": "cloud",
     "latitude": 51.3784851,
     "longitude": -0.0737242

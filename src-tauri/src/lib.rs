@@ -331,7 +331,7 @@ async fn flush_nodes_task(
                 "modelardb".to_owned(),
             ));
 
-            app.emit("flushing-parquet-node", parquet_node.url())
+            app.emit("flushing-comparison-node", parquet_node.url())
                 .unwrap();
 
             tokio::spawn(flush_node_and_emit_remote_object_store_table_size(

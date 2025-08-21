@@ -8,15 +8,15 @@ import { listen } from "@tauri-apps/api/event";
 
 export function NodeMap({ nodes }: { nodes: ModelardbNode[] }) {
   const [flushingModelardbNode, setFlushingModelardbNode] = useState("");
-  const [flushingParquetNode, setFlushingParquetNode] = useState("");
+  const [flushingComparisonNode, setFlushingComparisonNode] = useState("");
 
   useEffect(() => {
     listen<string>("flushing-modelardb-node", (event) => {
       setFlushingModelardbNode(event.payload);
     });
 
-    listen<string>("flushing-parquet-node", (event) => {
-      setFlushingParquetNode(event.payload);
+    listen<string>("flushing-comparison-node", (event) => {
+      setFlushingComparisonNode(event.payload);
     });
   }, []);
 
@@ -39,7 +39,7 @@ export function NodeMap({ nodes }: { nodes: ModelardbNode[] }) {
               flushingNode={
                 node.type == "modelardb"
                   ? flushingModelardbNode
-                  : flushingParquetNode
+                  : flushingComparisonNode
               }
             ></NodeMarker>
           ))}

@@ -65,14 +65,16 @@ class FlightServer(pa.flight.FlightServerBase):
 
             os.remove(file_path)
 
-    def do_ingest_data_parquet(self, action: Action):
+    @staticmethod
+    def do_ingest_data_parquet(action: Action):
         with pa.ipc.open_stream(action.body) as reader:
             batches: list[RecordBatch] = [batch for batch in reader]
 
             table = pa.Table.from_batches(batches)
             parquet.write_table(table, f"data/{time.time_ns() // 1_000_000}.parquet")
 
-    def do_ingest_data_orc(self, action: Action):
+    @staticmethod
+    def do_ingest_data_orc(action: Action):
         with pa.ipc.open_stream(action.body) as reader:
             batches: list[RecordBatch] = [batch for batch in reader]
 

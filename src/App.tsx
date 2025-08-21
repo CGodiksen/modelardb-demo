@@ -177,7 +177,8 @@ export default function App() {
                       type={comparisonSystem.label}
                       nodes={nodes.filter(
                         (node) =>
-                          node.type === "parquet" && node.server_mode === "edge"
+                          node.type === "comparison" &&
+                          node.server_mode === "edge"
                       )}
                       openConfigurationModal={openConfigurationModal}
                       resetKey={resetKey}
