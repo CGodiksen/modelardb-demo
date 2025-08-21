@@ -36,20 +36,20 @@ struct AppState {
     flush_task: Option<JoinHandle<()>>,
     monitor_nodes_task: Option<JoinHandle<()>>,
     modelardb_remote_object_store: AmazonS3,
-    parquet_remote_object_store: AmazonS3,
+    comparison_remote_object_store: AmazonS3,
 }
 
 impl AppState {
     fn new() -> Self {
         let modelardb_remote_object_store = util::build_s3_object_store("modelardb".to_owned());
-        let parquet_remote_object_store = util::build_s3_object_store("parquet".to_owned());
+        let comparison_remote_object_store = util::build_s3_object_store("comparison".to_owned());
 
         Self {
             ingestion_task: None,
             flush_task: None,
             monitor_nodes_task: None,
             modelardb_remote_object_store,
-            parquet_remote_object_store,
+            comparison_remote_object_store,
         }
     }
 }
@@ -295,7 +295,7 @@ async fn flush_nodes(
     let join_handle = tokio::spawn(flush_nodes_task(
         app,
         state.modelardb_remote_object_store.clone(),
-        state.parquet_remote_object_store.clone(),
+        state.comparison_remote_object_store.clone(),
         interval_seconds,
     ));
 
