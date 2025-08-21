@@ -130,107 +130,48 @@ services:
       modelardb-edge-4:
         condition: service_healthy
 
-  # Simple Parquet services.
-  parquet-manager:
-    image: cgodiksen/modelardb
-    container_name: parquet-manager
-    command: [ "target/release/modelardbm", "s3://parquet" ]
-    ports:
-      - "9880:9880"
-    environment:
-      <<: *aws-variables
-      MODELARDBM_PORT: 9880
-    depends_on:
-      create-bucket:
-        condition: service_completed_successfully
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 2s
-
-  parquet-edge-1: &parquet-base
-    image: cgodiksen/modelardb
-    container_name: parquet-edge-1
-    command: [ "target/release/modelardbd", "edge", "data/edge", "grpc://parquet-manager:9880" ]
-    ports:
-      - "9881:9881"
-    environment:
-      <<: *modelardb-variables
-      MODELARDBD_PORT: 9881
-    volumes:
-      - comparison-9881:/usr/src/app/data/edge
-    restart: on-failure:10
-    depends_on:
-      parquet-manager:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "echo", "ready" ]
-      interval: 1s
-
-  parquet-edge-2:
-    <<: *parquet-base
-    container_name: parquet-edge-2
-    ports:
-      - "9882:9882"
-    environment:
-      <<: *modelardb-variables
-      MODELARDBD_PORT: 9882
-    volumes:
-      - comparison-9882:/usr/src/app/data/edge
-    depends_on:
-      parquet-edge-1:
-        condition: service_healthy
-
-  parquet-edge-3:
-    <<: *parquet-base
-    container_name: parquet-edge-3
-    ports:
-      - "9883:9883"
-    environment:
-      <<: *modelardb-variables
-      MODELARDBD_PORT: 9883
-    volumes:
-      - comparison-9883:/usr/src/app/data/edge
-    depends_on:
-      parquet-edge-2:
-        condition: service_healthy
-
-  parquet-edge-4:
-    <<: *parquet-base
-    container_name: parquet-edge-4
-    ports:
-      - "9884:9884"
-    environment:
-      <<: *modelardb-variables
-      MODELARDBD_PORT: 9884
-    volumes:
-      - comparison-9884:/usr/src/app/data/edge
-    depends_on:
-      parquet-edge-3:
-        condition: service_healthy
-
-  parquet-cloud:
-    <<: *parquet-base
-    container_name: parquet-cloud
-    command: [ "target/release/modelardbd", "cloud", "data/cloud", "grpc://parquet-manager:9880" ]
-    ports:
-      - "9899:9899"
-    environment:
-      <<: *modelardb-variables
-      MODELARDBD_PORT: 9899
-    depends_on:
-      parquet-edge-4:
-        condition: service_healthy
-
-  comparison-1:
+  # Comparison services.
+  comparison-1: &comparison-base
     build: comparison-system/.
     image: comparison-system
     container_name: comparison-1
     ports:
-      - "8000:8000"
+      - "9881:9881"
     environment:
-      FLIGHT_PORT: 8000
+      FLIGHT_PORT: 9881
     volumes:
-      - comparison-1:/usr/src/app/data
+      - comparison-9881:/usr/src/app/data
+
+  comparison-2:
+    <<: *comparison-base
+    container_name: comparison-2
+    ports:
+      - "9882:9882"
+    environment:
+      FLIGHT_PORT: 9882
+    volumes:
+      - comparison-9882:/usr/src/app/data
+
+  comparison-3:
+    <<: *comparison-base
+    container_name: comparison-3
+    ports:
+      - "9883:9883"
+    environment:
+      FLIGHT_PORT: 9883
+    volumes:
+      - comparison-9883:/usr/src/app/data
+
+  comparison-4:
+    <<: *comparison-base
+    container_name: comparison-4
+    ports:
+      - "9884:9884"
+    environment:
+      FLIGHT_PORT: 9884
+    volumes:
+      - comparison-9884:/usr/src/app/data
+
 
 volumes:
   modelardb-9981:
@@ -241,4 +182,3 @@ volumes:
   comparison-9882:
   comparison-9883:
   comparison-9884:
-  comparison-1:
