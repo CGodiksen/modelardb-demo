@@ -1,4 +1,4 @@
 export interface ComparisonSystem {
-  value: "tsfile" | "parquet";
-  label: "Apache TsFile" | "Apache Parquet";
+  value: "orc" | "parquet";
+  label: "Apache ORC" | "Apache Parquet";
 }

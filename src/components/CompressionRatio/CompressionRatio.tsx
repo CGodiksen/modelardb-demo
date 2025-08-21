@@ -3,7 +3,7 @@ import { SystemTypeIcon } from "../SystemTypeIcon/SystemTypeIcon";
 
 type CompressionRatioProps = {
   ratio: number;
-  type: "ModelarDB" | "Apache Parquet" | "Apache TsFile" | "All";
+  type: "ModelarDB" | "Apache Parquet" | "Apache ORC" | "All";
 };
 
 export function CompressionRatio({ ratio, type }: CompressionRatioProps) {

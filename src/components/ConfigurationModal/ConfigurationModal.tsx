@@ -45,8 +45,8 @@ export function ConfigurationModal({
     setComparisonSystem({
       value: values.comparisonSystem,
       label:
-        values.comparisonSystem === "tsfile"
-          ? "Apache TsFile"
+        values.comparisonSystem === "orc"
+          ? "Apache ORC"
           : "Apache Parquet",
     });
 
@@ -66,7 +66,7 @@ export function ConfigurationModal({
           description="The system to compare against ModelarDB"
           multiple={false}
           data={[
-            { value: "tsfile", label: "Apache TsFile" },
+            { value: "orc", label: "Apache ORC" },
             { value: "parquet", label: "Apache Parquet" },
           ]}
           key={form.key("comparisonSystem")}
