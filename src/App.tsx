@@ -45,8 +45,8 @@ export default function App() {
     [
       "ctrl+r",
       () => {
-        invoke("create_tables", { errorBound: errorBound }).then(() => {
-          console.log("Tables created successfully.");
+        invoke("create_table", { errorBound: errorBound }).then(() => {
+          console.log("Table created successfully.");
 
           invoke("ingest_into_table", {
             count: samplingRate,

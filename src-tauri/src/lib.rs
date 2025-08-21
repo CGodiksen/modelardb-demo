@@ -71,20 +71,29 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
         handle.abort();
     }
 
-    // Drop the tables.
+    // Drop the tables and delete all files.
     let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9980".to_owned());
     let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
     modelardb_client.drop(TABLE_NAME).await.unwrap();
 
-    let parquet_manager_node = Node::Manager("grpc://127.0.0.1:9880".to_owned());
-    let mut parquet_client = Client::connect(parquet_manager_node).await.unwrap();
-    parquet_client.drop(TABLE_NAME).await.unwrap();
+    for (_modelardb_node, comparison_node) in util::edge_nodes() {
+        let mut comparison_client = FlightServiceClient::connect(comparison_node.url().to_owned())
+            .await
+            .unwrap();
+
+        let action = Action {
+            r#type: "reset_node".to_owned(),
+            body: vec![].into(),
+        };
+
+        comparison_client.do_action(action).await.unwrap();
+    }
 
     Ok(())
 }
 
 #[tauri::command]
-async fn create_tables(error_bound: usize) {
+async fn create_table(error_bound: usize) {
     let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9980".to_owned());
     let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
 
@@ -119,16 +128,6 @@ async fn create_tables(error_bound: usize) {
 
     modelardb_client
         .create(TABLE_NAME, error_bound_table_type)
-        .await
-        .unwrap();
-
-    let parquet_manager_node = Node::Manager("grpc://127.0.0.1:9880".to_owned());
-    let mut parquet_client = Client::connect(parquet_manager_node).await.unwrap();
-
-    let table_type = TableType::NormalTable(table_schema.clone());
-
-    parquet_client
-        .create(TABLE_NAME, table_type.clone())
         .await
         .unwrap();
 }
@@ -307,13 +306,13 @@ async fn flush_nodes(
 async fn flush_nodes_task(
     app: AppHandle,
     modelardb_remote_object_store: AmazonS3,
-    parquet_remote_object_store: AmazonS3,
+    comparison_remote_object_store: AmazonS3,
     interval_seconds: u64,
 ) {
     let edge_nodes = util::edge_nodes();
 
     loop {
-        for (modelardb_node, parquet_node) in &edge_nodes {
+        for (modelardb_node, comparison_node) in &edge_nodes {
             app.emit("flushing-modelardb-node", modelardb_node.url())
                 .unwrap();
 
@@ -324,14 +323,14 @@ async fn flush_nodes_task(
                 "modelardb".to_owned(),
             ));
 
-            app.emit("flushing-comparison-node", parquet_node.url())
+            app.emit("flushing-comparison-node", comparison_node.url())
                 .unwrap();
 
             tokio::spawn(flush_node_and_emit_remote_object_store_table_size(
                 app.clone(),
-                parquet_node.clone(),
-                parquet_remote_object_store.clone(),
-                "parquet".to_owned(),
+                comparison_node.clone(),
+                comparison_remote_object_store.clone(),
+                "comparison".to_owned(),
             ));
 
             time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;
@@ -534,7 +533,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             reset_state,
-            create_tables,
+            create_table,
             ingest_into_table,
             flush_nodes,
             monitor_nodes,
