@@ -2,13 +2,14 @@ import os
 import time
 
 import pyarrow as pa
-import pyarrow.parquet as pq
 import pyarrow.flight
 from pyarrow import RecordBatch
 from pyarrow._flight import (ServerCallContext, FlightDescriptor, MetadataRecordBatchReader, FlightMetadataWriter,
                              Ticket, Action)
 
 from minio import Minio
+from pyarrow import parquet
+from pyarrow import orc
 
 
 class FlightServer(pa.flight.FlightServerBase):
@@ -39,15 +40,15 @@ class FlightServer(pa.flight.FlightServerBase):
             self.do_flush_node()
         elif action.type == "ingest_data_parquet":
             self.do_ingest_data_parquet(action)
-        elif action.type == "ingest_data_tsfile":
-            self.do_ingest_data_tsfile(action)
+        elif action.type == "ingest_data_orc":
+            self.do_ingest_data_orc(action)
         else:
             raise NotImplementedError(f"Action '{action.type}' is not implemented.")
 
     def list_actions(self, context: ServerCallContext):
         return [("reset_node", "Reset the node"), ("flush_node", "Flush the node"),
                 ("ingest_data_parquet", "Ingest data into Apache Parquet"),
-                ("ingest_data_tsfile", "Ingest data into Apache TsFile")]
+                ("ingest_data_orc", "Ingest data into Apache ORC")]
 
     def do_reset_node(self):
         for file in os.listdir("data"):
@@ -69,10 +70,14 @@ class FlightServer(pa.flight.FlightServerBase):
             batches: list[RecordBatch] = [batch for batch in reader]
 
             table = pa.Table.from_batches(batches)
-            pq.write_table(table, f"data/{time.time_ns() // 1_000_000}.parquet")
+            parquet.write_table(table, f"data/{time.time_ns() // 1_000_000}.parquet")
 
-    def do_ingest_data_tsfile(self, action: Action):
-        raise NotImplementedError("TSFile ingestion is not implemented.")
+    def do_ingest_data_orc(self, action: Action):
+        with pa.ipc.open_stream(action.body) as reader:
+            batches: list[RecordBatch] = [batch for batch in reader]
+
+            table = pa.Table.from_batches(batches)
+            orc.write_table(table, f"data/{time.time_ns() // 1_000_000}.orc")
 
 
 if __name__ == '__main__':
