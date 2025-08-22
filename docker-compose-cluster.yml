@@ -171,6 +171,13 @@ services:
     volumes:
       - comparison-9884:/usr/src/app/data
 
+  python-scripts:
+    build: python-scripts/.
+    image: python-scripts
+    container_name: python-scripts
+    ports:
+      - "8000:80"
+
 
 volumes:
   modelardb-9981:

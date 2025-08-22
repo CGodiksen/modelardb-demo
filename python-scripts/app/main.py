@@ -1,3 +1,5 @@
+import subprocess
+
 from typing import Union
 
 from fastapi import FastAPI
@@ -5,11 +7,12 @@ from fastapi import FastAPI
 app = FastAPI()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.get("/run")
+def run_python_script(script: Union[str, None] = None):
+    if script is None:
+        script = "query_edge_and_cloud.py"
 
+    result = subprocess.run(["python3", script], cwd="crates/modelardb_embedded/bindings/python",
+                            capture_output=True, text=True)
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+    return {"output": result.stdout, "error": result.stderr}

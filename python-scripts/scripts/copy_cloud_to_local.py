@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 
 with TemporaryDirectory() as temp_dir:
     # Connect to a cloud node and a local folder.
-    modelardbd = modelardb.connect(modelardb.Server("grpc://127.0.0.1:9999"))
+    modelardbd = modelardb.connect(modelardb.Server("grpc://host.docker.internal:9999"))
     local = modelardb.open_local(temp_dir)
 
     # Create the "wind" table in the local folder.

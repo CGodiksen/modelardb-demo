@@ -1,7 +1,7 @@
 import modelardb
 
 # Connect to an edge node.
-modelardbd = modelardb.connect(modelardb.Server("grpc://127.0.0.1:9981"))
+modelardbd = modelardb.connect(modelardb.Server("grpc://host.docker.internal:9981"))
 
 # List all tables in the edge node.
 tables = modelardbd.tables()
