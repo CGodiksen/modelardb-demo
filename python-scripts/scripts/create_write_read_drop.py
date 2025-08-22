@@ -41,7 +41,8 @@ with TemporaryDirectory() as temp_dir:
     local.write("time_series_table", data)
 
     # Read the data back from the table.
-    print(f"Query result: {local.read("SELECT * FROM time_series_table")}")
+    sql = "SELECT * FROM time_series_table"
+    print(f"Query result: {local.read(sql)}")
 
     # Clean up the created table.
     local.drop("time_series_table")

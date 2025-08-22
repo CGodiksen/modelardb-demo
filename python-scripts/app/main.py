@@ -15,4 +15,4 @@ def run_python_script(script: Union[str, None] = None):
     result = subprocess.run(["python3", script], cwd="crates/modelardb_embedded/bindings/python",
                             capture_output=True, text=True)
 
-    return {"output": result.stdout, "error": result.stderr}
+    return {"output": result.stdout, "error": result.stderr, "code": result.returncode}

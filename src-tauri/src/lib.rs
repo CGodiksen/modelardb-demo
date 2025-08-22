@@ -1,8 +1,7 @@
 use std::collections::HashMap;
-use std::process::Command;
+use std::iter;
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use std::{fs, iter};
 
 use arrow::array::{RecordBatch, StringArray};
 use arrow::compute;
@@ -18,7 +17,7 @@ use modelardb_embedded::operations::Operations;
 use modelardb_embedded::TableType;
 use modelardb_types::types::{ErrorBound, TimestampBuilder};
 use object_store::aws::AmazonS3;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager, State};
 use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
@@ -502,30 +501,23 @@ async fn client_query(url: String, query: String) -> Vec<u8> {
     writer.into_inner()
 }
 
+#[derive(Deserialize)]
+struct ScriptRunResponse {
+    output: String,
+    error: String,
+    code: i32,
+}
+
 #[tauri::command]
 async fn run_python_script(filename: String) -> (Vec<u8>, Vec<u8>, i32) {
-    let script_dir =
-        fs::canonicalize("../ModelarDB-RS/crates/modelardb_embedded/bindings/python").unwrap();
-
-    fs::copy(
-        format!("../scripts/{}", filename),
-        script_dir.join(&filename),
-    )
-    .unwrap();
-
-    let output = Command::new("python")
-        .current_dir(&script_dir)
-        .arg(&filename)
-        .output()
+    let resp = reqwest::get(format!("http://127.0.0.1:8000/run/?script={filename}"))
+        .await
+        .unwrap()
+        .json::<ScriptRunResponse>()
+        .await
         .unwrap();
 
-    fs::remove_file(script_dir.join(&filename)).unwrap();
-
-    (
-        output.stdout,
-        output.stderr,
-        output.status.code().unwrap_or(1),
-    )
+    (resp.output.into_bytes(), resp.error.into_bytes(), resp.code)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

@@ -21,6 +21,7 @@ datafusion = "47.0.0"
 modelardb_embedded = { git = "https://github.com/ModelarData/ModelarDB-RS.git", rev="45a5f39"}
 modelardb_types = { git = "https://github.com/ModelarData/ModelarDB-RS.git", rev="45a5f39" }
 object_store = { version = "0.12.0", features = ["aws"] }
+reqwest = { version = "0.12.23", features = ["json"] }
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 tokio = "1.44.2"

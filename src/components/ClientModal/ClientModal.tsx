@@ -92,7 +92,7 @@ export function ClientModal() {
   ]);
 
   useEffect(() => {
-    fetch(`/scripts/${pythonScripts[active].filename}`)
+    fetch(`/python-scripts/scripts/${pythonScripts[active].filename}`)
       .then((res) => res.text())
       .then((text) => setEditorText(text))
       .catch(() => setEditorText("# Failed to load script."));
