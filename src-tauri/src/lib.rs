@@ -319,24 +319,17 @@ async fn flush_nodes_task(
                 app.clone(),
                 modelardb_node.clone(),
                 modelardb_remote_object_store.clone(),
-                "modelardb".to_owned(),
                 interval_seconds,
             ),
         );
 
-        app.emit("flushing-comparison-node", comparison_node.url())
-            .unwrap();
-
         tokio::spawn(
-            flush_modelardb_node_and_emit_remote_object_store_table_size(
+            flush_comparison_node_and_emit_remote_object_store_table_size(
                 app.clone(),
                 comparison_node.clone(),
                 comparison_remote_object_store.clone(),
-                "comparison".to_owned(),
             ),
         );
-
-        time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;
     }
 }
 
@@ -344,7 +337,6 @@ async fn flush_modelardb_node_and_emit_remote_object_store_table_size(
     app: AppHandle,
     node: Node,
     object_store: AmazonS3,
-    node_type: String,
     interval_seconds: u64,
 ) {
     let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
@@ -367,10 +359,44 @@ async fn flush_modelardb_node_and_emit_remote_object_store_table_size(
             .await
             .unwrap();
 
-        emit_remote_object_store_table_size(app.clone(), object_store.clone(), node_type.clone())
-            .await;
+        emit_remote_object_store_table_size(
+            app.clone(),
+            object_store.clone(),
+            "modelardb".to_owned(),
+        )
+        .await;
 
         time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;
+    }
+}
+
+async fn flush_comparison_node_and_emit_remote_object_store_table_size(
+    app: AppHandle,
+    node: Node,
+    object_store: AmazonS3,
+) {
+    let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
+        .await
+        .unwrap();
+
+    let action = Action {
+        r#type: "FlushNode".to_owned(),
+        body: vec![].into(),
+    };
+
+    loop {
+        app.emit("flushing-comparison-node", node.url()).unwrap();
+
+        flight_client.do_action(action.clone()).await.unwrap();
+
+        emit_remote_object_store_table_size(
+            app.clone(),
+            object_store.clone(),
+            "comparison".to_owned(),
+        )
+        .await;
+
+        time::sleep(Duration::from_secs(1)).await;
     }
 }
 
