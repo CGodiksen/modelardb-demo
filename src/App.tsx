@@ -54,9 +54,7 @@ export default function App() {
           }).then(() => {
             console.log(`Started ingesting data into the table.`);
 
-            invoke("flush_nodes", {
-              intervalSeconds: 20,
-            }).then(() => {
+            invoke("flush_nodes").then(() => {
               console.log("Started flushing data from nodes.");
 
               invoke("monitor_nodes", {

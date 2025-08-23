@@ -282,11 +282,7 @@ async fn ingest_data_points_into_nodes(
 }
 
 #[tauri::command]
-async fn flush_nodes(
-    app: AppHandle,
-    state: State<'_, Mutex<AppState>>,
-    interval_seconds: u64,
-) -> Result<(), String> {
+async fn flush_nodes(app: AppHandle, state: State<'_, Mutex<AppState>>) -> Result<(), String> {
     let mut state = state.lock().await;
 
     if let Some(handle) = &state.flush_task {
@@ -297,7 +293,6 @@ async fn flush_nodes(
         app,
         state.modelardb_remote_object_store.clone(),
         state.comparison_remote_object_store.clone(),
-        interval_seconds,
     ));
 
     state.flush_task = Some(join_handle);
@@ -309,19 +304,24 @@ async fn flush_nodes_task(
     app: AppHandle,
     modelardb_remote_object_store: AmazonS3,
     comparison_remote_object_store: AmazonS3,
-    interval_seconds: u64,
 ) {
     let edge_nodes = util::edge_nodes();
+    let mut iteration_counter = 0;
 
     loop {
+        let flush_modelardb = iteration_counter % 8 == 0;
+        iteration_counter = iteration_counter + 1;
+
         for (modelardb_node, comparison_node) in &edge_nodes {
-            tokio::spawn(
-                flush_modelardb_node_and_emit_remote_object_store_table_size(
-                    app.clone(),
-                    modelardb_node.clone(),
-                    modelardb_remote_object_store.clone(),
-                ),
-            );
+            if flush_modelardb {
+                tokio::spawn(
+                    flush_modelardb_node_and_emit_remote_object_store_table_size(
+                        app.clone(),
+                        modelardb_node.clone(),
+                        modelardb_remote_object_store.clone(),
+                    ),
+                );
+            }
 
             tokio::spawn(
                 flush_comparison_node_and_emit_remote_object_store_table_size(
@@ -331,7 +331,7 @@ async fn flush_nodes_task(
                 ),
             );
 
-            time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;
+            time::sleep(Duration::from_secs(1)).await;
         }
     }
 }
