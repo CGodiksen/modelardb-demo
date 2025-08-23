@@ -334,7 +334,7 @@ async fn flush_modelardb_nodes_task(app: AppHandle, modelardb_remote_object_stor
                 ),
             );
 
-            time::sleep(Duration::from_millis(7500)).await;
+            time::sleep(Duration::from_secs(2)).await;
         }
     }
 }
