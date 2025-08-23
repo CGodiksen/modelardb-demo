@@ -32,7 +32,8 @@ const NODE_COUNT: u64 = 4;
 
 struct AppState {
     ingestion_task: Option<JoinHandle<()>>,
-    flush_task: Option<JoinHandle<()>>,
+    flush_modelardb_task: Option<JoinHandle<()>>,
+    flush_comparison_task: Option<JoinHandle<()>>,
     monitor_nodes_task: Option<JoinHandle<()>>,
     modelardb_remote_object_store: AmazonS3,
     comparison_remote_object_store: AmazonS3,
@@ -45,7 +46,8 @@ impl AppState {
 
         Self {
             ingestion_task: None,
-            flush_task: None,
+            flush_modelardb_task: None,
+            flush_comparison_task: None,
             monitor_nodes_task: None,
             modelardb_remote_object_store,
             comparison_remote_object_store,
@@ -62,7 +64,11 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
         handle.abort();
     }
 
-    if let Some(handle) = &state.flush_task {
+    if let Some(handle) = &state.flush_modelardb_task {
+        handle.abort();
+    }
+
+    if let Some(handle) = &state.flush_comparison_task {
         handle.abort();
     }
 
@@ -285,55 +291,50 @@ async fn ingest_data_points_into_nodes(
 async fn flush_nodes(app: AppHandle, state: State<'_, Mutex<AppState>>) -> Result<(), String> {
     let mut state = state.lock().await;
 
-    if let Some(handle) = &state.flush_task {
+    if let Some(handle) = &state.flush_modelardb_task {
         handle.abort();
     }
 
-    let join_handle = tokio::spawn(flush_nodes_task(
-        app,
+    let join_handle = tokio::spawn(flush_modelardb_nodes_task(
+        app.clone(),
         state.modelardb_remote_object_store.clone(),
+    ));
+
+    state.flush_modelardb_task = Some(join_handle);
+
+    if let Some(handle) = &state.flush_comparison_task {
+        handle.abort();
+    }
+
+    let join_handle = tokio::spawn(flush_comparison_nodes_task(
+        app,
         state.comparison_remote_object_store.clone(),
     ));
 
-    state.flush_task = Some(join_handle);
+    state.flush_comparison_task = Some(join_handle);
 
     Ok(())
 }
 
-async fn flush_nodes_task(
-    app: AppHandle,
-    modelardb_remote_object_store: AmazonS3,
-    comparison_remote_object_store: AmazonS3,
-) {
+async fn flush_modelardb_nodes_task(app: AppHandle, modelardb_remote_object_store: AmazonS3) {
     let edge_nodes = util::edge_nodes();
     let mut iteration_counter = 0;
 
     loop {
-        let flush_modelardb_memory = iteration_counter % 2 == 0;
-        let flush_modelardb_node = iteration_counter % 8 == 0;
+        let flush_modelardb_node = iteration_counter % 4 == 0;
         iteration_counter = iteration_counter + 1;
 
-        for (modelardb_node, comparison_node) in &edge_nodes {
-            if flush_modelardb_memory {
-                tokio::spawn(
-                    flush_modelardb_node_and_emit_remote_object_store_table_size(
-                        app.clone(),
-                        modelardb_node.clone(),
-                        modelardb_remote_object_store.clone(),
-                        flush_modelardb_node,
-                    ),
-                );
-            }
-
+        for (modelardb_node, _comparison_node) in &edge_nodes {
             tokio::spawn(
-                flush_comparison_node_and_emit_remote_object_store_table_size(
+                flush_modelardb_node_and_emit_remote_object_store_table_size(
                     app.clone(),
-                    comparison_node.clone(),
-                    comparison_remote_object_store.clone(),
+                    modelardb_node.clone(),
+                    modelardb_remote_object_store.clone(),
+                    flush_modelardb_node,
                 ),
             );
 
-            time::sleep(Duration::from_secs(1)).await;
+            time::sleep(Duration::from_millis(7500)).await;
         }
     }
 }
@@ -353,7 +354,7 @@ async fn flush_modelardb_node_and_emit_remote_object_store_table_size(
     } else {
         "FlushMemory"
     };
-    
+
     let action = Action {
         r#type: action_type.to_owned(),
         body: vec![].into(),
@@ -376,6 +377,24 @@ async fn flush_modelardb_node_and_emit_remote_object_store_table_size(
             "modelardb".to_owned(),
         )
         .await;
+    }
+}
+
+async fn flush_comparison_nodes_task(app: AppHandle, comparison_remote_object_store: AmazonS3) {
+    let edge_nodes = util::edge_nodes();
+
+    loop {
+        for (_modelardb_node, comparison_node) in &edge_nodes {
+            tokio::spawn(
+                flush_comparison_node_and_emit_remote_object_store_table_size(
+                    app.clone(),
+                    comparison_node.clone(),
+                    comparison_remote_object_store.clone(),
+                ),
+            );
+
+            time::sleep(Duration::from_secs(1)).await;
+        }
     }
 }
 
