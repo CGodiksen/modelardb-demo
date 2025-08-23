@@ -313,38 +313,39 @@ async fn flush_nodes_task(
 ) {
     let edge_nodes = util::edge_nodes();
 
-    loop {
-        for (modelardb_node, comparison_node) in &edge_nodes {
-            app.emit("flushing-modelardb-node", modelardb_node.url())
-                .unwrap();
-
-            tokio::spawn(flush_node_and_emit_remote_object_store_table_size(
+    for (modelardb_node, comparison_node) in &edge_nodes {
+        tokio::spawn(
+            flush_modelardb_node_and_emit_remote_object_store_table_size(
                 app.clone(),
                 modelardb_node.clone(),
                 modelardb_remote_object_store.clone(),
                 "modelardb".to_owned(),
-            ));
+                interval_seconds,
+            ),
+        );
 
-            app.emit("flushing-comparison-node", comparison_node.url())
-                .unwrap();
+        app.emit("flushing-comparison-node", comparison_node.url())
+            .unwrap();
 
-            tokio::spawn(flush_node_and_emit_remote_object_store_table_size(
+        tokio::spawn(
+            flush_modelardb_node_and_emit_remote_object_store_table_size(
                 app.clone(),
                 comparison_node.clone(),
                 comparison_remote_object_store.clone(),
                 "comparison".to_owned(),
-            ));
+            ),
+        );
 
-            time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;
-        }
+        time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;
     }
 }
 
-async fn flush_node_and_emit_remote_object_store_table_size(
+async fn flush_modelardb_node_and_emit_remote_object_store_table_size(
     app: AppHandle,
     node: Node,
     object_store: AmazonS3,
     node_type: String,
+    interval_seconds: u64,
 ) {
     let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
         .await
@@ -355,17 +356,22 @@ async fn flush_node_and_emit_remote_object_store_table_size(
         body: vec![].into(),
     };
 
-    flight_client.do_action(action).await.unwrap();
+    loop {
+        app.emit("flushing-modelardb-node", node.url()).unwrap();
 
-    // Vacuum the node to remove any deleted data.
-    if node_type == "modelardb" {
+        flight_client.do_action(action.clone()).await.unwrap();
+
+        // Vacuum the node to remove any deleted data.
         flight_client
             .do_get(Ticket::new("VACUUM".to_owned()))
             .await
             .unwrap();
-    }
 
-    emit_remote_object_store_table_size(app, object_store, node_type).await;
+        emit_remote_object_store_table_size(app.clone(), object_store.clone(), node_type.clone())
+            .await;
+
+        time::sleep(Duration::from_secs(interval_seconds / NODE_COUNT)).await;
+    }
 }
 
 #[derive(Clone, Serialize)]
