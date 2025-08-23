@@ -9,7 +9,7 @@
     "type": "modelardb",
     "url": "grpc://127.0.0.1:9981",
     "server_mode": "edge",
-    "latitude": 52.024444,
+    "latitude": 52.124444,
     "longitude": 2.128333
   },
   {
@@ -17,14 +17,14 @@
     "url": "grpc://127.0.0.1:9982",
     "server_mode": "edge",
     "latitude": 52.124444,
-    "longitude": 2.128333
+    "longitude": 2.328333
   },
   {
     "type": "modelardb",
     "url": "grpc://127.0.0.1:9983",
     "server_mode": "edge",
-    "latitude": 52.124444,
-    "longitude": 2.328333
+    "latitude": 52.024444,
+    "longitude": 2.128333
   },
   {
     "type": "modelardb",
@@ -59,14 +59,14 @@
     "url": "http://127.0.0.1:9883",
     "server_mode": "edge",
     "latitude": 50.4670948,
-    "longitude": 0.6214118
+    "longitude": 0.4214118
   },
   {
     "type": "comparison",
     "url": "http://127.0.0.1:9884",
     "server_mode": "edge",
     "latitude": 50.4670948,
-    "longitude": 0.4214118
+    "longitude": 0.6214118
   },
   {
     "type": "comparison",
