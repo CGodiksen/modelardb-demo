@@ -1,5 +1,9 @@
 import { Paper, ThemeIcon, Text, Group } from "@mantine/core";
-import { IconDeviceAnalytics, IconWindmill } from "@tabler/icons-react";
+import {
+  IconAlertCircleFilled,
+  IconDeviceAnalytics,
+  IconWindmill,
+} from "@tabler/icons-react";
 import { ModelardbNode } from "../../interfaces/node";
 import { Sparkline } from "@mantine/charts";
 import { listen } from "@tauri-apps/api/event";
@@ -15,6 +19,7 @@ type NodeDetailProps = {
 export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
   const [currentSize, setCurrentSize] = useState<number>(0);
   const [nodeSizes, setNodeSizes] = useState<number[]>(Array(20).fill(0));
+  const [showWarning, setShowWarning] = useState<boolean>(false);
 
   useEffect(() => {
     const nodePort = node.url!.split(":").pop();
@@ -33,6 +38,27 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
     setNodeSizes(Array(20).fill(0));
   }, [resetKey]);
 
+  useEffect(() => {
+    // Check if nodeSizes generally trends upwards.
+    const windowSize = 4;
+    const increases = nodeSizes.reduce((count, size, i, arr) => {
+      if (i >= windowSize) {
+        const prevWindowAvg =
+          arr.slice(i - windowSize, i).reduce((a, b) => a + b, 0) / windowSize;
+        if (size > prevWindowAvg) {
+          return count + 1;
+        }
+      }
+      return count;
+    }, 0);
+
+    setShowWarning(
+      nodeSizes[0] !== 0 &&
+        increases > nodeSizes.length / 2 &&
+        node.type === "comparison"
+    );
+  }, [nodeSizes]);
+
   return (
     <Paper
       radius="md"
@@ -50,11 +76,18 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
         <Text size="xs" c="dimmed" fw={700}>
           {node.url!.replace(/^grpc:\/\/|^http:\/\//, "")}
         </Text>
-        <IconDeviceAnalytics
-          className={classes.node_icon}
-          size={22}
-          stroke={1.5}
-        />
+
+        <Group gap={7}>
+          {showWarning && (
+            <IconAlertCircleFilled size={22} stroke={1.5} color="#ffcc00" />
+          )}
+
+          <IconDeviceAnalytics
+            className={classes.node_icon}
+            size={22}
+            stroke={1.5}
+          />
+        </Group>
       </Group>
 
       <Group align="flex-end" gap="xs" mt={20} me={0} pe={0}>

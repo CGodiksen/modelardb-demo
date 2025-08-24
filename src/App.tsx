@@ -35,7 +35,7 @@ export default function App() {
   const [comparisonSystemBytes, setComparisonSystemBytes] = useState(0);
 
   const [errorBound, setErrorBound] = useState(5);
-  const [samplingRate, setSamplingRate] = useState(1000);
+  const [samplingRate, setSamplingRate] = useState(4000);
   const [comparisonSystem, setComparisonSystem] = useState<ComparisonSystem>({
     value: "parquet",
     label: "Apache Parquet",
