@@ -20,6 +20,8 @@ class FlightServer(pa.flight.FlightServerBase):
         self.minio_client = Minio("minio-server:9000", access_key="minioadmin", secret_key="minioadmin",
                                   secure=False, region="eu-central-1")
 
+        self.bandwidth_limit = 500 * 1024  # 500 KB/s
+
     def list_flights(self, context: ServerCallContext, criteria: bytes):
         raise NotImplementedError("list_flights is not implemented.")
 
@@ -59,11 +61,18 @@ class FlightServer(pa.flight.FlightServerBase):
                 self.minio_client.remove_object("comparison", minio_object.object_name)
 
     def do_flush_node(self):
+        total_size_flushed = 0
+
         for file in os.listdir("data"):
             file_path = os.path.join("data", file)
-            self.minio_client.fput_object("comparison", f"tables/{file}", file_path)
 
-            os.remove(file_path)
+            total_size_flushed += os.path.getsize(file_path)
+
+            if total_size_flushed < self.bandwidth_limit:
+                self.minio_client.fput_object("comparison", f"tables/{file}", file_path)
+                os.remove(file_path)
+            else:
+                break
 
     @staticmethod
     def do_ingest_data_parquet(action: Action):

@@ -38,7 +38,7 @@ export function Configuration({
           />
         </Grid.Col>
         <Grid.Col span={6}>
-          <ConfigurationSetting title="Bandwidth" value="500 Mbps" type="All" />
+          <ConfigurationSetting title="Bandwidth" value="500 Kbps" type="All" />
         </Grid.Col>
       </Grid>
     </Container>
