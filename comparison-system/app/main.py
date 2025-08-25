@@ -20,7 +20,7 @@ class FlightServer(pa.flight.FlightServerBase):
         self.minio_client = Minio("minio-server:9000", access_key="minioadmin", secret_key="minioadmin",
                                   secure=False, region="eu-central-1")
 
-        self.bandwidth_limit = 500 * 1024  # 500 KB/s
+        self.bandwidth_limit = 512 * 1024  # 512 KB/s
 
     def list_flights(self, context: ServerCallContext, criteria: bytes):
         raise NotImplementedError("list_flights is not implemented.")
