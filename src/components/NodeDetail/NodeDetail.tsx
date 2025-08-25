@@ -98,7 +98,7 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
         <Sparkline
           w={130}
           h={40}
-          data={nodeSizes}
+          data={nodeSizes.map((v, _i, arr) => v - Math.min(...arr))} // Normalize to start at zero.
           curveType="linear"
           color={color}
           fillOpacity={0.6}
