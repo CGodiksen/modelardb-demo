@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { useDisclosure, useHotkeys } from "@mantine/hooks";
+import { useDisclosure } from "@mantine/hooks";
 import {
   AppShell,
   Container,
@@ -41,33 +41,30 @@ export default function App() {
     label: "Apache Parquet",
   });
 
-  useHotkeys([
-    [
-      "ctrl+r",
-      () => {
-        invoke("create_table", { errorBound: errorBound }).then(() => {
-          console.log("Table created successfully.");
+  useEffect(() => {
+    setTimeout(() => {
+      invoke("create_table", { errorBound: errorBound }).then(() => {
+        console.log("Table created successfully.");
 
-          invoke("ingest_into_table", {
-            count: samplingRate,
-            comparison: comparisonSystem.value,
-          }).then(() => {
-            console.log(`Started ingesting data into the table.`);
+        invoke("ingest_into_table", {
+          count: samplingRate,
+          comparison: comparisonSystem.value,
+        }).then(() => {
+          console.log(`Started ingesting data into the table.`);
 
-            invoke("flush_nodes").then(() => {
-              console.log("Started flushing data from nodes.");
+          invoke("flush_nodes").then(() => {
+            console.log("Started flushing data from nodes.");
 
-              invoke("monitor_nodes", {
-                intervalSeconds: 1,
-              }).then(() => {
-                console.log("Started monitoring nodes.");
-              });
+            invoke("monitor_nodes", {
+              intervalSeconds: 1,
+            }).then(() => {
+              console.log("Started monitoring nodes.");
             });
           });
         });
-      },
-    ],
-  ]);
+      });
+    }, 2000);
+  }, [resetKey]);
 
   useEffect(() => {
     fetch("/data/nodes.json")
