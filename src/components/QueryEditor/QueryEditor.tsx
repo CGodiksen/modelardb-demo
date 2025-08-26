@@ -1,11 +1,11 @@
-import { Container } from "@mantine/core";
+import { ActionIcon, Container } from "@mantine/core";
 import CodeMirror from "@uiw/react-codemirror";
 import { sql } from "@codemirror/lang-sql";
 import { darcula } from "@uiw/codemirror-theme-darcula";
-import { useHotkeys } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/core";
 
 import { ModelardbNode } from "../../interfaces/node.ts";
+import { IconPlayerPlayFilled } from "@tabler/icons-react";
 
 type QueryEditorProps = {
   node: ModelardbNode;
@@ -22,35 +22,43 @@ export function QueryEditor({
   setQueryData,
   setResultText,
 }: QueryEditorProps) {
-  useHotkeys([
-    [
-      "ctrl+enter",
-      () => {
-        setQueryData([]);
-        setResultText("Executing query...");
+  function handleRunQuery() {
+    setQueryData([]);
+    setResultText("Executing query...");
 
-        invoke("client_query", { url: node.url, query: editorText }).then(
-          // @ts-ignore
-          (message: any[]) => {
-            let json_string = new TextDecoder().decode(new Uint8Array(message));
-            let json_data = JSON.parse(json_string);
+    invoke("client_query", { url: node.url, query: editorText }).then(
+      // @ts-ignore
+      (message: any[]) => {
+        let json_string = new TextDecoder().decode(new Uint8Array(message));
+        let json_data = JSON.parse(json_string);
 
-            if (json_data.length === 0) {
-              setResultText("Query executed successfully. No results.");
-            } else {
-              setQueryData(json_data);
-            }
-          }
-        );
-      },
-    ],
-  ]);
+        if (json_data.length === 0) {
+          setResultText("Query executed successfully. No results.");
+        } else {
+          setQueryData(json_data);
+        }
+      }
+    );
+  }
 
   return (
     <Container fluid p={0}>
+      <ActionIcon
+        variant="filled"
+        color="green"
+        mt={5}
+        mb={5}
+        onClick={handleRunQuery}
+      >
+        <IconPlayerPlayFilled
+          style={{ width: "70%", height: "70%" }}
+          stroke={1.5}
+        />
+      </ActionIcon>
+
       <CodeMirror
         value={editorText}
-        height="340px"
+        height="300px"
         width="894px"
         extensions={[sql()]}
         onChange={setEditorText}
