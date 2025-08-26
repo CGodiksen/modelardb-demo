@@ -5,12 +5,14 @@ import {
   Code,
   ScrollArea,
   NavLink,
+  ActionIcon,
+  Paper,
 } from "@mantine/core";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { darcula } from "@uiw/codemirror-theme-darcula";
 import { useEffect, useState } from "react";
-import { IconBrandPython } from "@tabler/icons-react";
+import { IconBrandPython, IconPlayerPlayFilled } from "@tabler/icons-react";
 import { useHotkeys } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/core";
 
@@ -63,34 +65,29 @@ export function ClientModal() {
     />
   ));
 
-  useHotkeys([
-    [
-      "ctrl+enter",
-      () => {
-        setConsoleOutput("Running script...");
+  function handleRunScript() {
+    setConsoleOutput("Running script...");
 
-        invoke("run_python_script", {
-          filename: pythonScripts[active].filename,
-        }).then(
-          // @ts-ignore
-          (message: any[]) => {
-            const [stdout, stderr, exitCode] = message;
+    invoke("run_python_script", {
+      filename: pythonScripts[active].filename,
+    }).then(
+      // @ts-ignore
+      (message: any[]) => {
+        const [stdout, stderr, exitCode] = message;
 
-            const stdoutStr = new TextDecoder().decode(
-              new Uint8Array(stdout).buffer
-            );
-            const stderrStr = new TextDecoder().decode(
-              new Uint8Array(stderr).buffer
-            );
-
-            let output = exitCode === 0 ? stdoutStr : stderrStr;
-            output += `\n\nProcess finished with exit code ${exitCode}`;
-            setConsoleOutput(output);
-          }
+        const stdoutStr = new TextDecoder().decode(
+          new Uint8Array(stdout).buffer
         );
-      },
-    ],
-  ]);
+        const stderrStr = new TextDecoder().decode(
+          new Uint8Array(stderr).buffer
+        );
+
+        let output = exitCode === 0 ? stdoutStr : stderrStr;
+        output += `\n\nProcess finished with exit code ${exitCode}`;
+        setConsoleOutput(output);
+      }
+    );
+  }
 
   useEffect(() => {
     fetch(`/python-scripts/scripts/${pythonScripts[active].filename}`)
@@ -108,17 +105,30 @@ export function ClientModal() {
           </Card>
         </Grid.Col>
         <Grid.Col span={8} h={"35vh"}>
-          <Card shadow="sm" padding={2} radius="md" withBorder h={"100%"}>
+          <Paper withBorder pt={5}>
+            <ActionIcon
+              variant="filled"
+              color="green"
+              mb={5}
+              ms={5}
+              onClick={handleRunScript}
+            >
+              <IconPlayerPlayFilled
+                style={{ width: "70%", height: "70%" }}
+                stroke={1.5}
+              />
+            </ActionIcon>
+
             <CodeMirror
               value={editorText}
-              height="340px"
+              height="297px"
               extensions={[python()]}
               onChange={setEditorText}
               theme={darcula}
               placeholder={"Enter your Python here..."}
               readOnly={true}
             />
-          </Card>
+          </Paper>
         </Grid.Col>
         <Grid.Col span={12} h={"35vh"}>
           <Code p={10} block h={"100%"} color={"#2b2b2b"}>
