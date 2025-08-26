@@ -1,6 +1,6 @@
 export function formatDate(
   timestamp: number | string,
-  includeMilliseconds: boolean,
+  includeMilliseconds: boolean
 ): string {
   const date = new Date(timestamp);
   const year = date.getFullYear();

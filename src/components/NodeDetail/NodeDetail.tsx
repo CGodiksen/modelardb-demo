@@ -9,6 +9,7 @@ import { Sparkline } from "@mantine/charts";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import classes from "./NodeDetail.module.css";
+import { formatBytes } from "../../util";
 
 type NodeDetailProps = {
   node: ModelardbNode;
@@ -26,9 +27,7 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
     const nodeType = node.type === "modelardb" ? "modelardb" : "comparison";
 
     listen<number>(`${nodeType}-${nodePort}-node-size`, (event) => {
-      let size_mb = Math.round((event.payload / 1048576) * 10) / 10;
-
-      setCurrentSize(size_mb);
+      setCurrentSize(event.payload);
       setNodeSizes((prev) => [...prev.slice(1), event.payload]);
     });
   }, []);
@@ -91,12 +90,12 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
       </Group>
 
       <Group align="flex-end" gap="xs" mt={20} me={0} pe={0}>
-        <Text w={90} fz={22} fw={700}>
-          {currentSize} MB
+        <Text w={94} fz={22} fw={700}>
+          {formatBytes(currentSize, 0)}
         </Text>
 
         <Sparkline
-          w={130}
+          w={126}
           h={40}
           data={nodeSizes.map((v, _i, arr) => v - Math.min(...arr))} // Normalize to start at zero.
           curveType="linear"
