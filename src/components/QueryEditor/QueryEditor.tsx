@@ -1,4 +1,4 @@
-import { ActionIcon, Container } from "@mantine/core";
+import { ActionIcon, Paper } from "@mantine/core";
 import CodeMirror from "@uiw/react-codemirror";
 import { sql } from "@codemirror/lang-sql";
 import { darcula } from "@uiw/codemirror-theme-darcula";
@@ -42,12 +42,12 @@ export function QueryEditor({
   }
 
   return (
-    <Container fluid p={0}>
+    <Paper withBorder pt={5}>
       <ActionIcon
         variant="filled"
         color="green"
-        mt={5}
         mb={5}
+        ms={5}
         onClick={handleRunQuery}
       >
         <IconPlayerPlayFilled
@@ -59,12 +59,12 @@ export function QueryEditor({
       <CodeMirror
         value={editorText}
         height="300px"
-        width="894px"
+        width="890px"
         extensions={[sql()]}
         onChange={setEditorText}
         theme={darcula}
         placeholder={"Enter your SQL query here..."}
       />
-    </Container>
+    </Paper>
   );
 }

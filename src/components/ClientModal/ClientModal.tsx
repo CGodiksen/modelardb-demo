@@ -13,7 +13,6 @@ import { python } from "@codemirror/lang-python";
 import { darcula } from "@uiw/codemirror-theme-darcula";
 import { useEffect, useState } from "react";
 import { IconBrandPython, IconPlayerPlayFilled } from "@tabler/icons-react";
-import { useHotkeys } from "@mantine/hooks";
 import { invoke } from "@tauri-apps/api/core";
 
 const pythonScripts = [
