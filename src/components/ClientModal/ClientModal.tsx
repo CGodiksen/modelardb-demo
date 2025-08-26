@@ -34,9 +34,10 @@ const pythonScripts = [
       "This script demonstrates creating a table, writing data, reading it back, and dropping the table.",
   },
   {
-    filename: "copy_cloud_to_local.py",
-    name: "Copy From Cloud to Local",
-    description: "This script copies data from a cloud node to a local folder.",
+    filename: "read_time_series_table.py",
+    name: "Read Time Series Table",
+    description:
+      "This script reads a time series table using a convenience function.",
   },
 ];
 

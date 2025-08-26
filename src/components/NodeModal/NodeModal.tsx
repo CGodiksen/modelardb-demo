@@ -15,10 +15,9 @@ const queries = [
   "SELECT MIN(wind_speed), MAX(wind_speed) FROM wind",
   "SELECT AVG(wind_speed), SUM(rotor_speed) FROM wind",
   "SELECT COUNT(*) FROM wind WHERE wind_speed > 5",
-  "SELECT * FROM wind WHERE rotor_speed > 10 ORDER BY timestamp DESC LIMIT 100",
+  "SELECT * FROM wind WHERE rotor_speed > 10 ORDER BY timestamp DESC LIMIT 50",
   "SELECT timestamp, cos_nacelle_dir, sin_nacelle_dir FROM wind LIMIT 50",
-  "SELECT rotor_speed, COUNT(*) FROM wind GROUP BY rotor_speed HAVING COUNT(*) > 5",
-  "SELECT timestamp, wind_speed FROM wind WHERE wind_speed > 5 && wind_speed < 15 ORDER BY wind_speed DESC LIMIT 20",
+  "SELECT rotor_speed, COUNT(*) FROM wind GROUP BY rotor_speed HAVING COUNT(*) > 5 LIMIT 50",
   "SELECT rotor_speed, AVG(wind_speed) FROM wind GROUP BY rotor_speed ORDER BY AVG(wind_speed) DESC LIMIT 10",
 ];
 
