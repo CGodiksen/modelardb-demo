@@ -4,12 +4,17 @@ import { IconGraph, IconTable } from "@tabler/icons-react";
 import { QueryResultTable } from "../QueryResultTable/QueryResultTable.tsx";
 import { QueryResultGraph } from "../QueryResultGraph/QueryResultGraph.tsx";
 
-export function QueryResult({ queryData }: { queryData: any[] }) {
+type QueryResultProps = {
+  queryData: any[];
+  resultText: string;
+};
+
+export function QueryResult({ queryData, resultText }: QueryResultProps) {
   if (queryData.length === 0) {
     return (
       <Card shadow="sm" padding={2} radius="md" withBorder h={"100%"}>
         <Text ps={10} pt={5}>
-          Execute a query to see the results.
+          {resultText}
         </Text>
       </Card>
     );

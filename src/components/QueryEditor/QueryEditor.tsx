@@ -12,6 +12,7 @@ type QueryEditorProps = {
   editorText: string;
   setEditorText: (text: string) => void;
   setQueryData: (data: any[]) => void;
+  setResultText: (text: string) => void;
 };
 
 export function QueryEditor({
@@ -19,18 +20,26 @@ export function QueryEditor({
   editorText,
   setEditorText,
   setQueryData,
+  setResultText,
 }: QueryEditorProps) {
   useHotkeys([
     [
       "ctrl+enter",
       () => {
+        setQueryData([]);
+        setResultText("Executing query...");
+
         invoke("client_query", { url: node.url, query: editorText }).then(
           // @ts-ignore
           (message: any[]) => {
             let json_string = new TextDecoder().decode(new Uint8Array(message));
             let json_data = JSON.parse(json_string);
 
-            setQueryData(json_data);
+            if (json_data.length === 0) {
+              setResultText("Query executed successfully. No results.");
+            } else {
+              setQueryData(json_data);
+            }
           }
         );
       },

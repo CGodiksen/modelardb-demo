@@ -24,6 +24,9 @@ const queries = [
 export function NodeModal({ node }: NodeModalProps) {
   const [editorText, setEditorText] = useState(queries[0]);
   const [queryData, setQueryData] = useState<any[]>([]);
+  const [resultText, setResultText] = useState(
+    "Execute a query to see the results."
+  );
 
   return (
     <Container fluid p={0} mt={0}>
@@ -40,10 +43,14 @@ export function NodeModal({ node }: NodeModalProps) {
             editorText={editorText}
             setEditorText={setEditorText}
             setQueryData={setQueryData}
+            setResultText={setResultText}
           ></QueryEditor>
         </Grid.Col>
         <Grid.Col span={12} h={"35vh"}>
-          <QueryResult queryData={queryData}></QueryResult>
+          <QueryResult
+            queryData={queryData}
+            resultText={resultText}
+          ></QueryResult>
         </Grid.Col>
       </Grid>
     </Container>
