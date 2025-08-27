@@ -18,6 +18,7 @@
     "@mantine/hooks": "^7.17.1",
     "@tabler/icons-react": "^3.31.0",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-fs": "~2.4.2",
     "@tauri-apps/plugin-opener": "^2",
     "@uiw/codemirror-theme-darcula": "^4.23.10",
     "@uiw/react-codemirror": "^4.23.10",

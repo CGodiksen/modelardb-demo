@@ -575,6 +575,7 @@ async fn run_python_script(filename: String) -> (Vec<u8>, Vec<u8>, i32) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             app.manage(Mutex::new(AppState::new()));
