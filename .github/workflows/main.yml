@@ -1,10 +1,9 @@
 name: 'publish'
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 jobs:
   publish-tauri:
@@ -39,6 +38,11 @@ jobs:
         with:
           node-version: 'latest'
           cache: 'pnpm'
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
