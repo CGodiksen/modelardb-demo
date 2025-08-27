@@ -576,6 +576,23 @@ async fn run_python_script(filename: String) -> (Vec<u8>, Vec<u8>, i32) {
     (resp.output.into_bytes(), resp.error.into_bytes(), resp.code)
 }
 
+#[derive(Deserialize)]
+struct ScriptReadResponse {
+    script: String,
+}
+
+#[tauri::command]
+async fn read_python_script(filename: String) -> String {
+    let resp = reqwest::get(format!("http://127.0.0.1:8000/read/?script={filename}"))
+        .await
+        .unwrap()
+        .json::<ScriptReadResponse>()
+        .await
+        .unwrap();
+
+    resp.script
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -594,6 +611,7 @@ pub fn run() {
             client_tables,
             client_query,
             run_python_script,
+            read_python_script
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

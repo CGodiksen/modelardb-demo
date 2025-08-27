@@ -89,10 +89,14 @@ export function ClientModal() {
   }
 
   useEffect(() => {
-    fetch(`/python-scripts/scripts/${pythonScripts[active].filename}`)
-      .then((res) => res.text())
-      .then((text) => setEditorText(text))
-      .catch(() => setEditorText("# Failed to load script."));
+    invoke("read_python_script", {
+      filename: pythonScripts[active].filename,
+    }).then(
+      // @ts-ignore
+      (message: string) => {
+        setEditorText(message);
+      }
+    );
   }, [active]);
 
   return (

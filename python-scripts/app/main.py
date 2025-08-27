@@ -16,3 +16,16 @@ def run_python_script(script: Union[str, None] = None):
                             capture_output=True, text=True)
 
     return {"output": result.stdout, "error": result.stderr, "code": result.returncode}
+
+
+@app.get("/read")
+def get_python_script(script: Union[str, None] = None):
+    if script is None:
+        script = "query_edge_and_cloud.py"
+
+    try:
+        with open(f"crates/modelardb_embedded/bindings/python/{script}", "r") as file:
+            content = file.read()
+        return {"script": content}
+    except FileNotFoundError:
+        return {"error": "Script not found"}
