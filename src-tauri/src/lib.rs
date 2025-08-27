@@ -593,6 +593,11 @@ async fn read_python_script(filename: String) -> String {
     resp.script
 }
 
+#[tauri::command]
+async fn google_maps_api_key() -> String {
+    std::env::var("GOOGLE_MAPS_API_KEY").unwrap_or("".to_owned())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -611,7 +616,8 @@ pub fn run() {
             client_tables,
             client_query,
             run_python_script,
-            read_python_script
+            read_python_script,
+            google_maps_api_key
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
