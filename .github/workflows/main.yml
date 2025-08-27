@@ -37,7 +37,7 @@ jobs:
       - name: install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: 'latest'
           cache: 'pnpm'
 
       - name: install Rust stable
@@ -54,7 +54,6 @@ jobs:
       - name: install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: pnpm install # change this to npm or pnpm depending on which one you use.
-      - run: pnpm build
 
       - uses: tauri-apps/tauri-action@v0
         env:
