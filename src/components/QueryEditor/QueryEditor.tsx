@@ -42,7 +42,7 @@ export function QueryEditor({
   }
 
   return (
-    <Paper withBorder pt={5}>
+    <Paper withBorder pt={5} bg={"rgb(43, 43, 43)"}>
       <ActionIcon
         variant="filled"
         color="green"

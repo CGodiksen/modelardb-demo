@@ -104,7 +104,7 @@ export function ClientModal() {
           </Card>
         </Grid.Col>
         <Grid.Col span={8} h={"35vh"}>
-          <Paper withBorder pt={5}>
+          <Paper withBorder pt={5} bg={"rgb(43, 43, 43)"}>
             <ActionIcon
               variant="filled"
               color="green"
