@@ -18,6 +18,8 @@ import { ModelardbNode } from "./interfaces/node.ts";
 import { CompressionRatio } from "./components/CompressionRatio/CompressionRatio.tsx";
 import { ConfigurationModal } from "./components/ConfigurationModal/ConfigurationModal.tsx";
 import { ComparisonSystem } from "./interfaces/system.ts";
+import { resolveResource } from "@tauri-apps/api/path";
+import { readTextFile } from "@tauri-apps/plugin-fs";
 import "@mantine/core/styles.css";
 import "./App.css";
 
@@ -67,10 +69,11 @@ export default function App() {
   }, [resetKey]);
 
   useEffect(() => {
-    fetch("/data/nodes.json")
-      .then((res) => res.json())
-      .then((data) => setNodes(data))
-      .catch((error) => console.error("Error fetching nodes:", error));
+    resolveResource("resources/nodes.json").then((resourcePath) => {
+      readTextFile(resourcePath).then((jsonData) => {
+        setNodes(JSON.parse(jsonData));
+      });
+    });
   }, []);
 
   function handleReset() {

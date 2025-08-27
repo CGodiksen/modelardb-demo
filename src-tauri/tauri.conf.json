@@ -29,6 +29,10 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": {
+      "data/nodes.json": "resources/nodes.json",
+      "data/wind_cleaned.parquet": "resources/wind_cleaned.parquet"
+    }
   }
 }
