@@ -18,6 +18,7 @@ use modelardb_embedded::TableType;
 use modelardb_types::types::{ErrorBound, TimestampBuilder};
 use object_store::aws::AmazonS3;
 use serde::{Deserialize, Serialize};
+use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Emitter, Manager, State};
 use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
@@ -157,9 +158,12 @@ async fn ingest_into_table(
 }
 
 async fn ingest_into_table_task(app: AppHandle, count: usize, comparison: String) {
-    let file = tokio::fs::File::open("../data/wind_cleaned.parquet")
-        .await
+    let resource_path = app
+        .path()
+        .resolve("resources/wind_cleaned.parquet", BaseDirectory::Resource)
         .unwrap();
+
+    let file = tokio::fs::File::open(resource_path).await.unwrap();
     let builder = ParquetRecordBatchStreamBuilder::new(file).await.unwrap();
 
     let stream = builder.build().unwrap();
