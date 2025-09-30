@@ -3,7 +3,7 @@ import modelardb
 from datetime import datetime, timedelta
 
 # Connect to a cloud node.
-modelardbd_cloud = modelardb.connect(modelardb.Server("grpc://host.docker.internal:9999"))
+modelardbd_cloud = modelardb.connect(modelardb.Server("grpc://modelardb-cloud:9999"))
 
 # Query the cloud node using a convenience function.
 now = datetime.now()
