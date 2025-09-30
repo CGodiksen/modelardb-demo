@@ -371,7 +371,7 @@ async fn flush_modelardb_node_and_emit_remote_object_store_table_size(
 
         // Vacuum the node to remove any deleted data.
         flight_client
-            .do_get(Ticket::new("VACUUM".to_owned()))
+            .do_get(Ticket::new("VACUUM RETAIN 0".to_owned()))
             .await
             .unwrap();
 

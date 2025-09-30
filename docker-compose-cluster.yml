@@ -6,7 +6,6 @@ x-aws-variables: &aws-variables
   AWS_ALLOW_HTTP: true
 
 x-modelardb-variables: &modelardb-variables
-  MODELARDBD_RETENTION_PERIOD_IN_SECONDS: 0
   AWS_DEFAULT_REGION: eu-central-1
   AWS_ALLOW_HTTP: true
 
