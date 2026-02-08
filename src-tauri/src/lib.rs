@@ -78,7 +78,7 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
     }
 
     // Drop the tables and delete all files.
-    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9980").await.unwrap();
+    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9981").await.unwrap();
     modelardb_client.drop(TABLE_NAME).await.unwrap();
 
     for (_modelardb_node, comparison_node) in util::edge_nodes() {
@@ -97,7 +97,7 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
 
 #[tauri::command]
 async fn create_table(error_bound: usize) {
-    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9980").await.unwrap();
+    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9981").await.unwrap();
 
     let table_schema = util::table_schema();
 
