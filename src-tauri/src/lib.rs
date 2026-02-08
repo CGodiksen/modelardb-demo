@@ -12,7 +12,7 @@ use bollard::Docker;
 use datafusion::parquet::arrow::ParquetRecordBatchStreamBuilder;
 use datafusion::physical_plan::common;
 use futures_util::TryStreamExt;
-use modelardb_embedded::operations::client::{Client, Node};
+use modelardb_embedded::operations::client::Client;
 use modelardb_embedded::operations::Operations;
 use modelardb_embedded::TableType;
 use modelardb_types::types::{ErrorBound, TimestampBuilder};
@@ -78,8 +78,7 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
     }
 
     // Drop the tables and delete all files.
-    let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9980".to_owned());
-    let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
+    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9980").await.unwrap();
     modelardb_client.drop(TABLE_NAME).await.unwrap();
 
     for (_modelardb_node, comparison_node) in util::edge_nodes() {
@@ -100,8 +99,7 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
 
 #[tauri::command]
 async fn create_table(error_bound: usize) {
-    let modelardb_manager_node = Node::Manager("grpc://127.0.0.1:9980".to_owned());
-    let mut modelardb_client = Client::connect(modelardb_manager_node).await.unwrap();
+    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9980").await.unwrap();
 
     let table_schema = util::table_schema();
 
@@ -345,11 +343,11 @@ async fn flush_modelardb_nodes_task(app: AppHandle, modelardb_remote_object_stor
 
 async fn flush_modelardb_node_and_emit_remote_object_store_table_size(
     app: AppHandle,
-    node: Node,
+    node_url: &str,
     object_store: AmazonS3,
     flush_node: bool,
 ) {
-    let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
+    let mut flight_client = FlightServiceClient::connect(node_url)
         .await
         .unwrap();
 
@@ -367,7 +365,7 @@ async fn flush_modelardb_node_and_emit_remote_object_store_table_size(
     flight_client.do_action(action.clone()).await.unwrap();
 
     if flush_node {
-        app.emit("flushing-modelardb-node", node.url()).unwrap();
+        app.emit("flushing-modelardb-node", node_url).unwrap();
 
         // Vacuum the node to remove any deleted data.
         flight_client
@@ -404,10 +402,10 @@ async fn flush_comparison_nodes_task(app: AppHandle, comparison_remote_object_st
 
 async fn flush_comparison_node_and_emit_remote_object_store_table_size(
     app: AppHandle,
-    node: Node,
+    node_url: &str,
     object_store: AmazonS3,
 ) {
-    let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
+    let mut flight_client = FlightServiceClient::connect(node_url)
         .await
         .unwrap();
 
@@ -416,7 +414,7 @@ async fn flush_comparison_node_and_emit_remote_object_store_table_size(
         body: vec![].into(),
     };
 
-    app.emit("flushing-comparison-node", node.url()).unwrap();
+    app.emit("flushing-comparison-node", node_url).unwrap();
 
     flight_client.do_action(action.clone()).await.unwrap();
 
@@ -498,8 +496,7 @@ struct ColumnResponse {
 
 #[tauri::command]
 async fn client_tables(url: String) -> Vec<ClientTableResponse> {
-    let node = Node::Server(url);
-    let mut client = Client::connect(node).await.unwrap();
+    let mut client = Client::connect(&url).await.unwrap();
 
     let table_names = client.tables().await.unwrap();
 
@@ -526,12 +523,11 @@ async fn client_tables(url: String) -> Vec<ClientTableResponse> {
 
 #[tauri::command]
 async fn client_query(url: String, query: String) -> Vec<u8> {
-    let node = Node::Server(url.clone());
-    let mut client = Client::connect(node.clone()).await.unwrap();
+    let mut client = Client::connect(&url).await.unwrap();
 
     // If it is not a cloud node, flush the memory of the edge node before querying.
     if url != *"grpc://127.0.0.1:9999" && url != *"grpc://127.0.0.1:9899" {
-        let mut flight_client = FlightServiceClient::connect(node.url().to_owned())
+        let mut flight_client = FlightServiceClient::connect(url)
             .await
             .unwrap();
 

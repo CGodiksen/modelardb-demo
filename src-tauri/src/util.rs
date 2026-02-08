@@ -5,7 +5,7 @@ use arrow::ipc::writer::{IpcWriteOptions, StreamWriter};
 use arrow::record_batch::RecordBatch;
 use arrow_flight::flight_service_client::FlightServiceClient;
 use futures_util::StreamExt;
-use modelardb_embedded::operations::client::{Client, Node};
+use modelardb_embedded::operations::client::Client;
 use modelardb_types::types::{ArrowTimestamp, ArrowValue};
 use object_store::aws::{AmazonS3, AmazonS3Builder};
 use object_store::path::Path;
@@ -76,38 +76,36 @@ pub(super) async fn tables_size(object_store: &AmazonS3) -> u64 {
         .sum::<u64>()
 }
 
-pub(super) fn edge_nodes() -> Vec<(Node, Node)> {
+pub(super) fn edge_nodes() -> Vec<(String, String)> {
     vec![
         (
-            Node::Server("grpc://127.0.0.1:9981".to_owned()),
-            Node::Server("http://127.0.0.1:9881".to_owned()),
+            "grpc://127.0.0.1:9981".to_owned(),
+            "http://127.0.0.1:9881".to_owned(),
         ),
         (
-            Node::Server("grpc://127.0.0.1:9982".to_owned()),
-            Node::Server("http://127.0.0.1:9882".to_owned()),
+            "grpc://127.0.0.1:9982".to_owned(),
+            "http://127.0.0.1:9882".to_owned(),
         ),
         (
-            Node::Server("grpc://127.0.0.1:9983".to_owned()),
-            Node::Server("http://127.0.0.1:9883".to_owned()),
+            "grpc://127.0.0.1:9983".to_owned(),
+            "http://127.0.0.1:9883".to_owned(),
         ),
         (
-            Node::Server("grpc://127.0.0.1:9984".to_owned()),
-            Node::Server("http://127.0.0.1:9884".to_owned()),
+            "grpc://127.0.0.1:9984".to_owned(),
+            "http://127.0.0.1:9884".to_owned(),
         ),
     ]
 }
 
 pub(super) async fn connect_to_nodes(
-    nodes: Vec<(Node, Node)>,
+    nodes: Vec<(String, String)>,
 ) -> Vec<(Client, FlightServiceClient<Channel>)> {
     let mut clients = vec![];
 
     for (modelardb_node, comparison_node) in nodes {
-        let modelardb_client = Client::connect(modelardb_node).await.unwrap();
+        let modelardb_client = Client::connect(&modelardb_node).await.unwrap();
 
-        let comparison_client = FlightServiceClient::connect(comparison_node.url().to_owned())
-            .await
-            .unwrap();
+        let comparison_client = FlightServiceClient::connect(comparison_node).await.unwrap();
 
         clients.push((modelardb_client, comparison_client));
     }
