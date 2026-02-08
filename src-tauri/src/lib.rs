@@ -82,9 +82,7 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
     modelardb_client.drop(TABLE_NAME).await.unwrap();
 
     for (_modelardb_node, comparison_node) in util::edge_nodes() {
-        let mut comparison_client = FlightServiceClient::connect(comparison_node.url().to_owned())
-            .await
-            .unwrap();
+        let mut comparison_client = util::connect_to_flight_client(&comparison_node).await;
 
         let action = Action {
             r#type: "ResetNode".to_owned(),
@@ -326,11 +324,11 @@ async fn flush_modelardb_nodes_task(app: AppHandle, modelardb_remote_object_stor
         let flush_modelardb_node = iteration_counter % 4 == 0;
         iteration_counter = iteration_counter + 1;
 
-        for (modelardb_node, _comparison_node) in &edge_nodes {
+        for (modelardb_node, _comparison_node) in edge_nodes.clone() {
             tokio::spawn(
                 flush_modelardb_node_and_emit_remote_object_store_table_size(
                     app.clone(),
-                    modelardb_node.clone(),
+                    modelardb_node,
                     modelardb_remote_object_store.clone(),
                     flush_modelardb_node,
                 ),
@@ -343,13 +341,11 @@ async fn flush_modelardb_nodes_task(app: AppHandle, modelardb_remote_object_stor
 
 async fn flush_modelardb_node_and_emit_remote_object_store_table_size(
     app: AppHandle,
-    node_url: &str,
+    node_url: String,
     object_store: AmazonS3,
     flush_node: bool,
 ) {
-    let mut flight_client = FlightServiceClient::connect(node_url)
-        .await
-        .unwrap();
+    let mut flight_client = util::connect_to_flight_client(&node_url).await;
 
     let action_type = if flush_node {
         "FlushNode"
@@ -386,11 +382,11 @@ async fn flush_comparison_nodes_task(app: AppHandle, comparison_remote_object_st
     let edge_nodes = util::edge_nodes();
 
     loop {
-        for (_modelardb_node, comparison_node) in &edge_nodes {
+        for (_modelardb_node, comparison_node) in edge_nodes.clone() {
             tokio::spawn(
                 flush_comparison_node_and_emit_remote_object_store_table_size(
                     app.clone(),
-                    comparison_node.clone(),
+                    comparison_node,
                     comparison_remote_object_store.clone(),
                 ),
             );
@@ -402,12 +398,10 @@ async fn flush_comparison_nodes_task(app: AppHandle, comparison_remote_object_st
 
 async fn flush_comparison_node_and_emit_remote_object_store_table_size(
     app: AppHandle,
-    node_url: &str,
+    node_url: String,
     object_store: AmazonS3,
 ) {
-    let mut flight_client = FlightServiceClient::connect(node_url)
-        .await
-        .unwrap();
+    let mut flight_client = util::connect_to_flight_client(&node_url).await;
 
     let action = Action {
         r#type: "FlushNode".to_owned(),
@@ -527,9 +521,7 @@ async fn client_query(url: String, query: String) -> Vec<u8> {
 
     // If it is not a cloud node, flush the memory of the edge node before querying.
     if url != *"grpc://127.0.0.1:9999" && url != *"grpc://127.0.0.1:9899" {
-        let mut flight_client = FlightServiceClient::connect(url)
-            .await
-            .unwrap();
+        let mut flight_client = util::connect_to_flight_client(&url).await;
 
         let action = Action {
             r#type: "FlushMemory".to_owned(),

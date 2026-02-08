@@ -10,7 +10,7 @@ use modelardb_types::types::{ArrowTimestamp, ArrowValue};
 use object_store::aws::{AmazonS3, AmazonS3Builder};
 use object_store::path::Path;
 use object_store::ObjectStore;
-use tonic::transport::Channel;
+use tonic::transport::{Channel, Endpoint};
 use url::Url;
 
 pub(super) fn build_s3_object_store(bucket_name: String) -> AmazonS3 {
@@ -104,13 +104,19 @@ pub(super) async fn connect_to_nodes(
 
     for (modelardb_node, comparison_node) in nodes {
         let modelardb_client = Client::connect(&modelardb_node).await.unwrap();
-
-        let comparison_client = FlightServiceClient::connect(comparison_node).await.unwrap();
+        let comparison_client = connect_to_flight_client(&comparison_node).await;
 
         clients.push((modelardb_client, comparison_client));
     }
 
     clients
+}
+
+pub(super) async fn connect_to_flight_client(url: &str) -> FlightServiceClient<Channel> {
+    let endpoint = Endpoint::new(url.to_owned()).unwrap();
+    let connection = endpoint.connect().await.unwrap();
+
+    FlightServiceClient::new(connection)
 }
 
 /// Convert a [`RecordBatch`] to a [`Vec<u8>`].
