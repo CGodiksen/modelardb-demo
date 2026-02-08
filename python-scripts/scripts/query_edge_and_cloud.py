@@ -3,8 +3,8 @@ import modelardb
 sql = "SELECT timestamp, active_power FROM wind LIMIT 5"
 
 # Connect to an edge node and a cloud node.
-modelardbd_edge = modelardb.connect(modelardb.Server("grpc://modelardb-edge-1:9981"))
-modelardbd_cloud = modelardb.connect(modelardb.Server("grpc://modelardb-cloud:9999"))
+modelardbd_edge = modelardb.connect("grpc://modelardb-edge-1:9981")
+modelardbd_cloud = modelardb.connect("grpc://modelardb-cloud:9999")
 
 # Query the edge node.
 print(f"Edge query result: {modelardbd_edge.read(sql)}")
