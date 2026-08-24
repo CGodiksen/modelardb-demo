@@ -82,7 +82,8 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
               multiline
               w={230}
               withArrow
-              label="This node ingests faster than it can transfer."
+              classNames={{ tooltip: classes.tooltip }}
+              label="This node ingests data faster than it can transfer."
             >
               <IconAlertCircleFilled size={22} color="#ffcc00" />
             </Tooltip>
