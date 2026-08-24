@@ -1,0 +1,24 @@
+.editor {
+    overflow: hidden;
+}
+
+.toolbar {
+    background-color: rgb(35, 35, 35);
+    border-bottom: 1px solid rgb(60, 63, 65);
+}
+
+.toolbar .run_section {
+    margin-inline-end: 5px;
+}
+
+.toolbar .run_label {
+    margin-block-start: -1px;
+}
+
+.editor :global(.cm-editor.cm-focused) {
+    outline: none;
+}
+
+.editor :global(.cm-content) {
+    padding-block: 0;
+}

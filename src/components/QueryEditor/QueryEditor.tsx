@@ -1,4 +1,4 @@
-import { ActionIcon, Paper } from "@mantine/core";
+import { Button, Group, Paper } from "@mantine/core";
 import CodeMirror from "@uiw/react-codemirror";
 import { sql } from "@codemirror/lang-sql";
 import { darcula } from "@uiw/codemirror-theme-darcula";
@@ -6,6 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { ModelardbNode } from "../../interfaces/node.ts";
 import { IconPlayerPlayFilled } from "@tabler/icons-react";
+import classes from "./QueryEditor.module.css";
 
 type QueryEditorProps = {
   node: ModelardbNode;
@@ -37,29 +38,31 @@ export function QueryEditor({
         } else {
           setQueryData(json_data);
         }
-      }
+      },
     );
   }
 
   return (
-    <Paper withBorder pt={5} bg={"rgb(43, 43, 43)"}>
-      <ActionIcon
-        variant="filled"
-        color="green"
-        mb={5}
-        ms={5}
-        onClick={handleRunQuery}
-      >
-        <IconPlayerPlayFilled
-          style={{ width: "70%", height: "70%" }}
-          stroke={1.5}
-        />
-      </ActionIcon>
+    <Paper withBorder className={classes.editor}>
+      <Group className={classes.toolbar} px={8} py={6}>
+        <Button
+          size="compact-xs"
+          color="green"
+          leftSection={<IconPlayerPlayFilled size={11} />}
+          classNames={{
+            section: classes.run_section,
+            label: classes.run_label,
+          }}
+          onClick={handleRunQuery}
+        >
+          Run
+        </Button>
+      </Group>
 
       <CodeMirror
         value={editorText}
         height="300px"
-        width="890px"
+        width="100%"
         extensions={[sql()]}
         onChange={setEditorText}
         theme={darcula}
