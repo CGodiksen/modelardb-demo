@@ -14,6 +14,7 @@ export function NodePin({
 }) {
   const color =
     node.type == "modelardb" ? MODELARDB_COLOR : COMPARISON_SYSTEM_COLOR;
+  const cursor = node.type == "modelardb" ? "pointer" : "default";
   const [loadingValue, setLoadingValue] = useState(0);
 
   useEffect(() => {
@@ -48,14 +49,14 @@ export function NodePin({
       );
     } else {
       return (
-        <ActionIcon variant="filled" radius={"lg"} color={color}>
+        <ActionIcon variant="filled" radius={"lg"} color={color} style={{ cursor }}>
           <IconWindmill stroke={1.75} />
         </ActionIcon>
       );
     }
   } else if (node.server_mode == "cloud") {
     return (
-      <ActionIcon variant="filled" radius={"lg"} color={color}>
+      <ActionIcon variant="filled" radius={"lg"} color={color} style={{ cursor }}>
         <IconCloud stroke={1.75} />
       </ActionIcon>
     );

@@ -32,7 +32,7 @@ export function NodeMarker({ node, flushingNode }: NodeMarkerProps) {
 
       <AdvancedMarker
         position={{ lat: node.latitude, lng: node.longitude }}
-        onClick={open}
+        onClick={node.type == "modelardb" ? open : undefined}
       >
         <NodePin node={node} flushingNode={flushingNode}></NodePin>
       </AdvancedMarker>
