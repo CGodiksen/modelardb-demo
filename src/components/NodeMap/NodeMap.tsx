@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
 import { Container } from "@mantine/core";
-import { APIProvider, Map } from "@vis.gl/react-google-maps";
+import {
+  APIProvider,
+  ControlPosition,
+  Map,
+  MapControl,
+} from "@vis.gl/react-google-maps";
 
 import { NodeMarker } from "../NodeMarker/NodeMarker.tsx";
+import { MapResetControl } from "../MapResetControl/MapResetControl.tsx";
+import { MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM } from "../../constants.ts";
 import { ModelardbNode } from "../../interfaces/node.ts";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
@@ -37,13 +44,17 @@ export function NodeMap({ nodes }: { nodes: ModelardbNode[] }) {
         <APIProvider apiKey={apiKey}>
           <Map
             style={{ height: "70vh" }}
-            defaultCenter={{ lat: 55.61, lng: 12.53 }}
-            defaultZoom={10.7}
+            defaultCenter={MAP_DEFAULT_CENTER}
+            defaultZoom={MAP_DEFAULT_ZOOM}
             gestureHandling={"greedy"}
             disableDefaultUI={true}
             mapTypeId={"hybrid"}
             mapId={"DEMO_MAP_ID"}
           >
+            <MapControl position={ControlPosition.TOP_RIGHT}>
+              <MapResetControl></MapResetControl>
+            </MapControl>
+
             {nodes.map((node, index) => (
               <NodeMarker
                 key={index}
