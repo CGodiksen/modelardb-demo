@@ -27,7 +27,7 @@ export function NodeMap({ nodes }: { nodes: ModelardbNode[] }) {
       // @ts-ignore
       (message: string) => {
         setApiKey(message);
-      }
+      },
     );
   }, []);
 
@@ -37,8 +37,8 @@ export function NodeMap({ nodes }: { nodes: ModelardbNode[] }) {
         <APIProvider apiKey={apiKey}>
           <Map
             style={{ height: "70vh" }}
-            defaultCenter={{ lat: 51.3980119, lng: 0.4886247 }}
-            defaultZoom={8.2}
+            defaultCenter={{ lat: 55.61, lng: 12.53 }}
+            defaultZoom={10.7}
             gestureHandling={"greedy"}
             disableDefaultUI={true}
             mapTypeId={"hybrid"}
