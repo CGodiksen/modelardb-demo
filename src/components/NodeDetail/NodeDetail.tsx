@@ -1,4 +1,4 @@
-import { Paper, ThemeIcon, Text, Group } from "@mantine/core";
+import { Paper, ThemeIcon, Text, Group, Tooltip } from "@mantine/core";
 import {
   IconAlertCircleFilled,
   IconDeviceAnalytics,
@@ -54,7 +54,7 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
     setShowWarning(
       nodeSizes[0] !== 0 &&
         increases > nodeSizes.length / 2 &&
-        node.type === "comparison"
+        node.type === "comparison",
     );
   }, [nodeSizes]);
 
@@ -78,7 +78,14 @@ export function NodeDetail({ node, color, resetKey }: NodeDetailProps) {
 
         <Group gap={7}>
           {showWarning && (
-            <IconAlertCircleFilled size={22} stroke={1.5} color="#ffcc00" />
+            <Tooltip
+              multiline
+              w={230}
+              withArrow
+              label="This node ingests faster than it can transfer."
+            >
+              <IconAlertCircleFilled size={22} color="#ffcc00" />
+            </Tooltip>
           )}
 
           <IconDeviceAnalytics
