@@ -1,9 +1,13 @@
-x-aws-variables: &aws-variables
+x-modelardb-variables: &modelardb-variables
   AWS_ACCESS_KEY_ID: minioadmin
   AWS_SECRET_ACCESS_KEY: minioadmin
   AWS_DEFAULT_REGION: eu-central-1
   AWS_ENDPOINT: http://minio-server:9000
   AWS_ALLOW_HTTP: true
+  MODELARDBD_WAL_ENABLED: false
+  MODELARDBD_INGESTED_RESERVED_MEMORY: 256 MiB
+  MODELARDBD_UNCOMPRESSED_RESERVED_MEMORY: 256 MiB
+  MODELARDBD_COMPRESSED_RESERVED_MEMORY: 512 MiB
 
 services:
   # Object store services.
@@ -40,9 +44,9 @@ services:
     ports:
       - "9981:9981"
     environment:
-      <<: *aws-variables
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9981
-      MODELARDBD_IP_ADDRESS: modelardb-edge-1
+      MODELARDBD_HOST: modelardb-edge-1
     volumes:
       - modelardb-9981:/usr/src/app/data/edge
     restart: on-failure:10
@@ -59,9 +63,9 @@ services:
     ports:
       - "9982:9982"
     environment:
-      <<: *aws-variables
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9982
-      MODELARDBD_IP_ADDRESS: modelardb-edge-2
+      MODELARDBD_HOST: modelardb-edge-2
     volumes:
       - modelardb-9982:/usr/src/app/data/edge
     depends_on:
@@ -74,9 +78,9 @@ services:
     ports:
       - "9983:9983"
     environment:
-      <<: *aws-variables
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9983
-      MODELARDBD_IP_ADDRESS: modelardb-edge-3
+      MODELARDBD_HOST: modelardb-edge-3
     volumes:
       - modelardb-9983:/usr/src/app/data/edge
     depends_on:
@@ -89,9 +93,9 @@ services:
     ports:
       - "9984:9984"
     environment:
-      <<: *aws-variables
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9984
-      MODELARDBD_IP_ADDRESS: modelardb-edge-4
+      MODELARDBD_HOST: modelardb-edge-4
     volumes:
       - modelardb-9984:/usr/src/app/data/edge
     depends_on:
@@ -105,9 +109,9 @@ services:
     ports:
       - "9999:9999"
     environment:
-      <<: *aws-variables
+      <<: *modelardb-variables
       MODELARDBD_PORT: 9999
-      MODELARDBD_IP_ADDRESS: modelardb-cloud
+      MODELARDBD_HOST: modelardb-cloud
     depends_on:
       modelardb-edge-4:
         condition: service_healthy
