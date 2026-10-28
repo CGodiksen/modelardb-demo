@@ -7,7 +7,7 @@ used in a real-world scenario. The code in this repository is not intended to be
 1. In the root of the repository, run the following command to set up the MinIO object store, the nodes, and the
    utility service used for running Python scripts. Note that it takes around 10 seconds for the services to start.
 ```shell
-docker-compose -p modelardb-cluster -f docker-compose-cluster.yml up
+docker-compose -p modelardb-cluster -f docker-compose-cluster.yml up -d
 ```
 2. Set up the [Google Maps JavaScript API](https://developers.google.com/maps/documentation/javascript) and 
    [get an API key](https://developers.google.com/maps/documentation/javascript/get-api-key).
