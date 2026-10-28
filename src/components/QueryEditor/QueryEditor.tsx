@@ -1,5 +1,5 @@
 import { Button, Group, Paper } from "@mantine/core";
-import CodeMirror from "@uiw/react-codemirror";
+import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { sql } from "@codemirror/lang-sql";
 import { darcula } from "@uiw/codemirror-theme-darcula";
 import { invoke } from "@tauri-apps/api/core";
@@ -63,7 +63,7 @@ export function QueryEditor({
         value={editorText}
         height="300px"
         width="100%"
-        extensions={[sql()]}
+        extensions={[sql(), EditorView.lineWrapping]}
         onChange={setEditorText}
         theme={darcula}
         placeholder={"Enter your SQL query here..."}

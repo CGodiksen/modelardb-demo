@@ -5,6 +5,7 @@ import { QueryEditor } from "../QueryEditor/QueryEditor.tsx";
 import { QueryResult } from "../QueryResult/QueryResult.tsx";
 import { ModelardbNode } from "../../interfaces/node.ts";
 import { useState } from "react";
+import classes from "./NodeModal.module.css";
 
 type NodeModalProps = {
   node: ModelardbNode;
@@ -25,7 +26,7 @@ export function NodeModal({ node }: NodeModalProps) {
   const [editorText, setEditorText] = useState(queries[0]);
   const [queryData, setQueryData] = useState<any[]>([]);
   const [resultText, setResultText] = useState(
-    "Execute a query to see the results."
+    "Execute a query to see the results.",
   );
 
   return (
@@ -37,7 +38,7 @@ export function NodeModal({ node }: NodeModalProps) {
             setEditorText={setEditorText}
           ></QueryBrowser>
         </Grid.Col>
-        <Grid.Col span={8}>
+        <Grid.Col span={8} className={classes.column}>
           <QueryEditor
             node={node}
             editorText={editorText}
