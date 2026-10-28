@@ -79,7 +79,7 @@ class FlightServer(pa.flight.FlightServerBase):
         with pa.ipc.open_stream(action.body) as reader:
             batches: list[RecordBatch] = [batch for batch in reader]
 
-            table = pa.Table.from_batches(batches)
+            table = cast_string_views(pa.Table.from_batches(batches))
             parquet.write_table(table, f"data/{time.time_ns()}.parquet")
 
     @staticmethod
@@ -87,8 +87,18 @@ class FlightServer(pa.flight.FlightServerBase):
         with pa.ipc.open_stream(action.body) as reader:
             batches: list[RecordBatch] = [batch for batch in reader]
 
-            table = pa.Table.from_batches(batches)
+            table = cast_string_views(pa.Table.from_batches(batches))
             orc.write_table(table, f"data/{time.time_ns() // 1_000_000}.orc")
+
+
+def cast_string_views(table: pa.Table) -> pa.Table:
+    """Cast string view columns to strings since Apache ORC does not support string views."""
+    fields = [
+        field.with_type(pa.string()) if field.type == pa.string_view() else field
+        for field in table.schema
+    ]
+
+    return table.cast(pa.schema(fields))
 
 
 if __name__ == '__main__':
