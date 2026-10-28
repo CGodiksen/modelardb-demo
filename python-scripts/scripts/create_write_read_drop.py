@@ -13,7 +13,7 @@ with TemporaryDirectory() as temp_dir:
             ("timestamp", pyarrow.timestamp("us")),
             ("field_one", pyarrow.float32()),
             ("field_two", pyarrow.float32()),
-            ("tag", pyarrow.string()),
+            ("tag", pyarrow.string_view()),
         ]
     )
 
