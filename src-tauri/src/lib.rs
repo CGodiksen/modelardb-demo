@@ -118,11 +118,11 @@ async fn create_table(error_bound: usize) {
         "cor_wind_direction",
     ];
 
-    // An absolute error bound must be positive, so zero means lossless compression.
+    // A relative error bound must be positive, so zero means lossless compression.
     let error_bound = if error_bound == 0 {
         ErrorBound::Lossless
     } else {
-        ErrorBound::try_new_absolute(error_bound as f32).unwrap()
+        ErrorBound::try_new_relative(error_bound as f32).unwrap()
     };
 
     let error_bounds: HashMap<String, ErrorBound> = field_column_names
