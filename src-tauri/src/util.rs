@@ -24,7 +24,6 @@ pub(super) fn build_s3_object_store(bucket_name: String) -> AmazonS3 {
             "http://127.0.0.1:9000".to_owned(),
         ),
         ("aws_bucket_name".to_owned(), bucket_name),
-        ("aws_s3_allow_unsafe_rename".to_owned(), "true".to_owned()),
     ]);
 
     let url = Url::parse(&location).unwrap();
@@ -48,8 +47,8 @@ pub(super) fn build_s3_object_store(bucket_name: String) -> AmazonS3 {
 pub(super) fn table_schema() -> Schema {
     Schema::new(vec![
         Field::new("timestamp", ArrowTimestamp::DATA_TYPE, false),
-        Field::new("park_id", DataType::Utf8, false),
-        Field::new("windmill_id", DataType::Utf8, false),
+        Field::new("park_id", DataType::Utf8View, false),
+        Field::new("windmill_id", DataType::Utf8View, false),
         Field::new("wind_speed", ArrowValue::DATA_TYPE, false),
         Field::new("pitch_angle", ArrowValue::DATA_TYPE, false),
         Field::new("rotor_speed", ArrowValue::DATA_TYPE, false),
@@ -103,7 +102,7 @@ pub(super) async fn connect_to_nodes(
     let mut clients = vec![];
 
     for (modelardb_node, comparison_node) in nodes {
-        let modelardb_client = Client::connect(&modelardb_node).await.unwrap();
+        let modelardb_client = Client::connect(&modelardb_node, None).await.unwrap();
         let comparison_client = connect_to_flight_client(&comparison_node).await;
 
         clients.push((modelardb_client, comparison_client));

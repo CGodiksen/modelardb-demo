@@ -3,7 +3,7 @@ use std::iter;
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use arrow::array::{RecordBatch, StringArray};
+use arrow::array::{RecordBatch, StringViewArray};
 use arrow::compute;
 use arrow_flight::flight_service_client::FlightServiceClient;
 use arrow_flight::{Action, Ticket};
@@ -78,7 +78,9 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
     }
 
     // Drop the tables and delete all files.
-    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9981").await.unwrap();
+    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9981", None)
+        .await
+        .unwrap();
     modelardb_client.drop(TABLE_NAME).await.unwrap();
 
     for (_modelardb_node, comparison_node) in util::edge_nodes() {
@@ -97,7 +99,9 @@ async fn reset_state(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
 
 #[tauri::command]
 async fn create_table(error_bound: usize) {
-    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9981").await.unwrap();
+    let mut modelardb_client = Client::connect("grpc://127.0.0.1:9981", None)
+        .await
+        .unwrap();
 
     let table_schema = util::table_schema();
 
@@ -230,11 +234,11 @@ async fn ingest_data_points_into_nodes(
     let park_id = if node_id < 5 { "park_1" } else { "park_2" };
     let windmill_id = format!("windmill_{}", node_id + 1);
 
-    let park_id_array: StringArray = iter::repeat(Some(park_id))
+    let park_id_array: StringViewArray = iter::repeat(Some(park_id))
         .take(data_points.num_rows())
         .collect();
 
-    let windmill_id_array: StringArray = iter::repeat(Some(&windmill_id))
+    let windmill_id_array: StringViewArray = iter::repeat(Some(&windmill_id))
         .take(data_points.num_rows())
         .collect();
 
@@ -490,7 +494,7 @@ struct ColumnResponse {
 
 #[tauri::command]
 async fn client_tables(url: String) -> Vec<ClientTableResponse> {
-    let mut client = Client::connect(&url).await.unwrap();
+    let mut client = Client::connect(&url, None).await.unwrap();
 
     let table_names = client.tables().await.unwrap();
 
@@ -517,7 +521,7 @@ async fn client_tables(url: String) -> Vec<ClientTableResponse> {
 
 #[tauri::command]
 async fn client_query(url: String, query: String) -> Vec<u8> {
-    let mut client = Client::connect(&url).await.unwrap();
+    let mut client = Client::connect(&url, None).await.unwrap();
 
     // If it is not a cloud node, flush the memory of the edge node before querying.
     if url != *"grpc://127.0.0.1:9999" && url != *"grpc://127.0.0.1:9899" {
