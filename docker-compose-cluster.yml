@@ -120,6 +120,7 @@ services:
   comparison-1:
     build: comparison-system/.
     image: comparison-system
+    pull_policy: build
     container_name: comparison-1
     ports:
       - "9881:9881"
@@ -129,7 +130,9 @@ services:
       - comparison-9881:/usr/src/app/data
 
   comparison-2:
+    build: comparison-system/.
     image: comparison-system
+    pull_policy: build
     container_name: comparison-2
     ports:
       - "9882:9882"
@@ -139,7 +142,9 @@ services:
       - comparison-9882:/usr/src/app/data
 
   comparison-3:
+    build: comparison-system/.
     image: comparison-system
+    pull_policy: build
     container_name: comparison-3
     ports:
       - "9883:9883"
@@ -149,7 +154,9 @@ services:
       - comparison-9883:/usr/src/app/data
 
   comparison-4:
+    build: comparison-system/.
     image: comparison-system
+    pull_policy: build
     container_name: comparison-4
     ports:
       - "9884:9884"
@@ -161,6 +168,7 @@ services:
   python-scripts:
     build: python-scripts/.
     image: python-scripts
+    pull_policy: build
     container_name: python-scripts
     ports:
       - "8000:80"
