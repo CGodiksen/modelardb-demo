@@ -1,7 +1,7 @@
 {
   "name": "modelardb-demo",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -39,5 +39,8 @@
     "prettier": "3.5.3",
     "typescript": "~5.6.2",
     "vite": "^6.0.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
   }
 }
