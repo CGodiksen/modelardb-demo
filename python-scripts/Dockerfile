@@ -12,6 +12,6 @@ RUN pip install --no-cache-dir --upgrade --break-system-packages -r /usr/src/app
 
 COPY ./app /usr/src/app
 
-copy ./scripts /usr/src/app/crates/modelardb_embedded/bindings/python
+COPY ./scripts /usr/src/app/crates/modelardb_embedded/bindings/python
 
 CMD ["fastapi", "run", "main.py", "--port", "80"]
