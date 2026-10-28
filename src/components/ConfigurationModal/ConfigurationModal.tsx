@@ -45,9 +45,7 @@ export function ConfigurationModal({
     setComparisonSystem({
       value: values.comparisonSystem,
       label:
-        values.comparisonSystem === "orc"
-          ? "Apache ORC"
-          : "Apache Parquet",
+        values.comparisonSystem === "orc" ? "Apache ORC" : "Apache Parquet",
     });
 
     handleReset();
@@ -76,7 +74,7 @@ export function ConfigurationModal({
         <NumberInput
           mt={25}
           label="ModelarDB Error Bound"
-          description="The relative error bound used to compress data in ModelarDB"
+          description="The relative error bound used to compress data in ModelarDB. Zero is lossless."
           min={0}
           max={100}
           suffix="%"

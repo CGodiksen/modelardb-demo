@@ -19,7 +19,7 @@ export function Configuration({
         <Grid.Col span={6}>
           <ConfigurationSetting
             title="Compression"
-            value={`${errorBound}% Error Bound`}
+            value={errorBound === 0 ? "Lossless" : `${errorBound}% Error Bound`}
             type="ModelarDB"
           />
         </Grid.Col>
