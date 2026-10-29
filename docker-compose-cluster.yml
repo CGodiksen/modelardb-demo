@@ -12,7 +12,7 @@ x-modelardb-variables: &modelardb-variables
 services:
   # Object store services.
   minio-server:
-    image: pgsty/minio
+    image: pgsty/silo
     container_name: minio-server
     ports:
       - "9000:9000"

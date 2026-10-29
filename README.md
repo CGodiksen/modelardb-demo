@@ -4,7 +4,7 @@ Tauri and React. The demo is intended to be used as a proof of concept for the M
 used in a real-world scenario. The code in this repository is not intended to be used in a production environment.
 
 ## Setup
-1. In the root of the repository, run the following command to set up the MinIO object store, the nodes, and the
+1. In the root of the repository, run the following command to set up the S3-compatible object store, the nodes, and the
    utility service used for running Python scripts. Note that it takes around 10 seconds for the services to start.
 ```shell
 docker-compose -p modelardb-cluster -f docker-compose-cluster.yml up -d
